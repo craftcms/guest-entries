@@ -1,0 +1,45 @@
+{% import "_includes/forms" as forms %}
+
+{{ forms.checkboxField({
+	first: true,
+	label: "Allow guest submissions?"|t,
+	name: 'allowGuestSubmissions',
+	toggle: 'defaults',
+	checked: (settings.allowGuestSubmissions is defined and settings.allowGuestSubmissions is not empty ? true : false),
+}) }}
+
+{% if editableSections|length %}
+	<div id="defaults"{% if settings.allowGuestSubmissions is not defined or not settings.allowGuestSubmissions %} class="hidden"{% endif %}>
+		<table class="data fullwidth">
+			<thead>
+				<th>Section</th>
+				<th>Default Author</th>
+				<th>Entries Enabled By Default?</th>
+			</thead>
+			{% for handle, sectionData in editableSections %}
+				<tr>
+					<td>{{ sectionData['section'].name }}</td>
+					<td>{% if sectionData['authorOptions'] is defined and sectionData['authorOptions']|length > 0 %}
+							{{ forms.select({
+								id: "defaultAuthors[" ~ handle ~ "]",
+								name: "defaultAuthors[" ~ handle ~ "]",
+								options: sectionData['authorOptions'],
+								value: (settings.defaultAuthors[handle] is defined and settings.defaultAuthors[handle] is not empty ? settings.defaultAuthors[handle] : null)
+							}) }}
+							{% else %}
+								No available authors.
+							{% endif %}
+					</td>
+					<td>
+						{{ forms.lightswitch({
+							name: "enabledByDefault[" ~ handle ~ "]",
+							on:   (settings.enabledByDefault[handle] is defined and settings.enabledByDefault[handle] is not empty ? settings.enabledByDefault[handle] : false),
+						}) }}
+					</td>
+				</tr>
+			{% endfor %}
+		</table>
+	</div>
+{% else %}
+	No sections available.
+{% endif %}
