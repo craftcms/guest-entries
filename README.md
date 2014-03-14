@@ -56,7 +56,7 @@ class SomePlugin extends BasePlugin
     public function init()
     {
         craft()->on('guestEntries.beforeSave', function(GuestEntriesEvent $event) {
-            $message = $event->params['message'];
+            $entryModel = $event->params['entry'];
 
             // ...
 
@@ -65,7 +65,7 @@ class SomePlugin extends BasePlugin
                 // Setting $isValid to false will cause a validation error
                 // and prevent the entry from being saved.
 
-                $message->addError('message', 'Do you kiss your mother with those lips?');
+                $entryModel->addError('title', 'Do you kiss your mother with those lips?');
                 $event->isValid = false;
             }
 
