@@ -181,7 +181,13 @@ class GuestEntriesController extends BaseController
 		$entry->postDate      = $postDate;
 		$entry->expiryDate    = $expiryDate;
 		$entry->enabled       = (bool)$settings->enabledByDefault[$section->handle];
-		$entry->localeEnabled = (bool) craft()->request->getPost('localeEnabled');
+
+		if (($localeEnabled = craft()->request->getPost('localeEnabled', null)) === null)
+		{
+			$localeEnabled = true;
+		}
+
+		$entry->localeEnabled = (bool) $localeEnabled;
 
 		$entry->getContent()->title = craft()->request->getPost('title');
 
