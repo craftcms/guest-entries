@@ -4,7 +4,7 @@ This plugin allows you to save guest entries from the front-end of your website.
 
 ## Requirements
 
-This plugin requires the soon-to-be publicly available 1.4 version of Craft.
+This plugin requires Craft 2.0+.
 
 ## Installation
 
