@@ -21,7 +21,7 @@ class GuestEntriesPlugin extends BasePlugin
 	 */
 	function getVersion()
 	{
-		return '1.1';
+		return '1.2';
 	}
 
 	/**
@@ -72,7 +72,13 @@ class GuestEntriesPlugin extends BasePlugin
 		// Let's construct the potential default users for each section.
 		foreach ($editableSections as $handle => $value)
 		{
-			if (craft()->hasPackage(CraftPackage::Users))
+			// If we're running on Client Edition, add both accounts.
+			if (craft()->getEdition() == Craft::Client)
+			{
+				$defaultAuthorOptionCriteria = craft()->elements->getCriteria(ElementType::User);
+				$authorOptions = $defaultAuthorOptionCriteria->find();
+			}
+			else if (craft()->getEdition() == Craft::Pro)
 			{
 				$defaultAuthorOptionCriteria = craft()->elements->getCriteria(ElementType::User);
 				$defaultAuthorOptionCriteria->can = 'createEntries:'.$value['section']->id;
@@ -80,6 +86,7 @@ class GuestEntriesPlugin extends BasePlugin
 			}
 			else
 			{
+				// 2.x on Personal Edition.
 				$authorOptions = array(craft()->userSession->getUser());
 			}
 
