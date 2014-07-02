@@ -49,6 +49,7 @@ class GuestEntriesPlugin extends BasePlugin
 			'allowGuestSubmissions'     => AttributeType::Bool,
 			'defaultAuthors'            => AttributeType::Mixed,
 			'enabledByDefault'          => AttributeType::Mixed,
+			'validateEntry'             => AttributeType::Mixed,
 		);
 	}
 

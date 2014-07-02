@@ -15,6 +15,7 @@
 				<th>Section</th>
 				<th>Default Author</th>
 				<th>Entries Enabled By Default?</th>
+				<th>Validate Entry</th>
 			</thead>
 			{% for handle, sectionData in editableSections %}
 				<tr>
@@ -34,6 +35,12 @@
 						{{ forms.lightswitch({
 							name: "enabledByDefault[" ~ handle ~ "]",
 							on:   (settings.enabledByDefault[handle] is defined and settings.enabledByDefault[handle] is not empty ? settings.enabledByDefault[handle] : false),
+						}) }}
+					</td>
+					<td>
+						{{ forms.lightswitch({
+							name: "validateEntry[" ~ handle ~ "]",
+							on:   (settings.validateEntry[handle] is defined and settings.validateEntry[handle] is not empty ? settings.validateEntry[handle] : true),
 						}) }}
 					</td>
 				</tr>

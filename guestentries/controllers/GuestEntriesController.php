@@ -28,8 +28,28 @@ class GuestEntriesController extends BaseController
 			throw new HttpException(404);
 		}
 
+		$settings = craft()->plugins->getPlugin('guestentries')->getSettings();
+
 		// Grab the data posted data.
-		$entry = $this->_populateEntryModel();
+		$entry = $this->_populateEntryModel($settings);
+
+		// See if they want validation. Note that this usually doesn't occur if the entry is set to disabled by default.
+		if ($settings->validateEntry)
+		{
+			// Validate the entry model
+			$entry->validate();
+
+			// Now validate any content
+			if (!craft()->content->validateContent($entry))
+			{
+				$entry->addErrors($entry->getContent()->getErrors());
+			}
+
+			if ($entry->hasErrors())
+			{
+				$this->_returnError($entry);
+			}
+		}
 
 		// Fire an 'onBeforeSave' event
 		Craft::import('plugins.guestentries.events.GuestEntriesEvent');
@@ -40,7 +60,6 @@ class GuestEntriesController extends BaseController
 		{
 			if (!$event->fakeIt)
 			{
-
 				if (craft()->entries->saveEntry($entry))
 				{
 					$this->_returnSuccess($entry);
@@ -121,18 +140,22 @@ class GuestEntriesController extends BaseController
 	 * Populates an EntryModel with post data.
 	 *
 	 * @access private
+	 * @param $settings
 	 * @throws HttpException
-	 * @throws Exception
 	 * @return EntryModel
 	 */
-	private function _populateEntryModel()
+	private function _populateEntryModel($settings)
 	{
 		$entry = new EntryModel();
 
 		$entry->sectionId     = craft()->request->getRequiredPost('sectionId');
 
 		$section = craft()->sections->getSectionById($entry->sectionId);
-		$settings = craft()->plugins->getPlugin('guestentries')->getSettings();
+
+		if (!$section)
+		{
+			throw new HttpException(404);
+		}
 
 		// If we're allowing guest submissions adn we've got a default author specified, grab the authorId.
 		if ($settings->allowGuestSubmissions && isset($settings->defaultAuthors[$section->handle]) && $settings->defaultAuthors[$section->handle] !== 'none')
