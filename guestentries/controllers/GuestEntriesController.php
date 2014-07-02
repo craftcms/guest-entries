@@ -12,6 +12,11 @@ class GuestEntriesController extends BaseController
 	 */
 	protected $allowAnonymous = true;
 
+	/**
+	 * @var
+	 */
+	private $_section;
+
 
 	/**
 	 * Saves a "guest" entry.
@@ -34,11 +39,8 @@ class GuestEntriesController extends BaseController
 		$entry = $this->_populateEntryModel($settings);
 
 		// See if they want validation. Note that this usually doesn't occur if the entry is set to disabled by default.
-		if ($settings->validateEntry)
+		if ($settings->validateEntry[$this->_section->handle])
 		{
-			// Validate the entry model
-			$entry->validate();
-
 			// Now validate any content
 			if (!craft()->content->validateContent($entry))
 			{
@@ -150,18 +152,18 @@ class GuestEntriesController extends BaseController
 
 		$entry->sectionId     = craft()->request->getRequiredPost('sectionId');
 
-		$section = craft()->sections->getSectionById($entry->sectionId);
+		$this->_section = craft()->sections->getSectionById($entry->sectionId);
 
-		if (!$section)
+		if (!$this->_section)
 		{
 			throw new HttpException(404);
 		}
 
-		// If we're allowing guest submissions adn we've got a default author specified, grab the authorId.
-		if ($settings->allowGuestSubmissions && isset($settings->defaultAuthors[$section->handle]) && $settings->defaultAuthors[$section->handle] !== 'none')
+		// If we're allowing guest submissions and we've got a default author specified, grab the authorId.
+		if ($settings->allowGuestSubmissions && isset($settings->defaultAuthors[$this->_section->handle]) && $settings->defaultAuthors[$this->_section->handle] !== 'none')
 		{
 			// We found a defaultAuthor
-			$authorId = $settings->defaultAuthors[$section->handle];
+			$authorId = $settings->defaultAuthors[$this->_section->handle];
 		}
 		else
 		{
@@ -193,7 +195,7 @@ class GuestEntriesController extends BaseController
 		$entry->slug          = craft()->request->getPost('slug');
 		$entry->postDate      = $postDate;
 		$entry->expiryDate    = $expiryDate;
-		$entry->enabled       = (bool)$settings->enabledByDefault[$section->handle];
+		$entry->enabled       = (bool)$settings->enabledByDefault[$this->_section->handle];
 
 		if (($localeEnabled = craft()->request->getPost('localeEnabled', null)) === null)
 		{
