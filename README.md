@@ -24,19 +24,21 @@ Every user you see in the default author list has “createEntry” permissions 
 
 Your guest entry template can look something like this:
 
-    <form method="post" action="" accept-charset="UTF-8">
-        <input type="hidden" name="action" value="guestEntries/saveEntry">
-        <input type="hidden" name="redirect" value="success">
-        <input type="hidden" name="sectionId" value="3">
+```jinja
+<form method="post" action="" accept-charset="UTF-8">
+    <input type="hidden" name="action" value="guestEntries/saveEntry">
+    <input type="hidden" name="redirect" value="success">
+    <input type="hidden" name="sectionId" value="3">
 
-        <label for="title">Title</label>
-        <input id="title" type="text" name="title">
+    <label for="title">Title</label>
+    <input id="title" type="text" name="title">
 
-        <label for="body">Body</label>
-        <textarea id="body" name="fields[body]"></textarea>
+    <label for="body">Body</label>
+    <textarea id="body" name="fields[body]"></textarea>
 
-        <input type="submit" value="Publish">
-    </form>
+    <input type="submit" value="Publish">
+</form>
+```
 
 
 You will need to adjust the hidden “sectionId” input to point to the section you would like to post guest entries to.
