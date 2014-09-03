@@ -26,6 +26,7 @@ Your guest entry template can look something like this:
 
 ```jinja
 <form method="post" action="" accept-charset="UTF-8">
+    {{ getCsrfInput() }}
     <input type="hidden" name="action" value="guestEntries/saveEntry">
     <input type="hidden" name="redirect" value="success">
     <input type="hidden" name="sectionId" value="3">
