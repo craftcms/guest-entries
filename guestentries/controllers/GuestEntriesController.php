@@ -41,6 +41,15 @@ class GuestEntriesController extends BaseController
 		// See if they want validation. Note that this usually doesn't occur if the entry is set to disabled by default.
 		if ($settings->validateEntry[$this->_section->handle])
 		{
+			// Does the entry type have dynamic titles?
+			$entryType = $entry->getType();
+
+			if (!$entryType->hasTitleField)
+			{
+				// Have to pre-set the dynamic Title value here, so Title validation doesn't fail.
+				$entry->getContent()->title = craft()->templates->renderObjectTemplate($entryType->titleFormat, $entry);
+			}
+
 			// Now validate any content
 			if (!craft()->content->validateContent($entry))
 			{
