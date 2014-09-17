@@ -86,6 +86,22 @@ class SomePlugin extends BasePlugin
 
 ## Changelog
 
+### 1.2.2
+
+- Fixed a bug where validation would fail when saving guest entries for sections/entry types with dynamic titles.
+
+### 1.2.1
+
+- Added the ability to explicitly set whether validation is required on a per-section basis.
+
+### 1.2
+
+- Added support for the Client user when running Craft Client.
+
+### 1.1
+
+- Added GuestEntriesService.php to raise an ‘onBeforeSave’ event before saving a new guest entry.
+
 ### 1.0
 
 * Initial release
