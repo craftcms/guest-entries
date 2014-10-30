@@ -141,8 +141,10 @@ class GuestEntriesController extends BaseController
 			craft()->userSession->setError(Craft::t('Couldn’t save entry.'));
 
 			// Send the entry back to the template
+			$entryVariable = craft()->config->get('entryVariable', 'guestentries');
+
 			craft()->urlManager->setRouteVariables(array(
-				'entry' => $entry
+				$entryVariable => $entry
 			));
 		}
 	}
