@@ -41,10 +41,11 @@ Your guest entry template can look something like this:
 </form>
 ```
 
-
 You will need to adjust the hidden “sectionId” input to point to the section you would like to post guest entries to.
 
 If you have a “redirect” hidden input, the user will get redirected to it upon successfully saving the entry.
+
+If there is a validation error on the entry, then the page will be releaded with a `entry` variable available to it, set to an [EntryModel](http://buildwithcraft.com/docs/templating/entrymodel) describing the submitted entry. You can fetch the posted values from that variable, as well as any validation errors via [`entry.getError()`](http://www.yiiframework.com/doc/api/1.1/CModel#getError-detail), [`getErrors()`](http://www.yiiframework.com/doc/api/1.1/CModel#getErrors-detail), or [`getAllErrors()`](http://buildwithcraft.com/classreference/models/BaseModel#getAllErrors-detail). (The name of this variable is configurable via the `entryVariable` config setting.)
 
 ### The `guestEntries.beforeSave` event
 
@@ -84,7 +85,29 @@ class SomePlugin extends BasePlugin
 }
 ```
 
+
+## Configuration
+
+Guest Entries has the following config settings:
+
+- `entryVariable` - The name of the variable that submitted entries should be assigned to when the template is reloaded in the event of a validation error. Default is `'entry'`.
+
+To override Guest Entries’ config settings, create a new `guestentries.php` file in your craft/config/ folder, which returns an array of your custom config values.
+
+```php
+<?php
+
+return array(
+    'entryVariable' => 'guestEntry',
+);
+```
+
+
 ## Changelog
+
+### 1.3
+
+- Added the `entryVariable` config setting.
 
 ### 1.2.2
 
