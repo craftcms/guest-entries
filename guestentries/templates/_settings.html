@@ -34,13 +34,13 @@
 					<td>
 						{{ forms.lightswitch({
 							name: "enabledByDefault[" ~ handle ~ "]",
-							on:   (settings.enabledByDefault[handle] is defined and settings.enabledByDefault[handle] is not empty ? settings.enabledByDefault[handle] : false),
+							on:   (settings.enabledByDefault[handle] is defined ? settings.enabledByDefault[handle] : false),
 						}) }}
 					</td>
 					<td>
 						{{ forms.lightswitch({
 							name: "validateEntry[" ~ handle ~ "]",
-							on:   (settings.validateEntry[handle] is defined and settings.validateEntry[handle] is not empty ? settings.validateEntry[handle] : true),
+							on:   (settings.validateEntry[handle] is defined ? settings.validateEntry[handle] : true),
 						}) }}
 					</td>
 				</tr>
