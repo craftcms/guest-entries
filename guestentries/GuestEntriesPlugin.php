@@ -11,7 +11,7 @@ class GuestEntriesPlugin extends BasePlugin
 	/**
 	 * @return mixed
 	 */
-	function getName()
+	public function getName()
 	{
 		return 'Guest Entries';
 	}
@@ -19,15 +19,15 @@ class GuestEntriesPlugin extends BasePlugin
 	/**
 	 * @return string
 	 */
-	function getVersion()
+	public function getVersion()
 	{
-		return '1.3.1';
+		return '1.3.2';
 	}
 
 	/**
 	 * @return string
 	 */
-	function getDeveloper()
+	public function getDeveloper()
 	{
 		return 'Pixel & Tonic';
 	}
@@ -35,22 +35,17 @@ class GuestEntriesPlugin extends BasePlugin
 	/**
 	 * @return string
 	 */
-	function getDeveloperUrl()
+	public function getDeveloperUrl()
 	{
 		return 'http://pixelandtonic.com';
 	}
 
 	/**
-	 * @return array
+	 * @return bool
 	 */
-	protected function defineSettings()
+	public function hasSettings()
 	{
-		return array(
-			'allowGuestSubmissions'     => AttributeType::Bool,
-			'defaultAuthors'            => AttributeType::Mixed,
-			'enabledByDefault'          => AttributeType::Mixed,
-			'validateEntry'             => AttributeType::Mixed,
-		);
+		return true;
 	}
 
 	/**
@@ -113,5 +108,18 @@ class GuestEntriesPlugin extends BasePlugin
 			'settings' => $this->getSettings(),
 			'editableSections' => $editableSections,
 		));
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function defineSettings()
+	{
+		return array(
+			'allowGuestSubmissions'     => AttributeType::Bool,
+			'defaultAuthors'            => AttributeType::Mixed,
+			'enabledByDefault'          => AttributeType::Mixed,
+			'validateEntry'             => AttributeType::Mixed,
+		);
 	}
 }
