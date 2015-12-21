@@ -105,6 +105,10 @@ return array(
 
 ## Changelog
 
+### 1.4
+
+- Updated to take advantage of new Craft 2.5 plugin features.
+
 ### 1.3.1
 
 - Fixed a bug where the “Validate Entry” setting Lightswitch would reset to `on` position after being set to `off`.

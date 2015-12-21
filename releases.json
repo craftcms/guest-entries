@@ -1,0 +1,10 @@
+[
+    {
+        "version": "1.4",
+        "downloadUrl": "https://github.com/pixelandtonic/GuestEntries/archive/1.4.zip",
+        "date": "2015-20-20T12:00:00-08:00",
+        "notes": [
+            "[Improved] Updated to take advantage of new Craft 2.5 plugin features."
+        ]
+    }
+]
