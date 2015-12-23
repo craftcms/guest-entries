@@ -112,7 +112,11 @@ return array(
 
 ## Changelog
 
-### 1.4
+### 1.5.0
+
+- Add `onSuccess` and `onError` events.
+
+### 1.4.0
 
 - Updated to take advantage of new Craft 2.5 plugin features.
 
