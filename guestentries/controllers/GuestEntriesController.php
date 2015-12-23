@@ -83,7 +83,7 @@ class GuestEntriesController extends BaseController
 			else
 			{
 				// Pretend it worked.
-				$this->_returnSuccess($entry);
+				$this->_returnSuccess($entry, true);
 			}
 		}
 
@@ -96,8 +96,11 @@ class GuestEntriesController extends BaseController
 	 * @param $entry
 	 * @return void
 	 */
-	private function _returnSuccess($entry)
+	private function _returnSuccess($entry, $faked = false)
 	{
+		$successEvent = new GuestEntriesEvent($this, array('entry' => $entry, 'faked' => $faked));
+		craft()->guestEntries->onSuccess($successEvent);
+
 		if (craft()->request->isAjaxRequest())
 		{
 			$return['success']   = true;
@@ -130,6 +133,9 @@ class GuestEntriesController extends BaseController
 	 */
 	private function _returnError($entry)
 	{
+		$errorEvent = new GuestEntriesEvent($this, array('entry' => $entry));
+		craft()->guestEntries->onError($errorEvent);
+
 		if (craft()->request->isAjaxRequest())
 		{
 			$this->returnJson(array(

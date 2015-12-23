@@ -85,6 +85,13 @@ class SomePlugin extends BasePlugin
 }
 ```
 
+### `guestEntries.onSuccess` and `guestEntries.onError` events
+
+Plugins can also listen to `onSuccess` and `onError` events that get fired when a guest entry successfully gets saved or not.
+
+Each of them has an `entry` parameter where you can access the `EntryModel` of the guest entry.
+
+Additionally, `onSuccess` has a `faked` parameter so you can tell whether the success was a real one or a faked one.
 
 ## Configuration
 
