@@ -98,6 +98,8 @@ class GuestEntriesController extends BaseController
 	 */
 	private function _returnSuccess($entry)
 	{
+		$successEvent = new GuestEntriesEvent($this, array('entry' => $entry));
+
 		if (craft()->request->isAjaxRequest())
 		{
 			$return['success']   = true;
@@ -105,6 +107,9 @@ class GuestEntriesController extends BaseController
 			$return['cpEditUrl'] = $entry->getCpEditUrl();
 			$return['author']    = $entry->getAuthor()->getAttributes();
 			$return['postDate']  = ($entry->postDate ? $entry->postDate->localeDate() : null);
+
+
+			craft()->guestEntries->onSuccess($successEvent);
 
 			$this->returnJson($return);
 		}
@@ -118,6 +123,8 @@ class GuestEntriesController extends BaseController
 				Craft::log('The {entryId} token within the ‘redirect’ param on entries/saveEntry requests has been deprecated. Use {id} instead.', LogLevel::Warning);
 				$_POST['redirect'] = str_replace('{entryId}', '{id}', $_POST['redirect']);
 			}
+
+			craft()->guestEntries->onSuccess($successEvent);
 
 			$this->redirectToPostedUrl($entry);
 		}
@@ -147,6 +154,9 @@ class GuestEntriesController extends BaseController
 				$entryVariable => $entry
 			));
 		}
+
+		$errorEvent = new GuestEntriesEvent($this, array('entry' => $entry));
+		craft()->guestEntries->onError($errorEvent);
 	}
 
 	/**
