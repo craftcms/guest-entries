@@ -4,7 +4,7 @@
         "downloadUrl": "https://github.com/pixelandtonic/GuestEntries/archive/1.5.0.zip",
         "date": "2015-12-23T12:00:00-08:00",
         "notes": [
-            "[Added] Added `guestEntries.onSuccess` and `guestEntries.onError` events."
+            "[Added] Added `guestEntries.success` and `guestEntries.error` events that get fired when the entry is successfully saved or not."
         ]
     },
     {
