@@ -112,6 +112,9 @@ return array(
 
 ## Changelog
 
+### 1.5.1
+- Fixed a PHP error that would occur if the guest entry failed validation.
+
 ### 1.5.0
 
 - Add `onSuccess` and `onError` events.

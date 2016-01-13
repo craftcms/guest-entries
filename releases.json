@@ -1,5 +1,13 @@
 [
     {
+        "version": "1.5.1",
+        "downloadUrl": "https://github.com/pixelandtonic/GuestEntries/archive/1.5.1.zip",
+        "date": "2016-01-13T12:00:00-08:00",
+        "notes": [
+            "[Fixed] Fixed a PHP error that would occur if the guest entry failed validation."
+        ]
+    },
+    {
         "version": "1.5.0",
         "downloadUrl": "https://github.com/pixelandtonic/GuestEntries/archive/1.5.0.zip",
         "date": "2015-12-23T12:00:00-08:00",
