@@ -143,6 +143,16 @@ class GuestEntriesPlugin extends BasePlugin
 	}
 
 	/**
+	 *
+	 */
+	public function init()
+	{
+		parent::init();
+
+		Craft::import('plugins.guestentries.events.GuestEntriesEvent');
+	}
+
+	/**
 	 * @return array
 	 */
 	protected function defineSettings()

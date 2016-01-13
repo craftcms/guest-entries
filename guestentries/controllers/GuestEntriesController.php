@@ -63,7 +63,6 @@ class GuestEntriesController extends BaseController
 		}
 
 		// Fire an 'onBeforeSave' event
-		Craft::import('plugins.guestentries.events.GuestEntriesEvent');
 		$event = new GuestEntriesEvent($this, array('entry' => $entry));
 		craft()->guestEntries->onBeforeSave($event);
 
