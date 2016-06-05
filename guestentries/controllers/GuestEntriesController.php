@@ -111,10 +111,10 @@ class GuestEntriesController extends BaseController
 				$return['cpEditUrl'] = $entry->getCpEditUrl();
 			}
 
-			$return['authorUsername']      = $entry->getAuthor()->username;
-			$return['dateCreated'] = DateTimeHelper::toIso8601($entry->dateCreated);
-			$return['dateUpdated'] = DateTimeHelper::toIso8601($entry->dateUpdated);
-			$return['postDate']    = ($entry->postDate ? DateTimeHelper::toIso8601($entry->postDate) : null);
+			$return['authorUsername']   = $entry->getAuthor()->username;
+			$return['dateCreated']      = DateTimeHelper::toIso8601($entry->dateCreated);
+			$return['dateUpdated']      = DateTimeHelper::toIso8601($entry->dateUpdated);
+			$return['postDate']         = ($entry->postDate ? DateTimeHelper::toIso8601($entry->postDate) : null);
 
 			$this->returnJson($return);
 		}

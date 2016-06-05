@@ -1,5 +1,13 @@
 [
     {
+        "version": "1.5.2",
+        "downloadUrl": "https://github.com/pixelandtonic/GuestEntries/archive/1.5.2.zip",
+        "date": "2016-06-4T12:00:00-08:00",
+        "notes": [
+            "[Fixed] Limit the data returned on a successful save for an AJAX request. This removes potentially sensitive data from being returned."
+        ]
+    },
+    {
         "version": "1.5.1",
         "downloadUrl": "https://github.com/pixelandtonic/GuestEntries/archive/1.5.1.zip",
         "date": "2016-01-13T12:00:00-08:00",
