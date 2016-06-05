@@ -99,7 +99,7 @@ Guest Entries has the following config settings:
 
 - `entryVariable` - The name of the variable that submitted entries should be assigned to when the template is reloaded in the event of a validation error. Default is `'entry'`.
 
-To override Guest Entries’ config settings, create a new `guestentries.php` file in your craft/config/ folder, which returns an array of your custom config values.
+To override Guest Entries’ config settings, create a new folder in your `craft/config` folder called `guestentries`, then put a `config.php` file inside of that at `craft/config/guestentries/config.php`.  That file should returns an array of your custom config values.
 
 ```php
 <?php
