@@ -47,6 +47,19 @@ If you have a “redirect” hidden input, the user will get redirected to it up
 
 If there is a validation error on the entry, then the page will be releaded with a `entry` variable available to it, set to an [EntryModel](http://buildwithcraft.com/docs/templating/entrymodel) describing the submitted entry. You can fetch the posted values from that variable, as well as any validation errors via [`entry.getError()`](http://www.yiiframework.com/doc/api/1.1/CModel#getError-detail), [`getErrors()`](http://www.yiiframework.com/doc/api/1.1/CModel#getErrors-detail), or [`getAllErrors()`](http://buildwithcraft.com/classreference/models/BaseModel#getAllErrors-detail). (The name of this variable is configurable via the `entryVariable` config setting.)
 
+### Submitting via Ajax
+Submitting a `guestEntries/saveEntry` form action via ajax responds with an object with the following keys:
+
+- `success` (boolean) - true
+- `id` (string) - id of the entry saved
+- `title` (string) - title of the entry saved
+- `cpEditUrl` (string) - returned if the request came from the control panel 
+- `authorUsername` (string) - author username of the entry saved
+- `dateCreated` (string) - ISO 8601 standard date and time format of the date the entry was created
+- `dateUpdated` (string) - ISO 8601 standard date and time format of the date the entry was updated
+- `postDate` (string) - if the entry is disabled by default, this will be null
+- `url` (string) - live URL of the entry saved if it has a URL
+
 ### The `guestEntries.beforeSave` event
 
 Other plugins can be notified right before a guest entry is saved with the Guest Entries plugin,

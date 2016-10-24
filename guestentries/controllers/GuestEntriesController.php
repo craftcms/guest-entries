@@ -116,6 +116,10 @@ class GuestEntriesController extends BaseController
 			$return['dateUpdated']      = DateTimeHelper::toIso8601($entry->dateUpdated);
 			$return['postDate']         = ($entry->postDate ? DateTimeHelper::toIso8601($entry->postDate) : null);
 
+			if($entry->getUrl){
+				$return['url']			= $entry->getUrl;
+			}
+
 			$this->returnJson($return);
 		}
 		else
