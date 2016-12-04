@@ -45,7 +45,7 @@ You will need to adjust the hidden “sectionId” input to point to the section
 
 If you have a “redirect” hidden input, the user will get redirected to it upon successfully saving the entry.
 
-If there is a validation error on the entry, then the page will be releaded with a `entry` variable available to it, set to an [EntryModel](http://buildwithcraft.com/docs/templating/entrymodel) describing the submitted entry. You can fetch the posted values from that variable, as well as any validation errors via [`entry.getError()`](http://www.yiiframework.com/doc/api/1.1/CModel#getError-detail), [`getErrors()`](http://www.yiiframework.com/doc/api/1.1/CModel#getErrors-detail), or [`getAllErrors()`](http://buildwithcraft.com/classreference/models/BaseModel#getAllErrors-detail). (The name of this variable is configurable via the `entryVariable` config setting.)
+If there is a validation error on the entry, then the page will be reloaded with an `entry` variable available to it, set to an [EntryModel](http://buildwithcraft.com/docs/templating/entrymodel) describing the submitted entry. You can fetch the posted values from that variable, as well as any validation errors via [`entry.getError()`](http://www.yiiframework.com/doc/api/1.1/CModel#getError-detail), [`getErrors()`](http://www.yiiframework.com/doc/api/1.1/CModel#getErrors-detail), or [`getAllErrors()`](http://buildwithcraft.com/classreference/models/BaseModel#getAllErrors-detail). (The name of this variable is configurable via the `entryVariable` config setting.)
 
 ### Submitting via Ajax
 Submitting a `guestEntries/saveEntry` form action via ajax responds with an object with the following keys:
