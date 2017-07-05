@@ -4,15 +4,21 @@ This plugin allows you to save guest entries from the front-end of your website.
 
 ## Requirements
 
-This plugin requires Craft 2.0+.
+This plugin requires Craft CMS 3.0.0-beta.1 or later.
 
 ## Installation
 
-To install Guest Entries, follow these steps:
+To install the plugin, follow these instructions.
 
-1.  Upload the guestentries/ folder to your craft/plugins/ folder.
-2.  Go to Settings > Plugins from your Craft control panel and enable the Guest Entries plugin.
-3.  Click on “Guest Entries” to go to the plugin’s settings page, and configure the plugin how you’d like.
+1. Open your terminal and go to your Craft project:
+
+        cd /path/to/project
+
+2. Then tell Composer to load the plugin:
+
+        composer require craftcms/guest-entries
+
+3. In the Control Panel, go to Settings → Plugins and click the “Install” button for guestEntries.
 
 ## Settings
 
@@ -53,7 +59,7 @@ Submitting a `guestEntries/saveEntry` form action via ajax responds with an obje
 - `success` (boolean) - true
 - `id` (string) - id of the entry saved
 - `title` (string) - title of the entry saved
-- `cpEditUrl` (string) - returned if the request came from the control panel 
+- `cpEditUrl` (string) - returned if the request came from the control panel
 - `authorUsername` (string) - author username of the entry saved
 - `dateCreated` (string) - ISO 8601 standard date and time format of the date the entry was created
 - `dateUpdated` (string) - ISO 8601 standard date and time format of the date the entry was updated

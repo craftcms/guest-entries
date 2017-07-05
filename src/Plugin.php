@@ -1,32 +1,39 @@
 <?php
+/**
+ * @link      https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license   https://craftcms.com/license
+ */
 
 namespace craft\guestentries;
-
 
 use Craft;
 use craft\elements\User;
 use craft\guestentries\models\Settings;
 
-
 /**
- * Class GuestEntriesPlugin
+ * Class Plugin
  *
- * @package Craft
+ * @property Settings $settings
+ * @method Settings getSettings()
  */
 class Plugin extends \craft\base\Plugin
 {
+    // Properties
+    // =========================================================================
+
+    /**
+     * @inheritdoc
+     */
     public $hasCpSettings = true;
 
-    public function init()
-    {
-        parent::init();
-    }
-
+    // Protected Methods
+    // =========================================================================
 
     /**
      * @return mixed
      */
-    protected function settingsHtml()
+    protected function settingsHtml(): string
     {
         $editableSections = [];
         $allSections = Craft::$app->sections->getAllSections();
@@ -40,22 +47,19 @@ class Plugin extends \craft\base\Plugin
 
         // Let's construct the potential default users for each section.
         foreach ($editableSections as $handle => $value) {
-            // If we're running on Client Edition, add both accounts.
 
+            // If we're running on Client Edition, add both accounts.
             if (Craft::$app->getEdition() === Craft::Client) {
                 $defaultAuthorOptionQuery = User::find();
-
-
                 $authorOptions = $defaultAuthorOptionQuery->all();
             } else if (Craft::$app->getEdition() === Craft::Pro) {
                 $defaultAuthorOptionQuery = User::find();
                 $defaultAuthorOptionQuery->can = 'createEntries:'.$value['section']->id;
                 $authorOptions = $defaultAuthorOptionQuery->all();
             } else {
-                // 2.x on Personal Edition.
+                // Personal Edition.
                 $authorOptions = [Craft::$app->getUser()];
             }
-
 
             foreach ($authorOptions as $key => $authorOption) {
                 $authorLabel = $authorOption->username;
@@ -70,6 +74,7 @@ class Plugin extends \craft\base\Plugin
 
             array_unshift($authorOptions, ['label' => 'Don’t Allow', 'value' => 'none']);
 
+            /** @noinspection SlowArrayOperationsInLoopInspection */
             $editableSections[$handle] = array_merge($editableSections[$handle], ['authorOptions' => $authorOptions]);
         }
 
@@ -79,11 +84,12 @@ class Plugin extends \craft\base\Plugin
         ]);
     }
 
-    protected function createSettingsModel()
+    /**
+     * @inheritdoc
+     */
+    protected function createSettingsModel(): Settings
     {
         return new Settings();
     }
-
-
 }
 

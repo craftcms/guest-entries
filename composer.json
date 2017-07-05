@@ -1,12 +1,11 @@
 {
-  "name": "craftcms/guestEntries",
+  "name": "craftcms/guest-entries",
   "description":"This plugin allows you to save guest entries from the front-end of your website.",
   "version": "2.0.0",
   "type": "craft-plugin",
   "keywords": [
     "cms",
     "craftcms",
-    "json",
     "yii2"
   ],
   "license": "MIT",
@@ -28,7 +27,7 @@
   },
   "autoload": {
     "psr-4": {
-      "craft\\guestentries\\": "src/"
+      "craft\\guestentries\\": "src"
     }
   },
   "repositories": [
@@ -38,9 +37,9 @@
     }
   ],
   "extra": {
-    "name": "GuestEntries",
+    "name": "Guest Entries",
     "handle": "guestEntries",
-    "changelogUrl": "https://raw.githubusercontent.com/craftcms/guestEntries/master/CHANGELOG.md",
-    "downloadUrl": "https://github.com/craftcms/guestEntries/archive/master.zip"
+    "changelogUrl": "https://raw.githubusercontent.com/craftcms/guest-entries/master/CHANGELOG.md",
+    "downloadUrl": "https://github.com/craftcms/guest-entries/archive/master.zip"
   }
 }
