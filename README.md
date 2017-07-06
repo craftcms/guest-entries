@@ -53,7 +53,7 @@ Submitting a `guestEntries/saveEntry` form action via ajax responds with an obje
 - `success` (boolean) - true
 - `id` (string) - id of the entry saved
 - `title` (string) - title of the entry saved
-- `cpEditUrl` (string) - returned if the request came from the control panel 
+- `cpEditUrl` (string) - returned if the request came from the control panel
 - `authorUsername` (string) - author username of the entry saved
 - `dateCreated` (string) - ISO 8601 standard date and time format of the date the entry was created
 - `dateUpdated` (string) - ISO 8601 standard date and time format of the date the entry was updated
@@ -121,48 +121,3 @@ return array(
     'entryVariable' => 'guestEntry',
 );
 ```
-
-
-## Changelog
-
-### 1.5.2
-- Limit the data returned on a successful save for an AJAX request. This removes potentially sensitive data from being returned.
-
-### 1.5.1
-- Fixed a PHP error that would occur if the guest entry failed validation.
-
-### 1.5.0
-
-- Add `onSuccess` and `onError` events.
-
-### 1.4.0
-
-- Updated to take advantage of new Craft 2.5 plugin features.
-
-### 1.3.1
-
-- Fixed a bug where the “Validate Entry” setting Lightswitch would reset to `on` position after being set to `off`.
-
-### 1.3
-
-- Added the `entryVariable` config setting.
-
-### 1.2.2
-
-- Fixed a bug where validation would fail when saving guest entries for sections/entry types with dynamic titles.
-
-### 1.2.1
-
-- Added the ability to explicitly set whether validation is required on a per-section basis.
-
-### 1.2
-
-- Added support for the Client user when running Craft Client.
-
-### 1.1
-
-- Added GuestEntriesService.php to raise an ‘onBeforeSave’ event before saving a new guest entry.
-
-### 1.0
-
-* Initial release
