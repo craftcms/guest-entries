@@ -1,12 +1,12 @@
 Changelog
 =========
 
-## 1.5.2 - - 2016-06-04
+## 1.5.2 - 2016-06-04
 
 ### Added
 - Added the ability to limit the data returned on a successful save for an AJAX request. This removes potentially sensitive data from being returned.
 
-## 1.5.1 - - 2016-01-13
+## 1.5.1 - 2016-01-13
 
 ### Fixed
 - Fixed a PHP error that would occur if the guest entry failed validation.
