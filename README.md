@@ -18,7 +18,7 @@ To install the plugin, follow these instructions.
 
         composer require craftcms/guest-entries
 
-3. In the Control Panel, go to Settings → Plugins and click the “Install” button for guestEntries.
+3. In the Control Panel, go to Settings → Plugins and click the “Install” button for Guest Entries.
 
 ## Settings
 

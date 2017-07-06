@@ -2,7 +2,7 @@
 
 {{ forms.checkboxField({
 	first: true,
-	label: "Allow guest submissions?"|t,
+	label: "Allow guest submissions?"|t('guest-entries'),
 	name: 'allowGuestSubmissions',
 	toggle: 'defaults',
 	checked: (settings.allowGuestSubmissions is defined and settings.allowGuestSubmissions is not empty ? true : false),

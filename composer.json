@@ -38,7 +38,7 @@
   ],
   "extra": {
     "name": "Guest Entries",
-    "handle": "guestEntries",
+    "handle": "guest-entries",
     "changelogUrl": "https://raw.githubusercontent.com/craftcms/guest-entries/v2/CHANGELOG.md",
     "downloadUrl": "https://github.com/craftcms/guest-entries/archive/v2.zip"
   }
