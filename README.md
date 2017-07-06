@@ -4,7 +4,7 @@ This plugin allows you to save guest entries from the front-end of your website.
 
 ## Requirements
 
-This plugin requires Craft CMS 3.0.0-beta.1 or later.
+This plugin requires Craft CMS 3.0.0-beta.20 or later.
 
 ## Installation
 
@@ -32,8 +32,8 @@ Your guest entry template can look something like this:
 
 ```jinja
 <form method="post" action="" accept-charset="UTF-8">
-    {{ getCsrfInput() }}
-    <input type="hidden" name="action" value="guestEntries/saveEntry">
+    {{ csrfInput() }}
+    <input type="hidden" name="action" value="guest-entries/save ">
     <input type="hidden" name="redirect" value="success">
     <input type="hidden" name="sectionId" value="3">
 
@@ -51,10 +51,10 @@ You will need to adjust the hidden “sectionId” input to point to the section
 
 If you have a “redirect” hidden input, the user will get redirected to it upon successfully saving the entry.
 
-If there is a validation error on the entry, then the page will be reloaded with an `entry` variable available to it, set to an [EntryModel](http://buildwithcraft.com/docs/templating/entrymodel) describing the submitted entry. You can fetch the posted values from that variable, as well as any validation errors via [`entry.getError()`](http://www.yiiframework.com/doc/api/1.1/CModel#getError-detail), [`getErrors()`](http://www.yiiframework.com/doc/api/1.1/CModel#getErrors-detail), or [`getAllErrors()`](http://buildwithcraft.com/classreference/models/BaseModel#getAllErrors-detail). (The name of this variable is configurable via the `entryVariable` config setting.)
+If there is a validation error on the entry, then the page will be reloaded with an `entry` variable available to it, set to an [EntryModel](http://craftcms.com/docs/templating/entrymodel) describing the submitted entry. You can fetch the posted values from that variable, as well as any validation errors via [`entry.getError()`](http://www.yiiframework.com/doc/api/1.1/CModel#getError-detail), [`getErrors()`](http://www.yiiframework.com/doc/api/1.1/CModel#getErrors-detail), or [`getAllErrors()`](http://buildwithcraft.com/classreference/models/BaseModel#getAllErrors-detail). (The name of this variable is configurable via the `entryVariable` config setting.)
 
 ### Submitting via Ajax
-Submitting a `guestEntries/saveEntry` form action via ajax responds with an object with the following keys:
+Submitting a `guest-entries/save` form action via ajax responds with an object with the following keys:
 
 - `success` (boolean) - true
 - `id` (string) - id of the entry saved
@@ -66,51 +66,72 @@ Submitting a `guestEntries/saveEntry` form action via ajax responds with an obje
 - `postDate` (string) - if the entry is disabled by default, this will be null
 - `url` (string) - live URL of the entry saved if it has a URL
 
-### The `guestEntries.beforeSave` event
+### The `beforeSaveEntry` event
 
 Other plugins can be notified right before a guest entry is saved with the Guest Entries plugin,
 and they are even given a chance to prevent the entry from saving at all.
 
 ```php
-class SomePlugin extends BasePlugin
-{
-    // ...
+use craft\guestentries\controllers\SaveController;
+use craft\guestentries\events\SendEvent;
+use yii\base\Event;
 
-    public function init()
-    {
-        craft()->on('guestEntries.beforeSave', function(GuestEntriesEvent $event) {
-            $entryModel = $event->params['entry'];
+// ...
 
-            // ...
+Event::on(SaveController::class, SaveController::EVENT_BEFORE_SAVE_ENTRY, function(SendEvent $e) {
+    // Do we want to pretend like this worked?
+    $e->fakeIt = true;
 
-            if ($isVulgar)
-            {
-                // Setting $isValid to false will cause a validation error
-                // and prevent the entry from being saved.
+    // Do we want to stop the process?
+    $e->isValid = true;
 
-                $entryModel->addError('title', 'Do you kiss your mother with those lips?');
-                $event->isValid = false;
-            }
-
-            if ($isSpam)
-            {
-                // Setting $fakeIt to true will make things look as if the entry was saved,
-                // but really it wasn't
-
-                $event->fakeIt = true;
-            }
-        });
-    }
-}
+    // Grab the Guest Entry
+    $entry = $e->entry;
+});
 ```
 
-### `guestEntries.success` and `guestEntries.error` events
+### The `afterSaveEntry` event
 
-Plugins can also listen to `success` and `error` events that get fired when a guest entry successfully gets saved or not.
+Other plugins can be notified right after a guest entry is saved with the Guest Entries plugin, and
+they can see if it was a faked save or not.
 
-Each of them has an `entry` parameter where you can access the `EntryModel` of the guest entry.
+```php
+use craft\guestentries\controllers\SaveController;
+use craft\guestentries\events\SendEvent;
+use yii\base\Event;
 
-Additionally, `success` has a `faked` parameter so you can tell whether the success was a real one or a faked one.
+// ...
+
+Event::on(SaveController::class, SaveController::EVENT_AFTER_SAVE_ENTRY, function(SendEvent $e) {
+    // Was this entry faked?
+    $faked = $e->faked;
+
+    // Grab the Guest Entry
+    $entry = $e->entry;
+});
+```
+
+### The `onError` event
+
+Plugins can also listen for an  `onError` event that gets fired when a guest entry cannot be saved.
+
+It has an `entry` parameter where you can access any validation errors for the Guest Entry.
+
+```php
+use craft\guestentries\controllers\SaveController;
+use craft\guestentries\events\SendEvent;
+use yii\base\Event;
+
+// ...
+
+Event::on(SaveController::class, SaveController::EVENT_ON_ERROR, function(SendEvent $e) {
+    // Grab the Guest Entry
+    $entry = $e->entry;
+
+    // Get any validation errors
+    $errors = $entry->getErrors();
+});
+```
 
 ## Configuration
 
@@ -118,14 +139,14 @@ Guest Entries has the following config settings:
 
 - `entryVariable` - The name of the variable that submitted entries should be assigned to when the template is reloaded in the event of a validation error. Default is `'entry'`.
 
-To override Guest Entries’ config settings, create a new file in your `craft/config` folder called `guestentries.php`, at `craft/config/guestentries.php`.  That file should returns an array of your custom config values.
+To override Guest Entries’ config settings, create a new file in your `craft/config` folder called `guest-entries.php`, at `craft/config/guest-entries.php`.  That file should returns an array of your custom config values.
 
 ```php
 <?php
 
-return array(
+return [
     'entryVariable' => 'guestEntry',
-);
+];
 ```
 
 
