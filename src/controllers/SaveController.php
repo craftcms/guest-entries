@@ -71,7 +71,7 @@ class SaveController extends Controller
             throw new HttpException(404);
         }
 
-        $settings = Craft::$app->getPlugins()->getPlugin('guest-entries')->getSettings();
+        $settings = Plugin::getInstance()->getSettings();
 
         // Grab the data posted data.
         $entry = $this->_populateEntryModel($settings);
