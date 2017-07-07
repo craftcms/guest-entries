@@ -8,6 +8,7 @@
 namespace craft\guestentries\controllers;
 
 use craft\elements\Entry;
+use craft\guestentries\models\Settings;
 use craft\guestentries\Plugin;
 use craft\helpers\DateTimeHelper;
 use craft\guestentries\events\SendEvent;
@@ -183,12 +184,12 @@ class SaveController extends Controller
     /**
      * Populates an EntryModel with post data.
      *
-     * @param $settings
+     * @param Settings $settings
      *
      * @throws HttpException
      * @return Entry
      */
-    private function _populateEntryModel($settings): Entry
+    private function _populateEntryModel(Settings $settings): Entry
     {
         $entry = new Entry();
 
