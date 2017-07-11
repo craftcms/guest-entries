@@ -9,6 +9,11 @@ namespace craft\guestentries\models;
 
 use craft\base\Model;
 
+/**
+ * Settings represents the global settings for Guest Entries.
+ *
+ * @property SectionSettings[] $sections The section settings
+ */
 class Settings extends Model
 {
     // Properties
@@ -22,33 +27,57 @@ class Settings extends Model
     public $entryVariable = 'entry';
 
     /**
-     * Whether to allow front-end guest entry submissions or not.
-     *
-     * @var bool
+     * @var SectionSettings[]
      */
-    public $allowGuestSubmissions = false;
+    private $_sections = [];
+
+    // Public Methods
+    // =========================================================================
 
     /**
-     * The list of default authors for a given section.
+     * Returns a section’s settings by its ID.
      *
-     * @var string[]
+     * @param int $id
+     *
+     * @return SectionSettings
      */
-    public $defaultAuthors = [];
+    public function getSection(int $id): SectionSettings
+    {
+        return $this->_sections[$id] ?? new SectionSettings(['sectionId' => $id]);
+    }
 
     /**
-     * Whether guest entry submissions are enabled by default or not.
+     * Returns the section settings.
      *
-     * @var bool[]
+     * @return SectionSettings[]
      */
-    public $enabledByDefault = [];
+    public function getSections(): array
+    {
+        return $this->_sections;
+    }
 
     /**
-     * Whether to run validation on guest entry submissions or not.
+     * Sets the section settings.
      *
-     * @var bool[]
+     * @param array $sections
      */
-    public $validateEntry = [];
+    public function setSections(array $sections)
+    {
+        foreach ($sections as $key => $config) {
+            // Ignore sections that don't allow guest submissions
+            if ($config['allowGuestSubmissions']) {
+                $this->_sections[$config['sectionId']] = new SectionSettings($config);
+            }
+        }
+    }
 
-
-
+    /**
+     * @inheritdoc
+     */
+    public function attributes()
+    {
+        $attributes = parent::attributes();
+        $attributes[] = 'sections';
+        return $attributes;
+    }
 }

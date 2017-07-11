@@ -1,52 +1,109 @@
 {% import "_includes/forms" as forms %}
 
-{{ forms.checkboxField({
-	first: true,
-	label: "Allow guest submissions?"|t('guest-entries'),
-	name: 'allowGuestSubmissions',
-	toggle: 'defaults',
-	checked: (settings.allowGuestSubmissions is defined and settings.allowGuestSubmissions is not empty ? true : false),
+{% if sections|length %}
+	{% set sectionRows = [] %}
+    {% for sectionInfo in sections %}
+        {% set section = sectionInfo.section %}
+        {% set sectionSettings = settings.getSection(section.id) %}
+        {% set idPrefix = 'sections-'~section.handle %}
+        {% set namePrefix = 'sections['~section.handle~']' %}
+
+        {% set sectionRows = sectionRows|merge({
+            (section.handle): {
+                sectionId: {
+                    value: section.id~'<input type="hidden" name="'~namePrefix~'[sectionId]" value="'~section.id~'">',
+                    class: 'code centeralign'
+                },
+                sectionName: section.name|t('site'),
+        		allowGuestSubmissions: include('_includes/forms/lightswitch', {
+                    id: idPrefix~'-allowGuestSubmissions',
+                    name: namePrefix~'[allowGuestSubmissions]',
+                    on: sectionSettings.allowGuestSubmissions,
+                    small: true
+                }),
+				authorId: {
+					options: sectionInfo.authorOptions,
+					value: sectionSettings.authorId
+				},
+				enabledByDefault: sectionSettings.enabledByDefault,
+				runValidation: sectionSettings.runValidation
+            }
+        }) %}
+    {% endfor %}
+
+    {{ forms.editableTableField({
+        first: true,
+        label: "Section Settings"|t('guest-entries'),
+        instructions: "Choose which sections should allow guest submissions, and configure the section-specific settings."|t('guest-entries'),
+        id: 'sections',
+        name: 'sections',
+        cols: {
+            sectionId: {
+                type: 'heading',
+                heading: "ID"|t('guest-entries'),
+                class: 'thin'
+            },
+            sectionName: {
+                type: 'heading',
+                heading: "Section"|t('guest-entries'),
+                class: 'thin'
+            },
+            allowGuestSubmissions: {
+                type: 'heading',
+                class: 'thin'
+            },
+            authorId: {
+                type: 'select',
+                heading: "Default Author"|t('guest-entries'),
+                info: "Who the guest entries should be attributed to by default."|t('guest-entries'),
+                class: 'leftalign'
+            },
+            enabledByDefault: {
+                type: 'lightswitch',
+                heading: "Default Status"|t('guest-entries'),
+                info: "Wheher the guest entries should be enabled by default."|t('guest-entries'),
+                class: 'leftalign'
+            },
+            runValidation: {
+                type: 'lightswitch',
+                heading: "Validate?"|t('guest-entries'),
+                info: "Whether the guest entries should be validated when submitted."|t('guest-entries'),
+                class: 'leftalign'
+            }
+        },
+        rows: sectionRows,
+        staticRows: true
+    }) }}
+{% else %}
+	<p>{{ "No sections available."|t('guest-entries') }}</p>
+{% endif %}
+
+{{ forms.textField({
+    id: 'entryVariable',
+    label: "Entry Variable Name"|t('guest-entries'),
+    instructions: "The template variable name that entry submissions should be assigned to, if there is a validation error."|t('guest-entries'),
+    name: 'entryVariable',
+    value: settings.entryVariable,
+    class: 'code'
 }) }}
 
-{% if editableSections|length %}
-	<div id="defaults"{% if settings.allowGuestSubmissions is not defined or not settings.allowGuestSubmissions %} class="hidden"{% endif %}>
-		<table class="data fullwidth">
-			<thead>
-				<th>Section</th>
-				<th>Default Author</th>
-				<th>Entries Enabled By Default?</th>
-				<th>Validate Entry</th>
-			</thead>
-			{% for handle, sectionData in editableSections %}
-				<tr>
-					<td>{{ sectionData['section'].name }}</td>
-					<td>{% if sectionData['authorOptions'] is defined and sectionData['authorOptions']|length > 0 %}
-							{{ forms.select({
-								id: "defaultAuthors[" ~ handle ~ "]",
-								name: "defaultAuthors[" ~ handle ~ "]",
-								options: sectionData['authorOptions'],
-								value: (settings.defaultAuthors[handle] is defined and settings.defaultAuthors[handle] is not empty ? settings.defaultAuthors[handle] : null)
-							}) }}
-							{% else %}
-								No available authors.
-							{% endif %}
-					</td>
-					<td>
-						{{ forms.lightswitch({
-							name: "enabledByDefault[" ~ handle ~ "]",
-							on:   (settings.enabledByDefault[handle] is defined ? settings.enabledByDefault[handle] : false),
-						}) }}
-					</td>
-					<td>
-						{{ forms.lightswitch({
-							name: "validateEntry[" ~ handle ~ "]",
-							on:   (settings.validateEntry[handle] is defined ? settings.validateEntry[handle] : true),
-						}) }}
-					</td>
-				</tr>
-			{% endfor %}
-		</table>
-	</div>
-{% else %}
-	No sections available.
-{% endif %}
+{% js %}
+    var $sectionRows = $('#{{ "sections"|namespaceInputId }}').children('tbody').children(),
+        $lightswitches = $sectionRows.children('th:nth-child(3)').children('.lightswitch');
+
+    function updateSections() {
+        $lightswitches.each(function() {
+            if ($(this).data('lightswitch').on) {
+                $(this).parent().nextAll('td').removeClass('disabled').find('select,div.lightswitch,input').attr('tabindex', '0');
+            } else {
+                $(this).parent().nextAll('td').addClass('disabled').find('select,div.lightswitch,input').attr('tabindex', '-1');
+            }
+        });
+    }
+
+    $lightswitches.on('change', updateSections);
+
+    Garnish.$doc.ready(function() {
+        updateSections();
+    });
+{% endjs %}

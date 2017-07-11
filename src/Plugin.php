@@ -10,6 +10,7 @@ namespace craft\guestentries;
 use Craft;
 use craft\elements\User;
 use craft\guestentries\models\Settings;
+use craft\models\Section;
 
 /**
  * Class Plugin
@@ -25,6 +26,11 @@ class Plugin extends \craft\base\Plugin
     /**
      * @inheritdoc
      */
+    public $schemaVersion = '2.0.0';
+
+    /**
+     * @inheritdoc
+     */
     public $hasCpSettings = true;
 
     // Protected Methods
@@ -35,52 +41,32 @@ class Plugin extends \craft\base\Plugin
      */
     protected function settingsHtml(): string
     {
-        $editableSections = [];
-        $allSections = Craft::$app->sections->getAllSections();
+        $sections = [];
+        $craftEdition = Craft::$app->getEdition();
 
-        foreach ($allSections as $section) {
-            // No sense in doing this for singles.
-            if ($section->type !== 'single') {
-                $editableSections[$section->handle] = ['section' => $section];
+        if ($craftEdition !== Craft::Pro) {
+            $authors = [Craft::$app->getUser()->getIdentity()];
+            if ($craftEdition === Craft::Client && $client = User::find()->client()->one()) {
+                $authors[] = $client;
             }
+            $authorOptions = $this->_formatAuthorOptions($authors);
         }
 
-        // Let's construct the potential default users for each section.
-        foreach ($editableSections as $handle => $value) {
-
-            // If we're running on Client Edition, add both accounts.
-            if (Craft::$app->getEdition() === Craft::Client) {
-                $defaultAuthorOptionQuery = User::find();
-                $authorOptions = $defaultAuthorOptionQuery->all();
-            } else if (Craft::$app->getEdition() === Craft::Pro) {
-                $defaultAuthorOptionQuery = User::find();
-                $defaultAuthorOptionQuery->can = 'createEntries:'.$value['section']->id;
-                $authorOptions = $defaultAuthorOptionQuery->all();
-            } else {
-                // Personal Edition.
-                $authorOptions = [Craft::$app->getUser()];
+        foreach (Craft::$app->sections->getAllSections() as $section) {
+            // No sense in doing this for singles.
+            if ($section->type === Section::TYPE_SINGLE) {
+                continue;
             }
 
-            foreach ($authorOptions as $key => $authorOption) {
-                $authorLabel = $authorOption->username;
-                $authorFullName = $authorOption->getFullName();
-
-                if ($authorFullName) {
-                    $authorLabel .= ' ('.$authorFullName.')';
-                }
-
-                $authorOptions[$key] = ['label' => $authorLabel, 'value' => $authorOption->id];
-            }
-
-            array_unshift($authorOptions, ['label' => 'Don’t Allow', 'value' => 'none']);
-
-            /** @noinspection SlowArrayOperationsInLoopInspection */
-            $editableSections[$handle] = array_merge($editableSections[$handle], ['authorOptions' => $authorOptions]);
+            $sections[] = [
+                'section' => $section,
+                'authorOptions' => $authorOptions ?? $this->_getSectionAuthorOptions($section)
+            ];
         }
 
         return Craft::$app->getView()->renderTemplate('guest-entries/_settings', [
             'settings' => $this->getSettings(),
-            'editableSections' => $editableSections,
+            'sections' => $sections,
         ]);
     }
 
@@ -91,5 +77,47 @@ class Plugin extends \craft\base\Plugin
     {
         return new Settings();
     }
-}
 
+    // Private Methods
+    // =========================================================================
+
+    /**
+     * Returns the authors that can publish to the given section.
+     *
+     * @param Section $section
+     *
+     * @return User[]
+     */
+    private function _getSectionAuthorOptions(Section $section): array
+    {
+        $authors = User::find()
+            ->can('createEntries:'.$section->id)
+            ->all();
+        return $this->_formatAuthorOptions($authors);
+    }
+
+
+    /**
+     * Formats the given list of authors for a select input.
+     *
+     * @param User[] $authors
+     *
+     * @return array
+     */
+    private function _formatAuthorOptions(array $authors): array
+    {
+        $options = [];
+
+        foreach ($authors as $author) {
+            $authorLabel = $author->username;
+
+            if ($fullName = $author->getFullName()) {
+                $authorLabel .= ' ('.$fullName.')';
+            }
+
+            $options[] = ['label' => $authorLabel, 'value' => $author->id];
+        }
+
+        return $options;
+    }
+}

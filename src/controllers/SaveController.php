@@ -7,16 +7,18 @@
 
 namespace craft\guestentries\controllers;
 
+use Craft;
 use craft\elements\Entry;
+use craft\guestentries\events\SendEvent;
+use craft\guestentries\models\SectionSettings;
 use craft\guestentries\models\Settings;
 use craft\guestentries\Plugin;
 use craft\helpers\DateTimeHelper;
-use craft\guestentries\events\SendEvent;
 use craft\models\Section;
 use craft\web\Controller;
-use Exception;
-use yii\web\HttpException;
-use Craft;
+use craft\web\Request;
+use yii\web\BadRequestHttpException;
+use yii\web\NotFoundHttpException;
 use yii\web\Response;
 
 /**
@@ -61,54 +63,55 @@ class SaveController extends Controller
     /**
      * Saves a "guest" entry.
      *
-     * @throws Exception
+     * @throws BadRequestHttpException if it's not a post request or the requested section doesn't exist/allow guest submissions
+     * @throws NotFoundHttpException if it's not a front end request
      */
     public function actionIndex()
     {
         $this->requirePostRequest();
 
-        // Only allow from the front-end.
-        if (!Craft::$app->getRequest()->getIsSiteRequest()) {
-            throw new HttpException(404);
+        // Only allow front end requests
+        $request = Craft::$app->getRequest();
+        if (!$request->getIsSiteRequest()) {
+            throw new NotFoundHttpException();
         }
 
+        // Make sure the section exists
+        $sectionId = $request->getRequiredBodyParam('sectionId');
+        if (($section = Craft::$app->getSections()->getSectionById($sectionId)) === null) {
+            throw new BadRequestHttpException('Section '.$section.' does not exist.');
+        }
+
+        // Make sure the section allows guest submissions
         $settings = Plugin::getInstance()->getSettings();
-
-        // Grab the data posted data.
-        $entry = $this->_populateEntryModel($settings);
-
-        $runValidation = $settings->validateEntry[$this->_section->handle];
-
-        // See if they want validation. Note that this usually doesn't occur if the entry is set to
-        // disabled by default.
-        if ($runValidation) {
-            // Does the entry type have dynamic titles?
-            $entryType = $entry->getType();
-
-            if (!$entryType->hasTitleField) {
-                // Have to pre-set the dynamic Title value here, so Title validation doesn't fail.
-                $entry->title = Craft::$app->getView()->render($entryType->titleFormat, $entry);
-            }
+        $sectionSettings = $settings->getSection($sectionId);
+        if (!$sectionSettings->allowGuestSubmissions) {
+            throw new BadRequestHttpException('Section '.$sectionId.' does not allow guest submissions.');
         }
+
+        // Populate the entry
+        $entry = $this->_populateEntryModel($section, $sectionSettings, $request);
 
         // Fire an 'onBeforeSave' event
         $event = new SendEvent(['entry' => $entry]);
         $this->trigger(self::EVENT_BEFORE_SAVE_ENTRY, $event);
 
-        if ($event->isValid) {
-            if (!$event->fakeIt) {
-                if (Craft::$app->getElements()->saveElement($entry, $runValidation)) {
-                   return $this->_returnSuccess($entry);
-                }
+        if (!$event->isValid) {
+            return $this->_returnError($entry);
+        }
 
-                return $this->_returnError($entry);
-            }
-
+        if ($event->fakeIt) {
+            Craft::info('Guest entry submission suspected to be spam.', __METHOD__);
             // Pretend it worked.
             return $this->_returnSuccess($entry, true);
         }
 
-       return $this->_returnError($entry);
+        // Try to save it
+        if (!Craft::$app->getElements()->saveElement($entry, $sectionSettings->runValidation)) {
+            return $this->_returnError($entry);
+        }
+
+        return $this->_returnSuccess($entry);
     }
 
     // Private Methods
@@ -118,7 +121,7 @@ class SaveController extends Controller
      * Returns a 'success' response.
      *
      * @param Entry $entry
-     * @param $faked
+     * @param       $faked
      *
      * @return Response|null
      */
@@ -162,7 +165,7 @@ class SaveController extends Controller
      */
     private function _returnError(Entry $entry)
     {
-        $errorEvent = new SendEvent( ['entry' => $entry]);
+        $errorEvent = new SendEvent(['entry' => $entry]);
         $this->trigger(self::EVENT_ON_ERROR, $errorEvent);
 
         if (Craft::$app->getRequest()->getIsAjax()) {
@@ -184,74 +187,42 @@ class SaveController extends Controller
     /**
      * Populates an EntryModel with post data.
      *
-     * @param Settings $settings
+     * @param Section         $section
+     * @param SectionSettings $sectionSettings
+     * @param Request         $request
      *
-     * @throws HttpException
+     * @throws BadRequestHttpException if the requested section doesn't allow guest submissions
      * @return Entry
      */
-    private function _populateEntryModel(Settings $settings): Entry
+    private function _populateEntryModel(Section $section, SectionSettings $sectionSettings, Request $request): Entry
     {
-        $entry = new Entry();
+        // Create and populate the entry
+        $entry = new Entry([
+            'sectionId' => $section->id,
+            'authorId' => (int)$sectionSettings->authorId,
+            'siteId' => $request->getBodyParam('siteId'),
+            'typeId' => $request->getBodyParam('typeId') ?? $section->getEntryTypes()[0]->id,
+            'title' => $request->getBodyParam('title'),
+            'slug' => $request->getBodyParam('slug'),
+            'enabled' => (bool)$sectionSettings->enabledByDefault,
+            'enabledForSite' => (bool)$request->getBodyParam('enabledForSite', true),
+            'newParentId' => $request->getBodyParam('parentId'),
+            'validateCustomFields' => (bool)$sectionSettings->runValidation,
+        ]);
 
-        $entry->sectionId = Craft::$app->getRequest()->getRequiredBodyParam('sectionId');
-        $this->_section = Craft::$app->sections->getSectionById($entry->sectionId);
+        // todo: this shouldn't be necessary
+        $entry->fieldLayoutId = $entry->getType()->fieldLayoutId;
 
-        if (!$this->_section) {
-            throw new HttpException(404);
-        }
-
-        // If we're allowing guest submissions and we've got a default author specified, grab the authorId.
-        if ($settings->allowGuestSubmissions && isset($settings->defaultAuthors[$this->_section->handle]) && $settings->defaultAuthors[$this->_section->handle] !== 'none') {
-            // We found a defaultAuthor
-            $entry->authorId = $settings->defaultAuthors[$this->_section->handle];
-        } else {
-            // Otherwise, complain loudly.
-            throw new HttpException(403);
-        }
-
-        $localeId = Craft::$app->getRequest()->getBodyParam('locale');
-
-        if ($localeId) {
-            $entry->locale = $localeId;
-        }
-
-        $entry->typeId = Craft::$app->getRequest()->getBodyParam('typeId');
-
-        if (!$entry->typeId) {
-            // Default to the section's first entry type
-            $entry->typeId = $entry->getSection()->getEntryTypes()[0]->id;
-        }
-
-        $postDate = Craft::$app->getRequest()->getBodyParam('postDate');
-
-        if ($postDate) {
+        if (($postDate = $request->getBodyParam('postDate')) !== null) {
             $entry->postDate = DateTimeHelper::toDateTime($postDate) ?: null;
         }
 
-        $expiryDate = Craft::$app->getRequest()->getBodyParam('expiryDate');
-
-        if ($expiryDate) {
+        if (($expiryDate = $request->getBodyParam('expiryDate')) !== null) {
             $entry->expiryDate = DateTimeHelper::toDateTime($expiryDate) ?: null;
         }
 
-        $entry->slug = Craft::$app->getRequest()->getBodyParam('slug');
-        $entry->enabled = (bool)$settings->enabledByDefault[$this->_section->handle];
-
-        if (($enabledForSite = Craft::$app->getRequest()->getBodyParam('enabledForSite')) === null)
-        {
-            $enabledForSite = true;
-        }
-
-        $entry->enabledForSite = (bool)$enabledForSite;
-
-        $entry->title = Craft::$app->getRequest()->getBodyParam('title');
-
-        $entry->fieldLayoutId = $entry->getType()->fieldLayoutId;
-        $fieldsLocation = Craft::$app->getRequest()->getParam('fieldsLocation', 'fields');
+        $fieldsLocation = $request->getParam('fieldsLocation', 'fields');
         $entry->setFieldValuesFromRequest($fieldsLocation);
-
-        // Parent
-        $entry->newParentId = Craft::$app->getRequest()->getBodyParam('parentId');
 
         return $entry;
     }
