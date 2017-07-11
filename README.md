@@ -30,7 +30,19 @@ Every user you see in the default author list has “createEntry” permissions 
 
 Your guest entry template can look something like this:
 
-```jinja
+```twig
+{% macro errorList(errors) %}
+    {% if errors %}
+        <ul class="errors">
+            {% for error in errors %}
+                <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endmacro %}
+
+{% from _self import errorList %}
+
 <form method="post" action="" accept-charset="UTF-8">
     {{ csrfInput() }}
     <input type="hidden" name="action" value="guest-entries/save">
@@ -38,20 +50,31 @@ Your guest entry template can look something like this:
     <input type="hidden" name="sectionId" value="3">
 
     <label for="title">Title</label>
-    <input id="title" type="text" name="title">
+    <input id="title" type="text" name="title"
+        {%- if entry is defined %} value="{{ entry.title }}"{% endif -%}>
+    
+    {% if entry is defined %}
+        {{ errorList(entry.getErrors('title')) }}
+    {% endif %}
 
     <label for="body">Body</label>
-    <textarea id="body" name="fields[body]"></textarea>
+    <textarea id="body" name="fields[body]">
+        {%- if entry is defined %}{{ entry.body }}{% endif -%}
+    </textarea>
+    
+    {% if entry is defined %}
+        {{ errorList(entry.getErrors('body')) }}
+    {% endif %}
 
     <input type="submit" value="Publish">
 </form>
 ```
 
-You will need to adjust the hidden “sectionId” input to point to the section you would like to post guest entries to.
+You will need to adjust the hidden `sectionId` input to point to the section you would like to post guest entries to.
 
-If you have a “redirect” hidden input, the user will get redirected to it upon successfully saving the entry.
+If you have a `redirect` hidden input, the user will get redirected to it upon successfully saving the entry.
 
-If there is a validation error on the entry, then the page will be reloaded with an `entry` variable available to it, set to an [EntryModel](http://craftcms.com/docs/templating/entrymodel) describing the submitted entry. You can fetch the posted values from that variable, as well as any validation errors via [`entry.getError()`](http://www.yiiframework.com/doc/api/1.1/CModel#getError-detail), [`getErrors()`](http://www.yiiframework.com/doc/api/1.1/CModel#getErrors-detail), or [`getAllErrors()`](http://buildwithcraft.com/classreference/models/BaseModel#getAllErrors-detail). (The name of this variable is configurable via the `entryVariable` config setting.)
+If there is a validation error on the entry, then the page will be reloaded with an `entry` variable available to it, set to a `craft\elements\Entry` model representing the submitted entry. You can fetch the posted values from that variable, as well as any validation errors via [`entry.getError()`](http://www.yiiframework.com/doc/api/1.1/CModel#getError-detail), [`getErrors()`](http://www.yiiframework.com/doc/api/1.1/CModel#getErrors-detail), or [`getAllErrors()`](http://buildwithcraft.com/classreference/models/BaseModel#getAllErrors-detail). (The name of this variable is configurable via the “Entry Variable Name” setting.)
 
 ### Submitting via Ajax
 Submitting a `guest-entries/save` form action via ajax responds with an object with the following keys:
