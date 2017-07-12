@@ -47,9 +47,10 @@ Changelog
 
 ## 1.1.0 - 2014-03-28
 
-###Added
--GuestEntriesService.php to raise an ‘onBeforeSave’ event before saving a new guest entry.
+### Added
+- GuestEntriesService.php to raise an ‘onBeforeSave’ event before saving a new guest entry.
 
 ## 1.0.0 - 2014-03-28
 
-Initial release
+### Changed
+- Initial release
