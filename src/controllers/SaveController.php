@@ -34,11 +34,6 @@ class SaveController extends Controller
      */
     protected $allowAnonymous = true;
 
-    /**
-     * @var Section The section the guest entry wants to be saved to.
-     */
-    private $_section;
-
     // Constants
     // =========================================================================
 
@@ -55,14 +50,15 @@ class SaveController extends Controller
     /**
      * @event Event The event that is triggered after an error occurs.
      */
-    const EVENT_ON_ERROR = 'onError';
+    const EVENT_AFTER_ERROR = 'afterError';
 
     // Public Methods
     // =========================================================================
 
     /**
-     * Saves a "guest" entry.
+     * Saves a guest entry.
      *
+     * @return Response|null
      * @throws BadRequestHttpException if it's not a post request or the requested section doesn't exist/allow guest submissions
      * @throws NotFoundHttpException if it's not a front end request
      */
@@ -97,7 +93,7 @@ class SaveController extends Controller
         $this->trigger(self::EVENT_BEFORE_SAVE_ENTRY, $event);
 
         if (!$event->isValid) {
-            return $this->_returnError($entry);
+            return $this->_returnError($settings, $entry);
         }
 
         if ($event->isSpam) {
@@ -108,7 +104,7 @@ class SaveController extends Controller
 
         // Try to save it
         if (!Craft::$app->getElements()->saveElement($entry, $sectionSettings->runValidation)) {
-            return $this->_returnError($entry);
+            return $this->_returnError($settings, $entry);
         }
 
         return $this->_returnSuccess($entry);
@@ -123,12 +119,14 @@ class SaveController extends Controller
      * @param Entry $entry
      * @param       $isSpam
      *
-     * @return Response|null
+     * @return Response
      */
-    private function _returnSuccess(Entry $entry, $isSpam = false)
+    private function _returnSuccess(Entry $entry, $isSpam = false): Response
     {
-        $successEvent = new SaveEvent(['entry' => $entry, 'isSpam' => $isSpam]);
-        $this->trigger(self::EVENT_AFTER_SAVE_ENTRY, $successEvent);
+        $this->trigger(self::EVENT_AFTER_SAVE_ENTRY, new SaveEvent([
+            'entry' => $entry,
+            'isSpam' => $isSpam
+        ]));
 
         if (Craft::$app->getRequest()->getIsAjax()) {
             $return['success'] = true;
@@ -151,7 +149,7 @@ class SaveController extends Controller
             return $this->asJson($return);
         }
 
-        Craft::$app->getSession()->setNotice(Craft::t('guest-entries', 'Entry Saved'));
+        Craft::$app->getSession()->setNotice(Craft::t('guest-entries', 'Entry saved.'));
 
         return $this->redirectToPostedUrl($entry);
     }
@@ -159,14 +157,16 @@ class SaveController extends Controller
     /**
      * Returns an 'error' response.
      *
+     * @param Settings $settings
      * @param Entry $entry
      *
-     * @return Response
+     * @return Response|null
      */
-    private function _returnError(Entry $entry)
+    private function _returnError(Settings $settings, Entry $entry)
     {
-        $errorEvent = new SaveEvent(['entry' => $entry]);
-        $this->trigger(self::EVENT_ON_ERROR, $errorEvent);
+        $this->trigger(self::EVENT_AFTER_ERROR, new SaveEvent([
+            'entry' => $entry
+        ]));
 
         if (Craft::$app->getRequest()->getIsAjax()) {
             return $this->asJson([
@@ -174,14 +174,14 @@ class SaveController extends Controller
             ]);
         }
 
-        Craft::$app->getSession()->setError(Craft::t('guest-entries', 'Error'));
+        Craft::$app->getSession()->setError(Craft::t('guest-entries', 'Couldn’t save entry.'));
 
         // Send the entry back to the template
-        $entryVariable = Plugin::getInstance()->getSettings()->entryVariable;
-
         Craft::$app->getUrlManager()->setRouteParams([
-            'variables' => [$entryVariable => $entry]
+            'variables' => [$settings->entryVariable => $entry]
         ]);
+
+        return null;
     }
 
     /**
