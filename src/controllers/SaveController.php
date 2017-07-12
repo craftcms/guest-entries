@@ -38,17 +38,17 @@ class SaveController extends Controller
     // =========================================================================
 
     /**
-     * @event Event The event that is triggered before a guest entry is saved.
+     * @event SaveEvent The event that is triggered before a guest entry is saved.
      */
     const EVENT_BEFORE_SAVE_ENTRY = 'beforeSaveEntry';
 
     /**
-     * @event Event The event that is triggered after a guest entry is saved.
+     * @event SaveEvent The event that is triggered after a guest entry is saved.
      */
     const EVENT_AFTER_SAVE_ENTRY = 'afterSaveEntry';
 
     /**
-     * @event Event The event that is triggered after an error occurs.
+     * @event SaveEvent The event that is triggered after an error occurs.
      */
     const EVENT_AFTER_ERROR = 'afterError';
 
@@ -129,24 +129,16 @@ class SaveController extends Controller
         ]));
 
         if (Craft::$app->getRequest()->getAcceptsJson()) {
-            $return['success'] = true;
-            $return['id'] = $entry->id;
-            $return['title'] = $entry->title;
-
-            if (Craft::$app->getRequest()->getIsCpRequest()) {
-                $return['cpEditUrl'] = $entry->getCpEditUrl();
-            }
-
-            $return['authorUsername'] = $entry->getAuthor()->username;
-            $return['dateCreated'] = DateTimeHelper::toIso8601($entry->dateCreated);
-            $return['dateUpdated'] = DateTimeHelper::toIso8601($entry->dateUpdated);
-            $return['postDate'] = ($entry->postDate ? DateTimeHelper::toIso8601($entry->postDate) : null);
-
-            if ($entry->getUrl()) {
-                $return['url'] = $entry->getUrl();
-            }
-
-            return $this->asJson($return);
+            return $this->asJson([
+                'success' => true,
+                'id' => $entry->id,
+                'title' => $entry->title,
+                'authorUsername' => $entry->getAuthor()->username,
+                'dateCreated' => DateTimeHelper::toIso8601($entry->dateCreated),
+                'dateUpdated' => DateTimeHelper::toIso8601($entry->dateUpdated),
+                'postDate' => $entry->postDate ? DateTimeHelper::toIso8601($entry->postDate) : null,
+                'url' => $entry->getUrl(),
+            ]);
         }
 
         Craft::$app->getSession()->setNotice(Craft::t('guest-entries', 'Entry saved.'));
@@ -170,6 +162,7 @@ class SaveController extends Controller
 
         if (Craft::$app->getRequest()->getAcceptsJson()) {
             return $this->asJson([
+                'success' => false,
                 'errors' => $entry->getErrors(),
             ]);
         }
