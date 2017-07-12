@@ -9,7 +9,7 @@ namespace craft\guestentries\controllers;
 
 use Craft;
 use craft\elements\Entry;
-use craft\guestentries\events\SendEvent;
+use craft\guestentries\events\SaveEvent;
 use craft\guestentries\models\SectionSettings;
 use craft\guestentries\models\Settings;
 use craft\guestentries\Plugin;
@@ -93,14 +93,14 @@ class SaveController extends Controller
         $entry = $this->_populateEntryModel($section, $sectionSettings, $request);
 
         // Fire an 'onBeforeSave' event
-        $event = new SendEvent(['entry' => $entry]);
+        $event = new SaveEvent(['entry' => $entry]);
         $this->trigger(self::EVENT_BEFORE_SAVE_ENTRY, $event);
 
         if (!$event->isValid) {
             return $this->_returnError($entry);
         }
 
-        if ($event->fakeIt) {
+        if ($event->isSpam) {
             Craft::info('Guest entry submission suspected to be spam.', __METHOD__);
             // Pretend it worked.
             return $this->_returnSuccess($entry, true);
@@ -121,13 +121,13 @@ class SaveController extends Controller
      * Returns a 'success' response.
      *
      * @param Entry $entry
-     * @param       $faked
+     * @param       $isSpam
      *
      * @return Response|null
      */
-    private function _returnSuccess(Entry $entry, $faked = false)
+    private function _returnSuccess(Entry $entry, $isSpam = false)
     {
-        $successEvent = new SendEvent(['entry' => $entry, 'faked' => $faked]);
+        $successEvent = new SaveEvent(['entry' => $entry, 'isSpam' => $isSpam]);
         $this->trigger(self::EVENT_AFTER_SAVE_ENTRY, $successEvent);
 
         if (Craft::$app->getRequest()->getIsAjax()) {
@@ -165,7 +165,7 @@ class SaveController extends Controller
      */
     private function _returnError(Entry $entry)
     {
-        $errorEvent = new SendEvent(['entry' => $entry]);
+        $errorEvent = new SaveEvent(['entry' => $entry]);
         $this->trigger(self::EVENT_ON_ERROR, $errorEvent);
 
         if (Craft::$app->getRequest()->getIsAjax()) {
