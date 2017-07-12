@@ -128,7 +128,7 @@ class SaveController extends Controller
             'isSpam' => $isSpam
         ]));
 
-        if (Craft::$app->getRequest()->getIsAjax()) {
+        if (Craft::$app->getRequest()->getAcceptsJson()) {
             $return['success'] = true;
             $return['id'] = $entry->id;
             $return['title'] = $entry->title;
@@ -168,7 +168,7 @@ class SaveController extends Controller
             'entry' => $entry
         ]));
 
-        if (Craft::$app->getRequest()->getIsAjax()) {
+        if (Craft::$app->getRequest()->getAcceptsJson()) {
             return $this->asJson([
                 'errors' => $entry->getErrors(),
             ]);
