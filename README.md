@@ -22,9 +22,7 @@ To install the plugin, follow these instructions.
 
 ## Settings
 
-From the plugin settings page, you can configure which sections you want to allow guest entry submission to along with who the default author will be.
-
-Every user you see in the default author list has “createEntry” permissions for the section.
+From the plugin settings page, you can configure which sections you want to allow guest entry submissions for, as well as the default entry authors and statuses, and whether submissions should be validated before being accepted.
 
 ## Usage
 
@@ -74,100 +72,85 @@ You will need to adjust the hidden `sectionId` input to point to the section you
 
 If you have a `redirect` hidden input, the user will get redirected to it upon successfully saving the entry.
 
-If there is a validation error on the entry, then the page will be reloaded with an `entry` variable available to it, set to a `craft\elements\Entry` model representing the submitted entry. You can fetch the posted values from that variable, as well as any validation errors via [`entry.getError()`](http://www.yiiframework.com/doc/api/1.1/CModel#getError-detail), [`getErrors()`](http://www.yiiframework.com/doc/api/1.1/CModel#getErrors-detail), or [`getAllErrors()`](http://buildwithcraft.com/classreference/models/BaseModel#getAllErrors-detail). (The name of this variable is configurable via the “Entry Variable Name” setting.)
+If there is a validation error on the entry, then the page will be reloaded with an `entry` variable available to it, set to a `craft\elements\Entry` model representing the submitted entry. You can fetch the posted values from that variable, as well as any validation errors via [`getErrors()`], [`getFirstError()`], or [`getFirstErrors()`]. (The name of this variable is configurable via the “Entry Variable Name” setting.)
+
+[`getErrors()`]: http://www.yiiframework.com/doc-2.0/yii-base-model.html#getErrors()-detail
+[`getFirstError()`]: http://www.yiiframework.com/doc-2.0/yii-base-model.html#getFirstError()-detail
+[`getFirstErrors()`]: http://www.yiiframework.com/doc-2.0/yii-base-model.html#getFirstErrors()-detail
 
 ### Submitting via Ajax
-Submitting a `guest-entries/save` form action via ajax responds with an object with the following keys:
 
-- `success` (boolean) - true
-- `id` (string) - id of the entry saved
-- `title` (string) - title of the entry saved
-- `cpEditUrl` (string) - returned if the request came from the control panel
-- `authorUsername` (string) - author username of the entry saved
-- `dateCreated` (string) - ISO 8601 standard date and time format of the date the entry was created
-- `dateUpdated` (string) - ISO 8601 standard date and time format of the date the entry was updated
-- `postDate` (string) - if the entry is disabled by default, this will be null
-- `url` (string) - live URL of the entry saved if it has a URL
+If you submit your form via Ajax with an `Accept: application/json` header, a JSON response will be returned with the following keys:
+
+- `success` _(boolean)_ – Whether the entry was saved successfully
+- `errors` _(object)_ – All of the validation errors indexed by field name (if not saved)  
+- `id` _(string)_ – the entry’s ID (if saved)
+- `title` _(string)_ – the entry’s title (if saved)
+- `authorUsername` _(string)_ – the entry’s author’s username (if saved)
+- `dateCreated` _(string)_ – the entry’s creation date in ISO 8601 format (if saved)
+- `dateUpdated` _(string)_ – the entry’s update date in ISO 8601 format (if saved)
+- `postDate` _(string, null)_ – the entry’s post date in ISO 8601 format (if saved and enabled)
+- `url` _(string, null)_ – the entry’s public URL (if saved, enabled, and in a section where entries have URLs)
 
 ### The `beforeSaveEntry` event
 
-Other plugins can be notified right before a guest entry is saved with the Guest Entries plugin,
-and they are even given a chance to prevent the entry from saving at all.
+Plugins can be notified right before a guest entry is saved using the `beforeSaveEntry` event. This is also an opportunity to flag the submission as spam, preventing it from getting saved:
 
 ```php
 use craft\guestentries\controllers\SaveController;
-use craft\guestentries\events\SendEvent;
+use craft\guestentries\events\SaveEvent;
 use yii\base\Event;
 
 // ...
 
-Event::on(SaveController::class, SaveController::EVENT_BEFORE_SAVE_ENTRY, function(SendEvent $e) {
-    // Do we want to pretend like this worked?
-    $e->fakeIt = true;
-
-    // Do we want to stop the process?
-    $e->isValid = true;
-
-    // Grab the Guest Entry
+Event::on(SaveController::class, SaveController::EVENT_BEFORE_SAVE_ENTRY, function(SaveEvent $e) {
+    // Grab the entry
     $entry = $e->entry;
+
+    $isSpam = // custom spam detection logic...
+    
+    if (!$isSpam) {
+        $e->isSpam = true;
+    }
 });
 ```
 
 ### The `afterSaveEntry` event
 
-Other plugins can be notified right after a guest entry is saved with the Guest Entries plugin, and
-they can see if it was a faked save or not.
+Plugins can be notified right after a guest entry is saved using the `afterSaveEntry` event:
 
 ```php
 use craft\guestentries\controllers\SaveController;
-use craft\guestentries\events\SendEvent;
+use craft\guestentries\events\SaveEvent;
 use yii\base\Event;
 
 // ...
 
-Event::on(SaveController::class, SaveController::EVENT_AFTER_SAVE_ENTRY, function(SendEvent $e) {
-    // Was this entry faked?
-    $faked = $e->faked;
-
-    // Grab the Guest Entry
+Event::on(SaveController::class, SaveController::EVENT_AFTER_SAVE_ENTRY, function(SaveEvent $e) {
+    // Grab the entry
     $entry = $e->entry;
+    
+    // Was it flagged as spam?
+    $isSpam = $e->isSpam;
 });
 ```
 
-### The `onError` event
+### The `afterError` event
 
-Plugins can also listen for an  `onError` event that gets fired when a guest entry cannot be saved.
-
-It has an `entry` parameter where you can access any validation errors for the Guest Entry.
+Plugins can be notified right after a submission is determined to be invalid using the `afterError` event:
 
 ```php
 use craft\guestentries\controllers\SaveController;
-use craft\guestentries\events\SendEvent;
+use craft\guestentries\events\SaveEvent;
 use yii\base\Event;
 
 // ...
 
-Event::on(SaveController::class, SaveController::EVENT_ON_ERROR, function(SendEvent $e) {
-    // Grab the Guest Entry
+Event::on(SaveController::class, SaveController::EVENT_AFTER_ERROR, function(SaveEvent $e) {
+    // Grab the entry
     $entry = $e->entry;
 
     // Get any validation errors
     $errors = $entry->getErrors();
 });
-```
-
-## Configuration
-
-Guest Entries has the following config settings:
-
-- `entryVariable` - The name of the variable that submitted entries should be assigned to when the template is reloaded in the event of a validation error. Default is `'entry'`.
-
-To override Guest Entries’ config settings, create a new file in your `craft/config` folder called `guest-entries.php`, at `craft/config/guest-entries.php`.  That file should returns an array of your custom config values.
-
-```php
-<?php
-
-return [
-    'entryVariable' => 'guestEntry',
-];
 ```
