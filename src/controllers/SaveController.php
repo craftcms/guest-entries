@@ -210,9 +210,6 @@ class SaveController extends Controller
             'validateCustomFields' => (bool)$sectionSettings->runValidation,
         ]);
 
-        // todo: this shouldn't be necessary
-        $entry->fieldLayoutId = $entry->getType()->fieldLayoutId;
-
         if (($postDate = $request->getBodyParam('postDate')) !== null) {
             $entry->postDate = DateTimeHelper::toDateTime($postDate) ?: null;
         }
