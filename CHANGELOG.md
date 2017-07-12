@@ -3,7 +3,7 @@ Changelog
 
 ## Unreleased
 
-## Added
+### Added
 - Craft 3 compatibility.
 
 ## 1.5.2 - 2016-06-04
