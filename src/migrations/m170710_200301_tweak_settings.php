@@ -41,7 +41,7 @@ class m170710_200301_tweak_settings extends Migration
                     $sections[] = [
                         'sectionId' => $section->id,
                         'allowGuestSubmissions' => true,
-                        'authorId' => (int) $authorId,
+                        'authorId' => (int)$authorId,
                         'enabledByDefault' => (bool)($oldSettings['enabledByDefault'][$sectionHandle] ?? false),
                         'runValidation' => (bool)($oldSettings['validateEntry'][$sectionHandle] ?? false),
                     ];

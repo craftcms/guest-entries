@@ -150,7 +150,7 @@ class SaveController extends Controller
      * Returns an 'error' response.
      *
      * @param Settings $settings
-     * @param Entry $entry
+     * @param Entry    $entry
      *
      * @return Response|null
      */
