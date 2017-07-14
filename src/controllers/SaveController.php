@@ -123,10 +123,12 @@ class SaveController extends Controller
      */
     private function _returnSuccess(Entry $entry, $isSpam = false): Response
     {
-        $this->trigger(self::EVENT_AFTER_SAVE_ENTRY, new SaveEvent([
-            'entry' => $entry,
-            'isSpam' => $isSpam
-        ]));
+        if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_ENTRY)) {
+            $this->trigger(self::EVENT_AFTER_SAVE_ENTRY, new SaveEvent([
+                'entry' => $entry,
+                'isSpam' => $isSpam
+            ]));
+        }
 
         if (Craft::$app->getRequest()->getAcceptsJson()) {
             return $this->asJson([
@@ -156,9 +158,11 @@ class SaveController extends Controller
      */
     private function _returnError(Settings $settings, Entry $entry)
     {
-        $this->trigger(self::EVENT_AFTER_ERROR, new SaveEvent([
-            'entry' => $entry
-        ]));
+        if ($this->hasEventHandlers(self::EVENT_AFTER_ERROR)) {
+            $this->trigger(self::EVENT_AFTER_ERROR, new SaveEvent([
+                'entry' => $entry
+            ]));
+        }
 
         if (Craft::$app->getRequest()->getAcceptsJson()) {
             return $this->asJson([
