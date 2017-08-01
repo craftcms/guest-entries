@@ -1,6 +1,11 @@
 Changelog
 =========
 
+## 2.0.1 - 2017-08-01
+
+### Fixed
+- Fixed a bug where custom field content was not getting saved. ([#23](https://github.com/craftcms/guest-entries/issues/23))
+
 ## 2.0.0 - 2017-07-14
 
 ### Added

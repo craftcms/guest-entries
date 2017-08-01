@@ -215,6 +215,9 @@ class SaveController extends Controller
             $entry->expiryDate = DateTimeHelper::toDateTime($expiryDate) ?: null;
         }
 
+        // TODO: this shouldn't be necessary
+        $entry->fieldLayoutId = $entry->getType()->fieldLayoutId;
+
         $fieldsLocation = $request->getParam('fieldsLocation', 'fields');
         $entry->setFieldValuesFromRequest($fieldsLocation);
 
