@@ -20,6 +20,13 @@ class Settings extends Model
     // =========================================================================
 
     /**
+     * @var bool Whether `guest-entries/save` requests should be protected against CSRF attacks.
+     *
+     * Note this will be ignored if CSRF protection has been disabled at the system level.
+     */
+    public $enableCsrfProtection = true;
+
+    /**
      * @var string The name of the variable to return to the template in case there is a validation error.
      */
     public $entryVariable = 'entry';

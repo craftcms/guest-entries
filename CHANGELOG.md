@@ -1,6 +1,11 @@
 Changelog
 =========
 
+## 2.1.0 - 2017-08-03
+
+### Added
+- Added the “Enable CSRF Protection?” setting, making it possible to disable CSRF protection for `guest-entries/save` requests. ([#24](https://github.com/craftcms/guest-entries/issues/24)) 
+
 ## 2.0.1 - 2017-08-01
 
 ### Fixed

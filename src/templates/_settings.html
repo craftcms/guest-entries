@@ -78,6 +78,17 @@
 	<p>{{ "No sections available."|t('guest-entries') }}</p>
 {% endif %}
 
+{% set systemCsrf = craft.app.config.general.enableCsrfProtection %}
+{{ forms.lightswitchField({
+    id: 'enableCsrfProtection',
+    label: "Enable CSRF Protection?"|t('guest-entries'),
+    instructions: "Whether `guest-entries/save` requests should be protected against CSRF attacks."|t('guest-entries'),
+    name: 'enableCsrfProtection',
+    on: systemCsrf and settings.enableCsrfProtection,
+    disabled: not systemCsrf,
+    warning: not systemCsrf ? "CSRF protection has been disabled at the system level."|t('guest-entries')
+}) }}
+
 {{ forms.textField({
     id: 'entryVariable',
     label: "Entry Variable Name"|t('guest-entries'),

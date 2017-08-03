@@ -56,6 +56,14 @@ class SaveController extends Controller
     // =========================================================================
 
     /**
+     * @inheritdoc
+     */
+    public function init()
+    {
+        $this->enableCsrfValidation = Plugin::getInstance()->getSettings()->enableCsrfProtection;
+    }
+
+    /**
      * Saves a guest entry.
      *
      * @return Response|null
