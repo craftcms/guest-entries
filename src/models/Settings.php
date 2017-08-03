@@ -20,9 +20,7 @@ class Settings extends Model
     // =========================================================================
 
     /**
-     * The name of the variable to return to the template in case there is a validation error.
-     *
-     * @var string
+     * @var string The name of the variable to return to the template in case there is a validation error.
      */
     public $entryVariable = 'entry';
 
