@@ -110,6 +110,7 @@ class GuestEntriesPlugin extends BasePlugin
 			{
 				$defaultAuthorOptionCriteria = craft()->elements->getCriteria(ElementType::User);
 				$defaultAuthorOptionCriteria->can = 'createEntries:'.$value['section']->id;
+				$defaultAuthorOptionCriteria->limit = null;
 				$authorOptions = $defaultAuthorOptionCriteria->find();
 			}
 			else

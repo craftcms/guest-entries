@@ -1,6 +1,11 @@
 Changelog
 =========
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where sections’ Default Author options were limited to 100 users. ([#25](https://github.com/craftcms/guest-entries/issues/25))
+
 ## 1.5.2 - 2016-06-04
 
 ### Added
