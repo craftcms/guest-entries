@@ -2,7 +2,7 @@
     {
         "version": "1.5.2",
         "downloadUrl": "https://github.com/craftcms/guest-entries/archive/1.5.2.zip",
-        "date": "2016-06-4T12:00:00-08:00",
+        "date": "2016-06-04T12:00:00-08:00",
         "notes": [
             "[Fixed] Limit the data returned on a successful save for an AJAX request. This removes potentially sensitive data from being returned."
         ]
