@@ -1,5 +1,13 @@
 [
     {
+        "version": "1.5.3",
+        "downloadUrl": "https://github.com/craftcms/guest-entries/archive/1.5.3.zip",
+        "date": "2017-09-05T12:00:00-08:00",
+        "notes": [
+            "[Fixed] Fixed a bug where sections’ Default Author options were limited to 100 users."
+        ]
+    },
+    {
         "version": "1.5.2",
         "downloadUrl": "https://github.com/craftcms/guest-entries/archive/1.5.2.zip",
         "date": "2016-06-04T12:00:00-08:00",
