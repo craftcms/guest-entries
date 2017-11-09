@@ -8,6 +8,7 @@
 namespace craft\guestentries\controllers;
 
 use Craft;
+use craft\base\Element;
 use craft\elements\Entry;
 use craft\guestentries\events\SaveEvent;
 use craft\guestentries\models\SectionSettings;
@@ -111,6 +112,10 @@ class SaveController extends Controller
         }
 
         // Try to save it
+        if ($entry->enabled && $entry->enabledForSite) {
+            $entry->setScenario(Element::SCENARIO_LIVE);
+        }
+
         if (!Craft::$app->getElements()->saveElement($entry, $sectionSettings->runValidation)) {
             return $this->_returnError($settings, $entry);
         }
