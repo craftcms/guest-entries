@@ -1,6 +1,11 @@
 Changelog
 =========
 
+## 2.1.1 - 2017-11-09
+
+### Changed
+- Guest Entries now sets the `live` validation scenario when saving enabled entries.
+
 ## 2.1.0 - 2017-08-03
 
 ### Added
