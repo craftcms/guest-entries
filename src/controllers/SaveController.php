@@ -112,11 +112,11 @@ class SaveController extends Controller
         }
 
         // Try to save it
-        if ($entry->enabled && $entry->enabledForSite) {
+        if ($sectionSettings->runValidation) {
             $entry->setScenario(Element::SCENARIO_LIVE);
         }
 
-        if (!Craft::$app->getElements()->saveElement($entry, $sectionSettings->runValidation)) {
+        if (!Craft::$app->getElements()->saveElement($entry)) {
             return $this->_returnError($settings, $entry);
         }
 
@@ -217,7 +217,6 @@ class SaveController extends Controller
             'enabled' => (bool)$sectionSettings->enabledByDefault,
             'enabledForSite' => (bool)$request->getBodyParam('enabledForSite', true),
             'newParentId' => $request->getBodyParam('parentId'),
-            'validateCustomFields' => (bool)$sectionSettings->runValidation,
         ]);
 
         if (($postDate = $request->getBodyParam('postDate')) !== null) {

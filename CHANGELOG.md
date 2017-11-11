@@ -1,6 +1,14 @@
 Changelog
 =========
 
+## 2.1.2 - 2017-11-10
+
+### Changed
+- The `live` validation scenario is now only set if guest entry validation is enabled for the section.
+
+### Fixed
+- Fixed an error that occurred when saving a guest entry. ([#28](https://github.com/craftcms/guest-entries/issues/28))
+
 ## 2.1.1 - 2017-11-09
 
 ### Changed
