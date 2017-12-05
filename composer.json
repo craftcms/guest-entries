@@ -1,7 +1,7 @@
 {
   "name": "craftcms/guest-entries",
   "description":"This plugin allows you to save guest entries from the front-end of your website.",
-  "version": "2.1.2",
+  "version": "2.1.3",
   "type": "craft-plugin",
   "keywords": [
     "cms",
@@ -23,7 +23,7 @@
     "rss": "https://github.com/craftcms/guest-entries/commits/v2.atom"
   },
   "require": {
-    "craftcms/cms": "~3.0.0-beta.30"
+    "craftcms/cms": "^3.0.0-beta.30"
   },
   "autoload": {
     "psr-4": {
