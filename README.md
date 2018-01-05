@@ -44,7 +44,7 @@ Your guest entry template can look something like this:
 <form method="post" action="" accept-charset="UTF-8">
     {{ csrfInput() }}
     <input type="hidden" name="action" value="guest-entries/save">
-    <input type="hidden" name="redirect" value="success">
+    <input type="hidden" name="redirect" value="{{ 'success'|hash }}">
     <input type="hidden" name="sectionId" value="3">
 
     <label for="title">Title</label>
