@@ -1,8 +1,8 @@
 <?php
 /**
- * @link      https://craftcms.com/
+ * @link https://craftcms.com/
  * @copyright Copyright (c) Pixel & Tonic, Inc.
- * @license   MIT
+ * @license MIT
  */
 
 namespace craft\guestentries;
@@ -85,7 +85,6 @@ class Plugin extends \craft\base\Plugin
      * Returns the authors that can publish to the given section.
      *
      * @param Section $section
-     *
      * @return User[]
      */
     private function _getSectionAuthorOptions(Section $section): array
@@ -101,7 +100,6 @@ class Plugin extends \craft\base\Plugin
      * Formats the given list of authors for a select input.
      *
      * @param User[] $authors
-     *
      * @return array
      */
     private function _formatAuthorOptions(array $authors): array

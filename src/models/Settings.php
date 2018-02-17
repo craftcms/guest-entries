@@ -1,8 +1,8 @@
 <?php
 /**
- * @link      https://craftcms.com/
+ * @link https://craftcms.com/
  * @copyright Copyright (c) Pixel & Tonic, Inc.
- * @license   MIT
+ * @license MIT
  */
 
 namespace craft\guestentries\models;
@@ -21,7 +21,6 @@ class Settings extends Model
 
     /**
      * @var bool Whether `guest-entries/save` requests should be protected against CSRF attacks.
-     *
      * Note this will be ignored if CSRF protection has been disabled at the system level.
      */
     public $enableCsrfProtection = true;
@@ -43,7 +42,6 @@ class Settings extends Model
      * Returns a section’s settings by its ID.
      *
      * @param int $id
-     *
      * @return SectionSettings
      */
     public function getSection(int $id): SectionSettings

@@ -1,8 +1,8 @@
 <?php
 /**
- * @link      https://craftcms.com/
+ * @link https://craftcms.com/
  * @copyright Copyright (c) Pixel & Tonic, Inc.
- * @license   MIT
+ * @license MIT
  */
 
 namespace craft\guestentries\controllers;
@@ -131,7 +131,6 @@ class SaveController extends Controller
      *
      * @param Entry $entry
      * @param       $isSpam
-     *
      * @return Response
      */
     private function _returnSuccess(Entry $entry, $isSpam = false): Response
@@ -165,8 +164,7 @@ class SaveController extends Controller
      * Returns an 'error' response.
      *
      * @param Settings $settings
-     * @param Entry    $entry
-     *
+     * @param Entry $entry
      * @return Response|null
      */
     private function _returnError(Settings $settings, Entry $entry)
@@ -197,10 +195,9 @@ class SaveController extends Controller
     /**
      * Populates an EntryModel with post data.
      *
-     * @param Section         $section
+     * @param Section $section
      * @param SectionSettings $sectionSettings
-     * @param Request         $request
-     *
+     * @param Request $request
      * @throws BadRequestHttpException if the requested section doesn't allow guest submissions
      * @return Entry
      */
