@@ -79,8 +79,8 @@ class Settings extends Model
      */
     public function attributes()
     {
-        $attributes = parent::attributes();
-        $attributes[] = 'sections';
-        return $attributes;
+        $names = parent::attributes();
+        $names[] = 'sections';
+        return $names;
     }
 }
