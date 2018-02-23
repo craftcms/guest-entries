@@ -77,10 +77,10 @@ class Settings extends Model
     /**
      * @inheritdoc
      */
-    public function attributes()
+    public function extraFields()
     {
-        $names = parent::attributes();
-        $names[] = 'sections';
-        return $names;
+        return [
+            'sections'
+        ];
     }
 }
