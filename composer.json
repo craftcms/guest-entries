@@ -6,6 +6,8 @@
   "keywords": [
     "cms",
     "craftcms",
+    "guest",
+    "entries",
     "yii2"
   ],
   "license": "MIT",
