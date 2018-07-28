@@ -1,5 +1,4 @@
-Changelog
-=========
+# Release Notes for Guest Entries
 
 ## 2.1.3 - 2017-12-04
 

@@ -1,4 +1,4 @@
-# Guest Entries plugin for Craft
+# Guest Entries for Craft CMS
 
 This plugin allows you to save guest entries from the front-end of your website.
 
