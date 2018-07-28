@@ -46,9 +46,6 @@ class Plugin extends \craft\base\Plugin
 
         if ($craftEdition !== Craft::Pro) {
             $authors = [Craft::$app->getUser()->getIdentity()];
-            if ($craftEdition === Craft::Client && $client = User::find()->client()->one()) {
-                $authors[] = $client;
-            }
             $authorOptions = $this->_formatAuthorOptions($authors);
         }
 
