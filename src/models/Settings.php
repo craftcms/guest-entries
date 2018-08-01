@@ -31,6 +31,11 @@ class Settings extends Model
     public $entryVariable = 'entry';
 
     /**
+     * @var array The settings for each section
+     */
+    public $sections = [];
+
+    /**
      * @var SectionSettings[]
      */
     private $_sections = [];
@@ -61,12 +66,10 @@ class Settings extends Model
 
     /**
      * Sets the section settings.
-     *
-     * @param array $sections
      */
-    public function setSections(array $sections)
+    public function setSections()
     {
-        foreach ($sections as $key => $config) {
+        foreach ($this->sections as $key => $config) {
             // Ignore sections that don't allow guest submissions
             if ($config['allowGuestSubmissions']) {
                 $this->_sections[$config['sectionId']] = new SectionSettings($config);

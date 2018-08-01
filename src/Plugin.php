@@ -33,6 +33,18 @@ class Plugin extends \craft\base\Plugin
      */
     public $hasCpSettings = true;
 
+    // Public Methods
+    // =========================================================================
+
+    /**
+     * @inheritdoc
+     */
+    public function init()
+    {
+        parent::init();
+        $this->settings->setSections();
+    }
+
     // Protected Methods
     // =========================================================================
 
