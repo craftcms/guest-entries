@@ -1,5 +1,10 @@
 # Release Notes for Guest Entries
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where it wasn’t possible to turn off guest submissions for a section once it had been activated.
+
 ## 2.1.3 - 2017-12-04
 
 ### Changed

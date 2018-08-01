@@ -70,6 +70,8 @@ class Settings extends Model
             // Ignore sections that don't allow guest submissions
             if ($config['allowGuestSubmissions']) {
                 $this->_sections[$config['sectionId']] = new SectionSettings($config);
+            } else {
+                unset($this->_sections[$config['sectionId']]);
             }
         }
     }
