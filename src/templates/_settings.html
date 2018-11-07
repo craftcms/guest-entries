@@ -4,14 +4,14 @@
 	{% set sectionRows = [] %}
     {% for sectionInfo in sections %}
         {% set section = sectionInfo.section %}
-        {% set sectionSettings = settings.getSection(section.id) %}
+        {% set sectionSettings = settings.getSection(section.uid) %}
         {% set idPrefix = 'sections-'~section.handle %}
         {% set namePrefix = 'sections['~section.handle~']' %}
 
         {% set sectionRows = sectionRows|merge({
             (section.handle): {
                 sectionId: {
-                    value: section.id~'<input type="hidden" name="'~namePrefix~'[sectionId]" value="'~section.id~'">',
+                    value: section.id~'<input type="hidden" name="'~namePrefix~'[sectionUid]" value="'~section.uid~'">',
                     class: 'code centeralign'
                 },
                 sectionName: section.name|t('site'),
@@ -21,9 +21,9 @@
                     on: sectionSettings.allowGuestSubmissions,
                     small: true
                 }),
-				authorId: {
+				authorUid: {
 					options: sectionInfo.authorOptions,
-					value: sectionSettings.authorId
+					value: sectionSettings.authorUid
 				},
 				enabledByDefault: sectionSettings.enabledByDefault,
 				runValidation: sectionSettings.runValidation
@@ -52,7 +52,7 @@
                 type: 'heading',
                 class: 'thin'
             },
-            authorId: {
+            authorUid: {
                 type: 'select',
                 heading: "Default Author"|t('guest-entries'),
                 info: "Who the guest entries should be attributed to by default."|t('guest-entries'),

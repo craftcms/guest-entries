@@ -15,6 +15,7 @@ use craft\guestentries\models\SectionSettings;
 use craft\guestentries\models\Settings;
 use craft\guestentries\Plugin;
 use craft\helpers\DateTimeHelper;
+use craft\helpers\Db;
 use craft\models\Section;
 use craft\web\Controller;
 use craft\web\Request;
@@ -82,16 +83,32 @@ class SaveController extends Controller
         }
 
         // Make sure the section exists
-        $sectionId = $request->getRequiredBodyParam('sectionId');
-        if (($section = Craft::$app->getSections()->getSectionById($sectionId)) === null) {
-            throw new BadRequestHttpException('Section '.$section.' does not exist.');
+        $sectionId = $request->getBodyParam('sectionId');
+        $sectionUid = $request->getBodyParam('sectionUid');
+        $sectionHandle = $request->getBodyParam('sectionHandle');
+
+        $sectionService = Craft::$app->getSections();
+
+        if ($sectionHandle) {
+            $section = $sectionService->getSectionByHandle($sectionHandle);
+        } else if ($sectionUid) {
+            $section = $sectionService->getSectionByUid($sectionUid);
+        } else {
+            $section = $sectionService->getSectionById((int) $sectionId);
         }
+
+        if (!$section) {
+            throw new BadRequestHttpException('Section does not exist.');
+        }
+
+        $sectionUid = $section->uid;
 
         // Make sure the section allows guest submissions
         $settings = Plugin::getInstance()->getSettings();
-        $sectionSettings = $settings->getSection($sectionId);
+        $sectionSettings = $settings->getSection($sectionUid);
+
         if (!$sectionSettings->allowGuestSubmissions) {
-            throw new BadRequestHttpException('Section '.$sectionId.' does not allow guest submissions.');
+            throw new BadRequestHttpException('Section '.$section->handle.' does not allow guest submissions.');
         }
 
         // Populate the entry
@@ -206,7 +223,7 @@ class SaveController extends Controller
         // Create and populate the entry
         $entry = new Entry([
             'sectionId' => $section->id,
-            'authorId' => (int)$sectionSettings->authorId,
+            'authorId' => Db::idByUid('{{%users}}', $sectionSettings->authorUid),
             'siteId' => $request->getBodyParam('siteId'),
             'typeId' => $request->getBodyParam('typeId') ?? $section->getEntryTypes()[0]->id,
             'title' => $request->getBodyParam('title'),

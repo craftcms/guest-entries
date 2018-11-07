@@ -26,7 +26,7 @@ class Plugin extends \craft\base\Plugin
     /**
      * @inheritdoc
      */
-    public $schemaVersion = '2.0.0';
+    public $schemaVersion = '2.1.0';
 
     /**
      * @inheritdoc
@@ -87,7 +87,7 @@ class Plugin extends \craft\base\Plugin
     private function _getSectionAuthorOptions(Section $section): array
     {
         $authors = User::find()
-            ->can('createEntries:'.$section->id)
+            ->can('createEntries:'.$section->uid)
             ->all();
         return $this->_formatAuthorOptions($authors);
     }
@@ -110,7 +110,7 @@ class Plugin extends \craft\base\Plugin
                 $authorLabel .= ' ('.$fullName.')';
             }
 
-            $options[] = ['label' => $authorLabel, 'value' => $author->id];
+            $options[] = ['label' => $authorLabel, 'value' => $author->uid];
         }
 
         return $options;

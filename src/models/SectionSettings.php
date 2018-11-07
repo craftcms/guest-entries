@@ -15,9 +15,9 @@ class SectionSettings extends Model
     // =========================================================================
 
     /**
-     * @var int|null The section ID
+     * @var string|null The section UID
      */
-    public $sectionId;
+    public $sectionUid;
 
     /**
      * @var bool Whether the section allows guest entry submissions
@@ -35,7 +35,7 @@ class SectionSettings extends Model
     public $runValidation = false;
 
     /**
-     * @var int|null The ID of the author that guest entries should be attributed to
+     * @var string|null The UID of the author that guest entries should be attributed to
      */
-    public $authorId;
+    public $authorUid;
 }

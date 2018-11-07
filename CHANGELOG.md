@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Added
+- You can now specify the target section by it's UID or handle in addition to using ID.
+
+### Changed
+- Guest Entries now requires Craft 3.1.0-alpha.1 or later.
+
 ### Fixed
 - Fixed a bug where it wasn’t possible to turn off guest submissions for a section once it had been activated.
 

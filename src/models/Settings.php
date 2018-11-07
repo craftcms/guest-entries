@@ -41,12 +41,12 @@ class Settings extends Model
     /**
      * Returns a section’s settings by its ID.
      *
-     * @param int $id
+     * @param string $uid
      * @return SectionSettings
      */
-    public function getSection(int $id): SectionSettings
+    public function getSection(string $uid): SectionSettings
     {
-        return $this->_sections[$id] ?? new SectionSettings(['sectionId' => $id]);
+        return $this->_sections[$uid] ?? new SectionSettings(['sectionUid' => $uid]);
     }
 
     /**
@@ -69,9 +69,9 @@ class Settings extends Model
         foreach ($sections as $key => $config) {
             // Ignore sections that don't allow guest submissions
             if ($config['allowGuestSubmissions']) {
-                $this->_sections[$config['sectionId']] = new SectionSettings($config);
+                $this->_sections[$config['sectionUid']] = new SectionSettings($config);
             } else {
-                unset($this->_sections[$config['sectionId']]);
+                unset($this->_sections[$config['sectionUid']]);
             }
         }
     }
