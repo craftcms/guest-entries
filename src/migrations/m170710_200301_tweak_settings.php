@@ -17,19 +17,20 @@ class m170710_200301_tweak_settings extends Migration
      */
     public function safeUp()
     {
-        // Get the old settings
-        $oldSettings = (new Query())
-            ->select(['settings'])
-            ->from(['{{%plugins}}'])
-            ->where(['handle' => 'guest-entries'])
-            ->scalar();
+        // Don't make the same config changes twice
+        $projectConfig = Craft::$app->getProjectConfig();
+        $schemaVersion = $projectConfig->get('plugins.guest-entries.schemaVersion', true);
+        if (version_compare($schemaVersion, '2.1.0', '>=')) {
+            return;
+        }
+
+        $oldSettings = $projectConfig->get('plugins.guest-entries.settings');
 
         // If no settings were saved yet, we're done
         if (!$oldSettings) {
             return;
         }
 
-        $oldSettings = Json::decode($oldSettings);
         $sections = [];
 
         // allowGuestSubmissions is no longer a thing, but respect its previous value
@@ -38,7 +39,7 @@ class m170710_200301_tweak_settings extends Migration
             $sectionsService = Craft::$app->getSections();
             foreach ($oldSettings['defaultAuthors'] as $sectionHandle => $authorId) {
                 if ($authorId !== 'none' && ($section = $sectionsService->getSectionByHandle($sectionHandle)) !== null) {
-                    $sections[] = [
+                    $sections[$section->id] = [
                         'sectionId' => $section->id,
                         'allowGuestSubmissions' => true,
                         'authorId' => (int)$authorId,
@@ -50,8 +51,7 @@ class m170710_200301_tweak_settings extends Migration
         }
 
         // Update the settings
-        $newSettings = ['sections' => $sections];
-        $this->update('{{%plugins}}', ['settings' => Json::encode($newSettings)], ['handle' => 'guest-entries']);
+        $projectConfig->set('plugins.guest-entries.settings', ['sections' => $sections]);
     }
 
     /**

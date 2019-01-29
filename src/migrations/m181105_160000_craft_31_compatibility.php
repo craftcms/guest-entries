@@ -26,7 +26,7 @@ class m181105_160000_craft_31_compatibility extends Migration
             return;
         }
 
-        $sectionSettings = $projectConfig->get('plugins.guest-entries.settings.sections', true);
+        $sectionSettings = $projectConfig->get('plugins.guest-entries.settings.sections');
         $newSectionSettings = [];
 
         if (is_array($sectionSettings)) {
