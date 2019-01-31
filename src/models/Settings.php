@@ -67,6 +67,11 @@ class Settings extends Model
     public function setSections(array $sections)
     {
         foreach ($sections as $key => $config) {
+            // Watch out for old config data that's not updated yet
+            if (!isset($config['sectionUid'])) {
+                continue;
+            }
+
             // Ignore sections that don't allow guest submissions
             if ($config['allowGuestSubmissions']) {
                 $this->_sections[$config['sectionUid']] = new SectionSettings($config);

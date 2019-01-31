@@ -1,5 +1,10 @@
 # Release Notes for Guest Entries
 
+## 2.2.1 - 2019-01-31
+
+### Fixed
+- Fixed an error that could occur when updating to Guest Entries 2.2.
+
 ## 2.2.0 - 2019-01-29
 
 ### Changed
