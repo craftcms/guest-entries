@@ -3,7 +3,7 @@
 ## 2.2.1 - 2019-01-31
 
 ### Fixed
-- Fixed an error that could occur when updating to Guest Entries 2.2.
+- Fixed an error that could occur when updating to Guest Entries 2.2. ([#42](https://github.com/craftcms/guest-entries/issues/42))
 
 ## 2.2.0 - 2019-01-29
 
