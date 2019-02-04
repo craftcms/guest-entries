@@ -1,6 +1,6 @@
 # Release Notes for Guest Entries
 
-## Unreleased
+## 2.2.2 - 2019-02-04
 
 ### Changed
 - The Section Settings table now has a UID column instead of ID.
