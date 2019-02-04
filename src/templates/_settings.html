@@ -10,10 +10,6 @@
 
         {% set sectionRows = sectionRows|merge({
             (section.handle): {
-                sectionId: {
-                    value: section.id~'<input type="hidden" name="'~namePrefix~'[sectionUid]" value="'~section.uid~'">',
-                    class: 'code centeralign'
-                },
                 sectionName: section.name|t('site'),
         		allowGuestSubmissions: include('_includes/forms/lightswitch', {
                     id: idPrefix~'-allowGuestSubmissions',
@@ -26,7 +22,11 @@
 					value: sectionSettings.authorUid
 				},
 				enabledByDefault: sectionSettings.enabledByDefault,
-				runValidation: sectionSettings.runValidation
+				runValidation: sectionSettings.runValidation,
+                sectionUid: {
+                    value: '<button class="uid-btn btn small" data-uid="' ~ section.uid ~ '">' ~ 'Copy'|t('guest-entries') ~ '</button>',
+                    class: 'code centeralign'
+                }
             }
         }) %}
     {% endfor %}
@@ -38,11 +38,6 @@
         id: 'sections',
         name: 'sections',
         cols: {
-            sectionId: {
-                type: 'heading',
-                heading: "ID"|t('guest-entries'),
-                class: 'thin'
-            },
             sectionName: {
                 type: 'heading',
                 heading: "Section"|t('guest-entries'),
@@ -69,6 +64,11 @@
                 heading: "Validate?"|t('guest-entries'),
                 info: "Whether the guest entries should be validated when submitted."|t('guest-entries'),
                 class: 'leftalign'
+            },
+            sectionUid: {
+                type: 'html',
+                heading: "UID"|t('guest-entries'),
+                class: 'thin'
             }
         },
         rows: sectionRows,
@@ -100,14 +100,14 @@
 
 {% js %}
     var $sectionRows = $('#{{ "sections"|namespaceInputId }}').children('tbody').children(),
-        $lightswitches = $sectionRows.children('th:nth-child(3)').children('.lightswitch');
+        $lightswitches = $sectionRows.children('th:nth-child(2)').children('.lightswitch');
 
     function updateSections() {
         $lightswitches.each(function() {
             if ($(this).data('lightswitch').on) {
-                $(this).parent().nextAll('td').removeClass('disabled').find('select,div.lightswitch,input').attr('tabindex', '0');
+                $(this).parent().nextAll('td').removeClass('disabled').find('select,div.lightswitch,input,button').attr('tabindex', '0');
             } else {
-                $(this).parent().nextAll('td').addClass('disabled').find('select,div.lightswitch,input').attr('tabindex', '-1');
+                $(this).parent().nextAll('td').addClass('disabled').find('select,div.lightswitch,input,button').attr('tabindex', '-1');
             }
         });
     }
@@ -116,5 +116,15 @@
 
     Garnish.$doc.ready(function() {
         updateSections();
+    });
+
+    $('.uid-btn').on('click', function(ev) {
+        ev.preventDefault();
+
+        var message = Craft.t('app', '{ctrl}C to copy.', {
+            ctrl: (navigator.appVersion.indexOf('Mac') !== -1 ? '⌘' : 'Ctrl-')
+        });
+
+        prompt(message, $(this).data('uid'));
     });
 {% endjs %}
