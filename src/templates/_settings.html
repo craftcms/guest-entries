@@ -24,7 +24,8 @@
                 enabledByDefault: sectionSettings.enabledByDefault,
                 runValidation: sectionSettings.runValidation,
                 sectionUid: {
-                    value: '<button class="uid-btn btn small" data-uid="' ~ section.uid ~ '">' ~ 'Copy'|t('guest-entries') ~ '</button>',
+                    value: '<button class="uid-btn btn small" data-uid="' ~ section.uid ~ '">' ~ 'Copy'|t('guest-entries') ~ '</button>' ~
+                        '<input type="hidden" name="'~namePrefix~'[sectionUid]" value="'~section.uid~'">',
                     class: 'code centeralign'
                 }
             }

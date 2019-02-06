@@ -1,5 +1,10 @@
 # Release Notes for Guest Entries
 
+## 2.2.2.1 - 2019-02-06
+
+### Fixed
+- Fixed a bug where the plugin settings weren’t saving. ([#45](https://github.com/craftcms/guest-entries/issues/45))
+
 ## 2.2.2 - 2019-02-04
 
 ### Changed
