@@ -1,7 +1,7 @@
 {% import "_includes/forms" as forms %}
 
 {% if sections|length %}
-	{% set sectionRows = [] %}
+    {% set sectionRows = [] %}
     {% for sectionInfo in sections %}
         {% set section = sectionInfo.section %}
         {% set sectionSettings = settings.getSection(section.uid) %}
@@ -11,18 +11,18 @@
         {% set sectionRows = sectionRows|merge({
             (section.handle): {
                 sectionName: section.name|t('site'),
-        		allowGuestSubmissions: include('_includes/forms/lightswitch', {
+                allowGuestSubmissions: include('_includes/forms/lightswitch', {
                     id: idPrefix~'-allowGuestSubmissions',
                     name: namePrefix~'[allowGuestSubmissions]',
                     on: sectionSettings.allowGuestSubmissions,
                     small: true
                 }),
-				authorUid: {
-					options: sectionInfo.authorOptions,
-					value: sectionSettings.authorUid
-				},
-				enabledByDefault: sectionSettings.enabledByDefault,
-				runValidation: sectionSettings.runValidation,
+                authorUid: {
+                    options: sectionInfo.authorOptions,
+                    value: sectionSettings.authorUid
+                },
+                enabledByDefault: sectionSettings.enabledByDefault,
+                runValidation: sectionSettings.runValidation,
                 sectionUid: {
                     value: '<button class="uid-btn btn small" data-uid="' ~ section.uid ~ '">' ~ 'Copy'|t('guest-entries') ~ '</button>',
                     class: 'code centeralign'
@@ -75,7 +75,7 @@
         staticRows: true
     }) }}
 {% else %}
-	<p>{{ "No sections available."|t('guest-entries') }}</p>
+    <p>{{ "No sections available."|t('guest-entries') }}</p>
 {% endif %}
 
 {% set systemCsrf = craft.app.config.general.enableCsrfProtection %}

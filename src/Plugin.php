@@ -92,7 +92,6 @@ class Plugin extends \craft\base\Plugin
         return $this->_formatAuthorOptions($authors);
     }
 
-
     /**
      * Formats the given list of authors for a select input.
      *
