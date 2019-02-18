@@ -223,7 +223,7 @@ class SaveController extends Controller
         // Create and populate the entry
         $entry = new Entry([
             'sectionId' => $section->id,
-            'authorId' => Db::idByUid('{{%users}}', $sectionSettings->authorUid),
+            'authorId' => Db::idByUid('{{%elements}}', $sectionSettings->authorUid),
             'siteId' => $request->getBodyParam('siteId'),
             'typeId' => $request->getBodyParam('typeId') ?? $section->getEntryTypes()[0]->id,
             'title' => $request->getBodyParam('title'),
