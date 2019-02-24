@@ -1,5 +1,10 @@
 # Release Notes for Guest Entries
 
+## 2.2.3 - 2019-02-24
+
+### Fixed
+- Fixed a bug where guest entries weren’t getting their author set properly. ([#43](https://github.com/craftcms/guest-entries/issues/43)) 
+
 ## 2.2.2.1 - 2019-02-06
 
 ### Fixed
