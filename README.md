@@ -58,7 +58,7 @@ Your guest entry template can look something like this:
 
     <label for="title">Title</label>
     <input id="title" type="text" name="title"
-        {%- if entry is defined %} value="{{ entry.title }}"{% endif -%}>
+        {%- if entry is defined %} value="{{ entry.title }}"{% endif %}>
     
     {% if entry is defined %}
         {{ errorList(entry.getErrors('title')) }}
