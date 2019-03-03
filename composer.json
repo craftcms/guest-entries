@@ -21,7 +21,7 @@
     "email": "support@craftcms.com",
     "issues": "https://github.com/craftcms/guest-entries/issues?state=open",
     "source": "https://github.com/craftcms/guest-entries",
-    "docs": "https://github.com/craftcms/guest-entries",
+    "docs": "https://github.com/craftcms/guest-entries/blob/v2/README.md",
     "rss": "https://github.com/craftcms/guest-entries/commits/v2.atom"
   },
   "require": {
@@ -35,7 +35,6 @@
   "extra": {
     "name": "Guest Entries",
     "handle": "guest-entries",
-    "changelogUrl": "https://raw.githubusercontent.com/craftcms/guest-entries/v2/CHANGELOG.md",
-    "downloadUrl": "https://github.com/craftcms/guest-entries/archive/v2.zip"
+    "documentationUrl": "https://github.com/craftcms/guest-entries/blob/v2/README.md"
   }
 }
