@@ -111,8 +111,21 @@ class SaveController extends Controller
             throw new BadRequestHttpException('Section '.$section->handle.' does not allow guest submissions.');
         }
 
-        // Populate the entry
-        $entry = $this->_populateEntryModel($section, $sectionSettings, $request);
+        // Check if entry exists
+        $entryId = $request->getBodyParam('entryId');
+
+        if ($entryId) {
+            // Update existing entry
+            $entriesService = Craft::$app->getEntries();
+
+            $entry = $entriesService->getEntryById((int) $entryId);
+
+            $fieldsLocation = $request->getParam('fieldsLocation', 'fields');
+            $entry->setFieldValuesFromRequest($fieldsLocation);
+        } else {
+            // Populate new entry
+            $entry = $this->_populateEntryModel($section, $sectionSettings, $request);
+        }
 
         // Fire an 'onBeforeSave' event
         $event = new SaveEvent(['entry' => $entry]);
