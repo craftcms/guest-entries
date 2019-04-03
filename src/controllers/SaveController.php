@@ -63,6 +63,7 @@ class SaveController extends Controller
     public function init()
     {
         $this->enableCsrfValidation = Plugin::getInstance()->getSettings()->enableCsrfProtection;
+        parent::init();
     }
 
     /**
