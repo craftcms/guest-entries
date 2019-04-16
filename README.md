@@ -77,7 +77,7 @@ Your guest entry template can look something like this:
 </form>
 ```
 
-You will need to adjust the hidden `sectionId` input to point to the section you would like to post guest entries to.
+You will need to adjust the hidden `sectionUid` input to point to the section you would like to post guest entries to.
 
 If you have a `redirect` hidden input, the user will get redirected to it upon successfully saving the entry.
 
