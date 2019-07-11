@@ -34,7 +34,9 @@ class SaveController extends Controller
     /**
      * @inheritdoc
      */
-    protected $allowAnonymous = true;
+    protected $allowAnonymous = [
+        'index' => self::ALLOW_ANONYMOUS_LIVE
+    ];
 
     // Constants
     // =========================================================================
