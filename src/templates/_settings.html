@@ -8,6 +8,12 @@
         {% set idPrefix = 'sections-'~section.handle %}
         {% set namePrefix = 'sections['~section.handle~']' %}
 
+        {# If the section is enabled, add a blank author option to the top in case the selected author no longer exists #}
+        {% set authorOptions = sectionInfo.authorOptions %}
+        {% if sectionSettings.allowGuestSubmissions %}
+            {% set authorOptions = [{label: '', value: ''}]|merge(authorOptions) %}
+        {% endif %}
+
         {% set sectionRows = sectionRows|merge({
             (section.handle): {
                 sectionName: section.name|t('site'),
@@ -18,8 +24,9 @@
                     small: true
                 }),
                 authorUid: {
-                    options: sectionInfo.authorOptions,
-                    value: sectionSettings.authorUid
+                    options: authorOptions,
+                    value: sectionSettings.authorUid,
+                    hasErrors: sectionSettings.hasErrors('authorUid'),
                 },
                 enabledByDefault: sectionSettings.enabledByDefault,
                 runValidation: sectionSettings.runValidation,

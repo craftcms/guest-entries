@@ -1,5 +1,13 @@
 # Release Notes for Guest Entries
 
+## Unreleased
+
+### Changed
+- Guest Entries now requires Craft 3.4 or later.
+
+### Fixed
+- Fixed a bug where it wasn’t clear when a section wasn’t configured with a default author. ([#56](https://github.com/craftcms/guest-entries/issues/56))
+
 ## 2.2.4 - 2019-07-11
 
 ### Fixed

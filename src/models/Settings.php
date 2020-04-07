@@ -90,4 +90,23 @@ class Settings extends Model
         $names[] = 'sections';
         return $names;
     }
+
+    /**
+     * @inheritdoc
+     */
+    protected function defineRules(): array
+    {
+        return [
+            [['sections'], 'validateSections'],
+        ];
+    }
+
+    public function validateSections()
+    {
+        foreach ($this->_sections as $uid => $section) {
+            if ($section->allowGuestSubmissions && !$section->validate()) {
+                $this->addModelErrors($section, "sections[$uid]");
+            }
+        }
+    }
 }

@@ -38,4 +38,14 @@ class SectionSettings extends Model
      * @var string|null The UID of the author that guest entries should be attributed to
      */
     public $authorUid;
+
+    /**
+     * @inheritdoc
+     */
+    protected function defineRules(): array
+    {
+        return [
+            [['authorUid'], 'required'],
+        ];
+    }
 }
