@@ -1,5 +1,10 @@
 # Release Notes for Guest Entries
 
+## 2.2.4 - 2019-07-11
+
+### Fixed
+- Fixed a Craft 3.2 compatibility issue.
+
 ## 2.2.3 - 2019-02-24
 
 ### Fixed
