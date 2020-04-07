@@ -1,6 +1,6 @@
 # Release Notes for Guest Entries
 
-## Unreleased
+## 2.3.0 - 2020-04-07
 
 ### Changed
 - Guest Entries now requires Craft 3.4 or later.
