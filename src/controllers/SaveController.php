@@ -173,7 +173,7 @@ class SaveController extends Controller
             ]);
         }
 
-        Craft::$app->getSession()->setNotice(Craft::t('guest-entries', 'Entry saved.'));
+        $this->setSuccessFlash(Craft::t('guest-entries', 'Entry saved.'));
 
         return $this->redirectToPostedUrl($entry);
     }
@@ -200,7 +200,7 @@ class SaveController extends Controller
             ]);
         }
 
-        Craft::$app->getSession()->setError(Craft::t('guest-entries', 'Couldn’t save entry.'));
+        $this->setFailFlash(Craft::t('guest-entries', 'Couldn’t save entry.'));
 
         // Send the entry back to the template
         Craft::$app->getUrlManager()->setRouteParams([

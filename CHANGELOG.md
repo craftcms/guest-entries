@@ -1,5 +1,11 @@
 # Release Notes for Guest Entries
 
+## Unreleased
+
+### Changed
+- Guest Entries now requires Craft 3.5 or later.
+- You can now customize the success/fail flash messages by passing a hashed successMessage/failMessage param with the request.
+
 ## 2.3.0 - 2020-04-07
 
 ### Changed
