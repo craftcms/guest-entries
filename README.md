@@ -1,6 +1,6 @@
 # Guest Entries for Craft CMS
 
-This plugin allows you to save guest entries from the front-end of your website.
+This plugin allows you to save guest entries from your site’s front end.
 
 ## Requirements
 
@@ -12,7 +12,7 @@ You can install this plugin from the Plugin Store or with Composer.
 
 #### From the Plugin Store
 
-Go to the Plugin Store in your project’s Control Panel and search for “Guest Entries”. Then click on the “Install” button in its modal window.
+Go to the Plugin Store in your project’s Control Panel and search for “Guest Entries”. Then press **Install** in its modal window.
 
 #### With Composer
 
@@ -26,12 +26,12 @@ cd /path/to/my-project.test
 composer require craftcms/guest-entries
 
 # tell Craft to install the plugin
-./craft install/plugin guest-entries
+php craft plugin/install guest-entries
 ```
 
 ## Settings
 
-From the plugin settings page, you can configure which sections you want to allow guest entry submissions for, as well as the default entry authors and statuses, and whether submissions should be validated before being accepted.
+From the plugin settings page, you can configure which sections should allow guest entry submissions, the default entry authors and statuses, and whether submissions should be validated before being accepted.
 
 ## Usage
 
@@ -40,48 +40,39 @@ Your guest entry template can look something like this:
 ```twig
 {% macro errorList(errors) %}
     {% if errors %}
-        <ul class="errors">
-            {% for error in errors %}
-                <li>{{ error }}</li>
-            {% endfor %}
-        </ul>
+        {{ ul(errors, {class: 'errors'}) }}
     {% endif %}
 {% endmacro %}
 
-{% from _self import errorList %}
+{% set entry = entry ?? null %}
 
 <form method="post" action="" accept-charset="UTF-8">
     {{ csrfInput() }}
-    <input type="hidden" name="action" value="guest-entries/save">
-    <input type="hidden" name="sectionUid" value="3b78a784-8b78-4442-8774-0b33bcb11733">
+    {{ actionInput('guest-entries/save') }}
+    {{ hiddenInput('sectionUid', '3b78a784-8b78-4442-8774-0b33bcb11733') }}
     {{ redirectInput('success') }}
 
     <label for="title">Title</label>
-    <input id="title" type="text" name="title"
-        {%- if entry is defined %} value="{{ entry.title }}"{% endif %}>
-    
-    {% if entry is defined %}
-        {{ errorList(entry.getErrors('title')) }}
-    {% endif %}
+    {{ input('text', 'title', entry ? entry.title, { id: 'title' }) }}
+    {{ entry ? _self.errorList(entry.getErrors('title')) }}
 
     <label for="body">Body</label>
-    <textarea id="body" name="fields[body]">
-        {%- if entry is defined %}{{ entry.body }}{% endif -%}
-    </textarea>
-    
-    {% if entry is defined %}
-        {{ errorList(entry.getErrors('body')) }}
-    {% endif %}
+    {{ tag('textarea', {
+        text: entry ? entry.body,
+        id: 'body',
+        name: 'fields[body]',
+    }) }}
+    {{ entry ? _self.errorList(entry.getErrors('body')) }}
 
-    <input type="submit" value="Publish">
+    <button type="submit">Publish</button>
 </form>
 ```
 
-You will need to adjust the hidden `sectionUid` input to point to the section you would like to post guest entries to.
+You’ll need to adjust the hidden `sectionUid` input to point to the section you’d like to post guest entries to.
 
-If you have a `redirect` hidden input, the user will get redirected to it upon successfully saving the entry.
+If you have a `redirect` input, the user will get redirected to its location upon successfully saving the entry.
 
-If there is a validation error on the entry, then the page will be reloaded with an `entry` variable available to it, set to a `craft\elements\Entry` model representing the submitted entry. You can fetch the posted values from that variable, as well as any validation errors via [`getErrors()`], [`getFirstError()`], or [`getFirstErrors()`]. (The name of this variable is configurable via the “Entry Variable Name” setting.)
+If there are validation errors on the entry, the page will be reloaded with an `entry` variable available to it. That `entry` variable will be a `craft\elements\Entry` model representing the submitted entry. You can fetch the posted values from that variable, as well as any validation errors via [`getErrors()`], [`getFirstError()`], or [`getFirstErrors()`]. (The name of this variable is configurable via the “Entry Variable Name” setting.)
 
 [`getErrors()`]: http://www.yiiframework.com/doc-2.0/yii-base-model.html#getErrors()-detail
 [`getFirstError()`]: http://www.yiiframework.com/doc-2.0/yii-base-model.html#getFirstError()-detail
@@ -92,7 +83,7 @@ If there is a validation error on the entry, then the page will be reloaded with
 If you submit your form via Ajax with an `Accept: application/json` header, a JSON response will be returned with the following keys:
 
 - `success` _(boolean)_ – Whether the entry was saved successfully
-- `errors` _(object)_ – All of the validation errors indexed by field name (if not saved)  
+- `errors` _(object)_ – All of the validation errors indexed by field name (if not saved)
 - `id` _(string)_ – the entry’s ID (if saved)
 - `title` _(string)_ – the entry’s title (if saved)
 - `authorUsername` _(string)_ – the entry’s author’s username (if saved)
@@ -112,16 +103,20 @@ use yii\base\Event;
 
 // ...
 
-Event::on(SaveController::class, SaveController::EVENT_BEFORE_SAVE_ENTRY, function(SaveEvent $e) {
-    // Grab the entry
-    $entry = $e->entry;
+Event::on(
+    SaveController::class,
+    SaveController::EVENT_BEFORE_SAVE_ENTRY,
+    function(SaveEvent $e) {
+        // Grab the entry
+        $entry = $e->entry;
 
-    $isSpam = // custom spam detection logic...
-    
-    if (!$isSpam) {
-        $e->isSpam = true;
+        $isSpam = // custom spam detection logic...
+        
+        if (!$isSpam) {
+            $e->isSpam = true;
+        }
     }
-});
+);
 ```
 
 ### The `afterSaveEntry` event
@@ -135,13 +130,17 @@ use yii\base\Event;
 
 // ...
 
-Event::on(SaveController::class, SaveController::EVENT_AFTER_SAVE_ENTRY, function(SaveEvent $e) {
-    // Grab the entry
-    $entry = $e->entry;
-    
-    // Was it flagged as spam?
-    $isSpam = $e->isSpam;
-});
+Event::on(
+    SaveController::class,
+    SaveController::EVENT_AFTER_SAVE_ENTRY,
+    function(SaveEvent $e) {
+        // Grab the entry
+        $entry = $e->entry;
+        
+        // Was it flagged as spam?
+        $isSpam = $e->isSpam;
+    }
+);
 ```
 
 ### The `afterError` event
@@ -155,11 +154,15 @@ use yii\base\Event;
 
 // ...
 
-Event::on(SaveController::class, SaveController::EVENT_AFTER_ERROR, function(SaveEvent $e) {
-    // Grab the entry
-    $entry = $e->entry;
+Event::on(
+    SaveController::class,
+    SaveController::EVENT_AFTER_ERROR,
+    function(SaveEvent $e) {
+        // Grab the entry
+        $entry = $e->entry;
 
-    // Get any validation errors
-    $errors = $entry->getErrors();
-});
+        // Get any validation errors
+        $errors = $entry->getErrors();
+    }
+);
 ```
