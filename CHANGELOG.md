@@ -1,5 +1,10 @@
 # Release Notes for Guest Entries
 
+## 3.0.0 - 2022-05-03
+
+### Added
+- Added Craft 3 compatibility.
+
 ## 2.4.0 - 2020-05-06
 
 ### Changed
