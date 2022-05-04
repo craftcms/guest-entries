@@ -30,7 +30,7 @@ class SectionSettings extends Model
     public $enabledByDefault = false;
 
     /**
-     * @var bool[] Whether guest entry submissions should be validated
+     * @var bool Whether guest entry submissions should be validated
      */
     public $runValidation = false;
 

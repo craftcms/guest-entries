@@ -4,9 +4,7 @@ namespace craft\guestentries\migrations;
 
 use Craft;
 use craft\db\Migration;
-use craft\db\Query;
 use craft\helpers\Db;
-use craft\helpers\Json;
 
 /**
  * m181105_160000_craft_31_compatibility migration.

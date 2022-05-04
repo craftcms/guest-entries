@@ -4,8 +4,6 @@ namespace craft\guestentries\migrations;
 
 use Craft;
 use craft\db\Migration;
-use craft\db\Query;
-use craft\helpers\Json;
 
 /**
  * m170710_200301_tweak_settings migration.

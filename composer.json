@@ -24,17 +24,37 @@
     "docs": "https://github.com/craftcms/guest-entries/blob/v2/README.md",
     "rss": "https://github.com/craftcms/guest-entries/commits/v2.atom"
   },
+  "minimum-stability": "dev",
+  "prefer-stable": true,
   "require": {
     "craftcms/cms": "^3.5.0"
+  },
+  "require-dev": {
+    "craftcms/ecs": "dev-main",
+    "craftcms/phpstan": "dev-main"
   },
   "autoload": {
     "psr-4": {
       "craft\\guestentries\\": "src/"
     }
   },
+  "scripts": {
+    "check-cs": "ecs check --ansi",
+    "fix-cs": "ecs check --ansi --fix",
+    "phpstan": "phpstan --memory-limit=1G"
+  },
   "extra": {
     "name": "Guest Entries",
     "handle": "guest-entries",
     "documentationUrl": "https://github.com/craftcms/guest-entries/blob/v2/README.md"
+  },
+  "config": {
+    "platform": {
+      "php": "7.2.5"
+    },
+    "allow-plugins": {
+      "yiisoft/yii2-composer": true,
+      "craftcms/plugin-installer": true
+    }
   }
 }

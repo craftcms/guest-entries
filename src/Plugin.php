@@ -37,7 +37,7 @@ class Plugin extends \craft\base\Plugin
     // =========================================================================
 
     /**
-     * @return mixed
+     * @return string
      */
     protected function settingsHtml(): string
     {
@@ -57,7 +57,7 @@ class Plugin extends \craft\base\Plugin
 
             $sections[] = [
                 'section' => $section,
-                'authorOptions' => $authorOptions ?? $this->_getSectionAuthorOptions($section)
+                'authorOptions' => $authorOptions ?? $this->_getSectionAuthorOptions($section),
             ];
         }
 
@@ -87,7 +87,7 @@ class Plugin extends \craft\base\Plugin
     private function _getSectionAuthorOptions(Section $section): array
     {
         $authors = User::find()
-            ->can('createEntries:'.$section->uid)
+            ->can('createEntries:' . $section->uid)
             ->all();
         return $this->_formatAuthorOptions($authors);
     }
@@ -106,7 +106,7 @@ class Plugin extends \craft\base\Plugin
             $authorLabel = $author->username;
 
             if ($fullName = $author->getFullName()) {
-                $authorLabel .= ' ('.$fullName.')';
+                $authorLabel .= ' (' . $fullName . ')';
             }
 
             $options[] = ['label' => $authorLabel, 'value' => $author->uid];

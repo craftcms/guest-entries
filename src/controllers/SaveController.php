@@ -19,6 +19,7 @@ use craft\helpers\Db;
 use craft\models\Section;
 use craft\web\Controller;
 use craft\web\Request;
+use craft\web\UrlManager;
 use yii\web\BadRequestHttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
@@ -92,7 +93,7 @@ class SaveController extends Controller
 
         if ($sectionHandle) {
             $section = $sectionService->getSectionByHandle($sectionHandle);
-        } else if ($sectionUid) {
+        } elseif ($sectionUid) {
             $section = $sectionService->getSectionByUid($sectionUid);
         } else {
             $section = $sectionService->getSectionById((int) $sectionId);
@@ -109,7 +110,7 @@ class SaveController extends Controller
         $sectionSettings = $settings->getSection($sectionUid);
 
         if (!$sectionSettings->allowGuestSubmissions) {
-            throw new BadRequestHttpException('Section '.$section->handle.' does not allow guest submissions.');
+            throw new BadRequestHttpException('Section ' . $section->handle . ' does not allow guest submissions.');
         }
 
         // Populate the entry
@@ -148,7 +149,7 @@ class SaveController extends Controller
      * Returns a 'success' response.
      *
      * @param Entry $entry
-     * @param       $isSpam
+     * @param bool $isSpam
      * @return Response
      */
     private function _returnSuccess(Entry $entry, $isSpam = false): Response
@@ -156,7 +157,7 @@ class SaveController extends Controller
         if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_ENTRY)) {
             $this->trigger(self::EVENT_AFTER_SAVE_ENTRY, new SaveEvent([
                 'entry' => $entry,
-                'isSpam' => $isSpam
+                'isSpam' => $isSpam,
             ]));
         }
 
@@ -189,7 +190,7 @@ class SaveController extends Controller
     {
         if ($this->hasEventHandlers(self::EVENT_AFTER_ERROR)) {
             $this->trigger(self::EVENT_AFTER_ERROR, new SaveEvent([
-                'entry' => $entry
+                'entry' => $entry,
             ]));
         }
 
@@ -203,8 +204,10 @@ class SaveController extends Controller
         $this->setFailFlash(Craft::t('guest-entries', 'Couldn’t save entry.'));
 
         // Send the entry back to the template
-        Craft::$app->getUrlManager()->setRouteParams([
-            'variables' => [$settings->entryVariable => $entry]
+        /** @var UrlManager $urlManager */
+        $urlManager = Craft::$app->getUrlManager();
+        $urlManager->setRouteParams([
+            'variables' => [$settings->entryVariable => $entry],
         ]);
 
         return null;
