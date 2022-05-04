@@ -35,7 +35,7 @@ class SaveController extends Controller
     /**
      * @inheritdoc
      */
-    protected $allowAnonymous = true;
+    protected array|int|bool $allowAnonymous = true;
 
     // Constants
     // =========================================================================
@@ -43,17 +43,17 @@ class SaveController extends Controller
     /**
      * @event SaveEvent The event that is triggered before a guest entry is saved.
      */
-    const EVENT_BEFORE_SAVE_ENTRY = 'beforeSaveEntry';
+    public const EVENT_BEFORE_SAVE_ENTRY = 'beforeSaveEntry';
 
     /**
      * @event SaveEvent The event that is triggered after a guest entry is saved.
      */
-    const EVENT_AFTER_SAVE_ENTRY = 'afterSaveEntry';
+    public const EVENT_AFTER_SAVE_ENTRY = 'afterSaveEntry';
 
     /**
      * @event SaveEvent The event that is triggered after an error occurs.
      */
-    const EVENT_AFTER_ERROR = 'afterError';
+    public const EVENT_AFTER_ERROR = 'afterError';
 
     // Public Methods
     // =========================================================================
@@ -61,7 +61,7 @@ class SaveController extends Controller
     /**
      * @inheritdoc
      */
-    public function init()
+    public function init(): void
     {
         $this->enableCsrfValidation = Plugin::getInstance()->getSettings()->enableCsrfProtection;
         parent::init();

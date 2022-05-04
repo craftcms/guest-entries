@@ -8,6 +8,7 @@
 namespace craft\guestentries;
 
 use Craft;
+use craft\base\Model;
 use craft\elements\User;
 use craft\guestentries\models\Settings;
 use craft\models\Section;
@@ -26,12 +27,12 @@ class Plugin extends \craft\base\Plugin
     /**
      * @inheritdoc
      */
-    public $schemaVersion = '2.1.0';
+    public string $schemaVersion = '2.1.0';
 
     /**
      * @inheritdoc
      */
-    public $hasCpSettings = true;
+    public bool $hasCpSettings = true;
 
     // Protected Methods
     // =========================================================================
@@ -39,7 +40,7 @@ class Plugin extends \craft\base\Plugin
     /**
      * @return string
      */
-    protected function settingsHtml(): string
+    protected function settingsHtml(): ?string
     {
         $sections = [];
         $craftEdition = Craft::$app->getEdition();
@@ -70,7 +71,7 @@ class Plugin extends \craft\base\Plugin
     /**
      * @inheritdoc
      */
-    protected function createSettingsModel(): Settings
+    protected function createSettingsModel(): ?Model
     {
         return new Settings();
     }
@@ -105,7 +106,7 @@ class Plugin extends \craft\base\Plugin
         foreach ($authors as $author) {
             $authorLabel = $author->username;
 
-            if ($fullName = $author->getFullName()) {
+            if ($fullName = $author->fullName) {
                 $authorLabel .= ' (' . $fullName . ')';
             }
 
