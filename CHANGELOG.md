@@ -1,6 +1,6 @@
 # Release Notes for Guest Entries
 
-## Unreleased
+## 3.0.1 - 2022-05-11
 
 ### Fixed
 - Fixed a PHP error that would occur when submitting a form.  
