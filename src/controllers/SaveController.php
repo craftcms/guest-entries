@@ -234,7 +234,6 @@ class SaveController extends Controller
             'slug' => $request->getBodyParam('slug'),
             'enabled' => (bool)$sectionSettings->enabledByDefault,
             'enabledForSite' => (bool)$request->getBodyParam('enabledForSite', true),
-            'newParentId' => $request->getBodyParam('parentId'),
         ]);
 
         if (($postDate = $request->getBodyParam('postDate')) !== null) {
@@ -243,6 +242,10 @@ class SaveController extends Controller
 
         if (($expiryDate = $request->getBodyParam('expiryDate')) !== null) {
             $entry->expiryDate = DateTimeHelper::toDateTime($expiryDate) ?: null;
+        }
+
+        if (($newParentId = $request->getBodyParam('parentId')) !== null) {
+            $entry->setParentId($newParentId);
         }
 
         $fieldsLocation = $request->getParam('fieldsLocation', 'fields');
