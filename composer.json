@@ -1,6 +1,6 @@
 {
   "name": "craftcms/guest-entries",
-  "description":"This plugin allows you to save guest entries from the front-end of your website.",
+  "description": "This plugin allows you to save guest entries from the front-end of your website.",
   "type": "craft-plugin",
   "keywords": [
     "cms",
