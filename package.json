@@ -1,5 +1,5 @@
 {
-  "name": "@craftcms/aws-s3",
+  "name": "@craftcms/guest-entries",
   "private": true,
   "devDependencies": {
     "husky": "^7.0.4",
