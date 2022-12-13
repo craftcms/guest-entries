@@ -103,7 +103,7 @@ Name | Notes | Required
 `enabledForSite` | Whether the entry should be enabled in this site. The global `enabled` setting is configurable by administrators, so this alone will not immediately publish something. | 
 `fields[...]` | Any custom fields you want guests to be able to populate. If entries in the designated section are enabled by default, validation will occur on all custom fields, meaning those marked as _required_ in the entry type’s field layout must be sent with the submission. Refer to the [field types] documentation to learn about the kinds of values that Craft accepts. | 
 
-[`DateTimeHelper::toDateTime()]`: https://docs.craftcms.com/api/v4/craft-helpers-datetimehelper.html#method-todatetime
+[`DateTimeHelper::toDateTime()`]: https://docs.craftcms.com/api/v4/craft-helpers-datetimehelper.html#method-todatetime
 [field types]: https://craftcms.com/docs/4.x/fields.html#field-types
 
 ### Form Tips
