@@ -91,8 +91,8 @@ The following parameters can be sent with a submission:
 Name | Notes | Required
 ---- | ----- | --------
 `sectionHandle` | Determines what section the entry will be created in. | ✓
-`sectionUid` | Can be sent in lieu of `sectionHandle` | 
-`sectionId` | Can be sent in lieu of `sectionHandle` | 
+`sectionUid` | Can be sent in lieu of `sectionHandle`. | 
+`sectionId` | Can be sent in lieu of `sectionHandle`. | 
 `typeId` | Entry type ID to use. This may affect which custom fields are required. When absent, the first configured type for the specified section is used. | 
 `title` | Optional if the section has automatic title formatting enabled. | ✓
 `slug` | Explicitly sets the new entry’s slug. | 
