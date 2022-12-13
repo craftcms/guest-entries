@@ -10,11 +10,11 @@ _Guest Entries_ requires Craft CMS 4.0 or later.
 
 You can install _Guest Entries_ from the [Plugin Store](https://plugins.craftcms.com/guest-entries) or with Composer.
 
-#### From the Plugin Store
+### From the Plugin Store
 
 Go to the **Plugin Store** in your project’s control panel (in an environment that allows [admin changes](https://craftcms.com/docs/4.x/config/general.html#allowadminchanges)), search for “Guest Entries,” then click **Install**.
 
-#### With Composer
+### With Composer
 
 Open your terminal and run the following commands:
 
