@@ -96,15 +96,15 @@ Name | Notes | Required
 `typeId` | Entry type ID to use. This may affect which custom fields are required. When absent, the first configured type for the specified section is used. | 
 `title` | Optional if the section has automatic title formatting enabled. | ✓
 `slug` | Explicitly sets the new entry’s slug. | 
-`postDate` | Value should be processable by [`DateTimeHelper::toDateTime()`] | 
-`expiryDate` | Value should be processable by [`DateTimeHelper::toDateTime()`] | 
+`postDate` | Value should be processable by [`DateTimeHelper::toDateTime()`][api:date-time-helper] | 
+`expiryDate` | Value should be processable by [`DateTimeHelper::toDateTime()`][api:date-time-helper] | 
 `parentId` | Nest this entry under another. Invalid for channels and structures with a maximum depth of `1`. | 
 `siteId` | Create the entry in a specific site. | 
 `enabledForSite` | Whether the entry should be enabled in this site. The global `enabled` setting is configurable by administrators, so this alone will not immediately publish something. | 
-`fields[...]` | Any custom fields you want guests to be able to populate. If entries in the designated section are enabled by default, validation will occur on all custom fields, meaning those marked as _required_ in the entry type’s field layout must be sent with the submission. Refer to the [field types] documentation to learn about the kinds of values that Craft accepts. | 
+`fields[...]` | Any custom fields you want guests to be able to populate. If entries in the designated section are enabled by default, validation will occur on all custom fields, meaning those marked as _required_ in the entry type’s field layout must be sent with the submission. Refer to the [field types][docs:field-types] documentation to learn about the kinds of values that Craft accepts. | 
 
-[`DateTimeHelper::toDateTime()`]: https://docs.craftcms.com/api/v4/craft-helpers-datetimehelper.html#method-todatetime
-[field types]: https://craftcms.com/docs/4.x/fields.html#field-types
+[api:date-time-helper]: https://docs.craftcms.com/api/v4/craft-helpers-datetimehelper.html#method-todatetime
+[docs:field-types]: https://craftcms.com/docs/4.x/fields.html#field-types
 
 ### Form Tips
 
@@ -131,15 +131,15 @@ Send a `redirect` param to send the user to a specific location upon successfull
 
 ### Validation Errors
 
-If there are validation errors on the entry, the page will be reloaded with the populated [`craft\elements\Entry`] object available under an `entry` variable. You can access the posted values from that object as though it were a normal entry—or display errors with [`getErrors()`], [`getFirstError()`], or [`getFirstErrors()`].
+If there are validation errors on the entry, the page will be reloaded with the populated [`craft\elements\Entry`][api:entry] object available under an `entry` variable. You can access the posted values from that object as though it were a normal entry—or display errors with [`getErrors()`][yii:base-model-getErrors], [`getFirstError()`][yii:base-model-getFirstError], or [`getFirstErrors()`][yii:base-model-getFirstErrors].
 
 > **Note**  
 > The `entry` variable can be renamed with the “Entry Variable Name” [setting](#settings) in the control panel. This might be necessary if you want to use a form on an entry page that already injects a variable of that name.
 
-[`craft\elements\Entry`]: https://docs.craftcms.com/api/v4/craft-elements-entry.html
-[`getErrors()`]: http://www.yiiframework.com/doc-2.0/yii-base-model.html#getErrors()-detail
-[`getFirstError()`]: http://www.yiiframework.com/doc-2.0/yii-base-model.html#getFirstError()-detail
-[`getFirstErrors()`]: http://www.yiiframework.com/doc-2.0/yii-base-model.html#getFirstErrors()-detail
+[api:entry]: https://docs.craftcms.com/api/v4/craft-elements-entry.html
+[yii:base-model-getErrors]: http://www.yiiframework.com/doc-2.0/yii-base-model.html#getErrors()-detail
+[yii:base-model-getFirstError]: http://www.yiiframework.com/doc-2.0/yii-base-model.html#getFirstError()-detail
+[yii:base-model-getFirstErrors]: http://www.yiiframework.com/doc-2.0/yii-base-model.html#getFirstErrors()-detail
 
 ### Submitting via Ajax
 
