@@ -110,7 +110,7 @@ Name | Notes | Required
 
 #### Specifying a Section + Entry Type
 
-The plugin determines what section the new entry is created in by looking for a `sectionHandle`, `sectionUid`, or `sectionId` param, _in this order_. Entry types, on the other hand, can only be defined by a `typeId` param—but because IDs can be unstable between environments, you must look it up by a known identifier.
+The plugin determines what section the new entry is created in by looking for a `sectionHandle`, `sectionUid`, or `sectionId` param, _in this order_. Entry types, on the other hand, can only be defined by a `typeId` param—but because IDs [can be unstable](https://craftcms.com/docs/4.x/project-config.html#ids-uuids-and-handles) between environments, you must look them up by a known identifier.
 
 Granted you will already have a section (or at least a section _handle_), the easiest way to do this is via the section model:
 
