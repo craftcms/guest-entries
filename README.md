@@ -125,9 +125,35 @@ Granted you will already have a section (or at least a section _handle_), the ea
 {{ hiddenInput('typeId', targetEntryType.id) }}
 ```
 
-### Redirection
+### Validation Errors
+
+If there are validation errors on the entry, the page will be reloaded with the populated [`craft\elements\Entry`][api:entry] object available under an `entry` variable. You can access the posted values from that object as though it were a normal entry—or display errors with [`getErrors()`][yii:base-model-getErrors], [`getFirstError()`][yii:base-model-getFirstError], or [`getFirstErrors()`][yii:base-model-getFirstErrors].
+
+> **Note**  
+> The `entry` variable can be renamed with the “Entry Variable Name” [setting](#settings) in the control panel. This might be necessary if you want to use a form on an entry page that already injects a variable of that name.
+
+[api:entry]: https://docs.craftcms.com/api/v4/craft-elements-entry.html
+[yii:base-model-getErrors]: http://www.yiiframework.com/doc-2.0/yii-base-model.html#getErrors()-detail
+[yii:base-model-getFirstError]: http://www.yiiframework.com/doc-2.0/yii-base-model.html#getFirstError()-detail
+[yii:base-model-getFirstErrors]: http://www.yiiframework.com/doc-2.0/yii-base-model.html#getFirstErrors()-detail
+
+#### Redirection
 
 Send a `redirect` param to send the user to a specific location upon successfully saving an entry. In the example above, this is handled via the [`redirectInput('...')` function](https://craftcms.com/docs/4.x/dev/functions.html#redirectinput). The path is evaluated as an [object template](https://craftcms.com/docs/4.x/dev/controller-actions.html#after-a-post-request), and can include properties of the saved entry in `{curlyBraces}`.
+
+### Submitting via Ajax
+
+If you submit your form [via Ajax](https://craftcms.com/docs/4.x/dev/controller-actions.html#ajax) with an `Accept: application/json` header, a JSON response will be returned with the following keys:
+
+- `success` _(boolean)_ – Whether the entry was saved successfully
+- `errors` _(object)_ – All of the validation errors indexed by field name (if not saved)
+- `id` _(string)_ – the entry’s ID (if saved)
+- `title` _(string)_ – the entry’s title (if saved)
+- `authorUsername` _(string)_ – the entry’s author’s username (if saved)
+- `dateCreated` _(string)_ – the entry’s creation date in ISO 8601 format (if saved)
+- `dateUpdated` _(string)_ – the entry’s update date in ISO 8601 format (if saved)
+- `postDate` _(string, null)_ – the entry’s post date in ISO 8601 format (if saved and enabled)
+- `url` _(string, null)_ – the entry’s public URL (if saved, enabled, and in a section that has URLs)
 
 ### Viewing Entries
 
@@ -179,32 +205,6 @@ return [
 ```
 
 This query selects only `disabled` entries so that the “preview” is invalidated once the entry goes live. This “confirmation” URI does _not_ need to match the actual URI of the entry.
-
-### Validation Errors
-
-If there are validation errors on the entry, the page will be reloaded with the populated [`craft\elements\Entry`][api:entry] object available under an `entry` variable. You can access the posted values from that object as though it were a normal entry—or display errors with [`getErrors()`][yii:base-model-getErrors], [`getFirstError()`][yii:base-model-getFirstError], or [`getFirstErrors()`][yii:base-model-getFirstErrors].
-
-> **Note**  
-> The `entry` variable can be renamed with the “Entry Variable Name” [setting](#settings) in the control panel. This might be necessary if you want to use a form on an entry page that already injects a variable of that name.
-
-[api:entry]: https://docs.craftcms.com/api/v4/craft-elements-entry.html
-[yii:base-model-getErrors]: http://www.yiiframework.com/doc-2.0/yii-base-model.html#getErrors()-detail
-[yii:base-model-getFirstError]: http://www.yiiframework.com/doc-2.0/yii-base-model.html#getFirstError()-detail
-[yii:base-model-getFirstErrors]: http://www.yiiframework.com/doc-2.0/yii-base-model.html#getFirstErrors()-detail
-
-### Submitting via Ajax
-
-If you submit your form [via Ajax](https://craftcms.com/docs/4.x/dev/controller-actions.html#ajax) with an `Accept: application/json` header, a JSON response will be returned with the following keys:
-
-- `success` _(boolean)_ – Whether the entry was saved successfully
-- `errors` _(object)_ – All of the validation errors indexed by field name (if not saved)
-- `id` _(string)_ – the entry’s ID (if saved)
-- `title` _(string)_ – the entry’s title (if saved)
-- `authorUsername` _(string)_ – the entry’s author’s username (if saved)
-- `dateCreated` _(string)_ – the entry’s creation date in ISO 8601 format (if saved)
-- `dateUpdated` _(string)_ – the entry’s update date in ISO 8601 format (if saved)
-- `postDate` _(string, null)_ – the entry’s post date in ISO 8601 format (if saved and enabled)
-- `url` _(string, null)_ – the entry’s public URL (if saved, enabled, and in a section that has URLs)
 
 ## Events
 
