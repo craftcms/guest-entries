@@ -101,7 +101,7 @@ Name | Notes | Required
 `parentId` | Nest this entry under another. Invalid for channels and structures with a maximum depth of `1`. | 
 `siteId` | Create the entry in a specific site. | 
 `enabledForSite` | Whether the entry should be enabled in this site. The global `enabled` setting is configurable by administrators, so this alone will not immediately publish something. | 
-`fields[...]` | Any custom fields you want guests to be able to populate. If entries in the designated section are enabled by default, validation will occur on all custom fields, meaning those marked as _required_ in the entry type’s field layout must be sent with the submission. Refer to the [field types][docs:field-types] documentation to learn about the kinds of values that Craft accepts. | 
+`fields[...]` | Any [custom fields](#sending-custom-fields) you want guests to be able to populate. | 
 
 [api:date-time-helper]: https://docs.craftcms.com/api/v4/craft-helpers-datetimehelper.html#method-todatetime
 [docs:field-types]: https://craftcms.com/docs/4.x/fields.html#field-types
@@ -125,7 +125,23 @@ Granted you will already have a section (or at least a section _handle_), the ea
 {{ hiddenInput('typeId', targetEntryType.id) }}
 ```
 
-### Validation Errors
+#### Sending Custom Fields
+
+Custom field data should be nested under the `fields` key, with the field name in `[squareBrackets]`:
+
+```twig
+<input
+    type="text"
+    name="fields[myCustomFieldHandle]"
+    value="{{ entry ? entry.myCustomFieldHandle }}">
+```
+
+If entries in the designated section are enabled by default, validation will occur on _all_ custom fields, meaning those marked as _required_ in the entry type’s field layout must be sent with the submission. Refer to the [field types][docs:field-types] documentation to learn about the kinds of values that Craft accepts.
+
+> **Warning**  
+> Omitting a field from your form does not mean it is safe from tampering! Clever users may be able to modify the request payload and submit additional field data. If this presents a problem for your site, consider using an [event](#events) to clear values or reject submissions.
+
+#### Validation Errors
 
 If there are validation errors on the entry, the page will be reloaded with the populated [`craft\elements\Entry`][api:entry] object available under an `entry` variable. You can access the posted values from that object as though it were a normal entry—or display errors with [`getErrors()`][yii:base-model-getErrors], [`getFirstError()`][yii:base-model-getFirstError], or [`getFirstErrors()`][yii:base-model-getFirstErrors].
 
