@@ -164,7 +164,7 @@ class SaveController extends Controller
         return $this->asModelSuccess(
             $entry,
             Craft::t('guest-entries', 'Entry saved.'),
-            $settings->entryVariable,
+            'entry',
         );
     }
 
