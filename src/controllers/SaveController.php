@@ -161,22 +161,11 @@ class SaveController extends Controller
             ]));
         }
 
-        if (Craft::$app->getRequest()->getAcceptsJson()) {
-            return $this->asJson([
-                'success' => true,
-                'id' => $entry->id,
-                'title' => $entry->title,
-                'authorUsername' => $entry->getAuthor()->username,
-                'dateCreated' => DateTimeHelper::toIso8601($entry->dateCreated),
-                'dateUpdated' => DateTimeHelper::toIso8601($entry->dateUpdated),
-                'postDate' => $entry->postDate ? DateTimeHelper::toIso8601($entry->postDate) : null,
-                'url' => $entry->getUrl(),
-            ]);
-        }
-
-        $this->setSuccessFlash(Craft::t('guest-entries', 'Entry saved.'));
-
-        return $this->redirectToPostedUrl($entry);
+        return $this->asModelSuccess(
+            $entry,
+            Craft::t('guest-entries', 'Entry saved.'),
+            $settings->entryVariable,
+        );
     }
 
     /**
@@ -184,9 +173,9 @@ class SaveController extends Controller
      *
      * @param Settings $settings
      * @param Entry $entry
-     * @return Response|null
+     * @return Response
      */
-    private function _returnError(Settings $settings, Entry $entry)
+    private function _returnError(Settings $settings, Entry $entry): Response
     {
         if ($this->hasEventHandlers(self::EVENT_AFTER_ERROR)) {
             $this->trigger(self::EVENT_AFTER_ERROR, new SaveEvent([
@@ -194,23 +183,11 @@ class SaveController extends Controller
             ]));
         }
 
-        if (Craft::$app->getRequest()->getAcceptsJson()) {
-            return $this->asJson([
-                'success' => false,
-                'errors' => $entry->getErrors(),
-            ]);
-        }
-
-        $this->setFailFlash(Craft::t('guest-entries', 'Couldn’t save entry.'));
-
-        // Send the entry back to the template
-        /** @var UrlManager $urlManager */
-        $urlManager = Craft::$app->getUrlManager();
-        $urlManager->setRouteParams([
-            'variables' => [$settings->entryVariable => $entry],
-        ]);
-
-        return null;
+        return $this->asModelFailure(
+            $entry,
+            Craft::t('guest-entries', 'Couldn’t save entry.'),
+            $settings->entryVariable,
+        );
     }
 
     /**
