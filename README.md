@@ -4,7 +4,7 @@ Allow guests to create entries from your site’s front end.
 
 ## Requirements
 
-_Guest Entries_ requires Craft CMS 4.0 or later.
+_Guest Entries_ requires Craft CMS 4.0.0+ or 5.0.0+.
 
 ## Installation
 

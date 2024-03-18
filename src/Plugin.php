@@ -50,7 +50,12 @@ class Plugin extends \craft\base\Plugin
             $authorOptions = $this->_formatAuthorOptions($authors);
         }
 
-        foreach (Craft::$app->sections->getAllSections() as $section) {
+        if (version_compare(Craft::$app->getVersion(), '5.0.0-beta.1', '<')) {
+            $sectionService = Craft::$app->getSections();
+        } else {
+            $sectionService = Craft::$app->getEntries();
+        }
+        foreach ($sectionService->getAllSections() as $section) {
             // No sense in doing this for singles.
             if ($section->type === Section::TYPE_SINGLE) {
                 continue;
