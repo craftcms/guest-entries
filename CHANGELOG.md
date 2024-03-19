@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Added Craft 5 compatibility.
+- The `guest-entries/save` action now responds with all entry data nested in an `entry` key, and a `200` or `400` response status depending on whether the action was successful or failed, when requested via Ajax. ([#85](https://github.com/craftcms/guest-entries/pull/85)) 
 
 ## 3.0.1 - 2022-05-11
 
