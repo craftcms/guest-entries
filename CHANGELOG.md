@@ -1,5 +1,9 @@
 # Release Notes for Guest Entries
 
+## Unreleased
+
+- Added Craft 5 compatibility.
+
 ## 3.0.1 - 2022-05-11
 
 ### Fixed
