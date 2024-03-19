@@ -88,7 +88,11 @@ class SaveController extends Controller
         $sectionUid = $request->getBodyParam('sectionUid');
         $sectionHandle = $request->getBodyParam('sectionHandle');
 
-        $sectionService = Craft::$app->getSections();
+        if (version_compare(Craft::$app->getVersion(), '5.0.0-beta.1', '<')) {
+            $sectionService = Craft::$app->getSections();
+        } else {
+            $sectionService = Craft::$app->getEntries();
+        }
 
         if ($sectionHandle) {
             $section = $sectionService->getSectionByHandle($sectionHandle);
