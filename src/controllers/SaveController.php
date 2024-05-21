@@ -176,9 +176,9 @@ class SaveController extends Controller
      *
      * @param Settings $settings
      * @param Entry $entry
-     * @return Response
+     * @return Response|null
      */
-    private function _returnError(Settings $settings, Entry $entry): Response
+    private function _returnError(Settings $settings, Entry $entry): ?Response
     {
         if ($this->hasEventHandlers(self::EVENT_AFTER_ERROR)) {
             $this->trigger(self::EVENT_AFTER_ERROR, new SaveEvent([
