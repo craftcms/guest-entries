@@ -1,6 +1,6 @@
 # Release Notes for Guest Entries
 
-## Unreleased
+## 4.0.1 - 2024-05-22
 
 - Fixed a PHP error that could occur when front-end validation failed. ([#87](https://github.com/craftcms/guest-entries/issues/87))
 
