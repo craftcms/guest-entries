@@ -2,8 +2,7 @@
 
 ## Unreleased
 
-### Fixed
-- Fixed a PHP error that could occur on validation failure. ([#87](https://github.com/craftcms/guest-entries/issues/87))
+- Fixed a PHP error that could occur when front-end validation failed. ([#87](https://github.com/craftcms/guest-entries/issues/87))
 
 ## 4.0.0 - 2024-03-19
 
