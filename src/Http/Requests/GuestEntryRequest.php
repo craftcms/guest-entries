@@ -60,6 +60,24 @@ class GuestEntryRequest extends FormRequest
     {
         return collect(Plugin::getInstance()->getSettings()->sections)
             ->where('allowGuestSubmissions')
-            ->map(fn($section) => Sections::getSectionByUid($section['sectionUid']));
+            ->pluck('sectionUid')
+            ->map(Sections::getSectionByUid(...));
+    }
+
+    public function resolveSection(): ?Section
+    {
+        if ($sectionId = $this->integer('sectionId')) {
+            return Sections::getSectionById($sectionId);
+        }
+
+        if ($sectionHandle = $this->input('sectionHandle')) {
+            return Sections::getSectionByHandle($sectionHandle);
+        }
+
+        if ($sectionUid = $this->input('sectionUid')) {
+            return Sections::getSectionByUid($sectionUid);
+        }
+
+        return null;
     }
 }

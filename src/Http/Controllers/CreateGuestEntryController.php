@@ -37,7 +37,7 @@ class CreateGuestEntryController
         // abort_if($request->isNotFilled(['sectionId', 'sectionHandle', 'sectionUid']), 400, t('The request did not include a section identifier.', category: 'guest-entries'));
 
         $site = $sites->getCurrentSite();
-        $section = $this->resolveSection($request->safe(['sectionId', 'sectionHandle', 'sectionUid']));
+        $section = $request->resolveSection();
         $types = $section->getEntryTypes();
 
         abort_unless(isset($section->getSiteSettings()[$site->id]), 400, t('The selected section does not exist in this site.', category: 'guest-entries'));
@@ -112,16 +112,5 @@ class CreateGuestEntryController
             t('The entry was saved successfully.', category: 'guest-entries'),
             Plugin::getInstance()->getSettings()->entryVariable,
         );
-    }
-
-    private function resolveSection(array $input): Section
-    {
-        $source = array_key_first($input);
-
-        return match ($source) {
-            'sectionId' => SectionsFacade::getSectionById($input['sectionId']),
-            'sectionHandle' => SectionsFacade::getSectionByHandle($input['sectionHandle']),
-            'sectionUid' => SectionsFacade::getSectionByUid($input['sectionUid']),
-        };
     }
 }
