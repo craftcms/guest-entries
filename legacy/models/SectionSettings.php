@@ -9,6 +9,9 @@ namespace craft\guestentries\models;
 
 use craft\base\Model;
 
+/**
+ * @deprecated 5.0.0 No longer used! Settings are stored as a plain array using Laravel validation rules. {@see \CraftCms\GuestEntries\Settings::getRules()}
+ */
 class SectionSettings extends Model
 {
     // Properties

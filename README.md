@@ -81,30 +81,30 @@ A basic guest entry template should look something like this:
 </form>
 ```
 
-> **Note**  
-> The process of submitting data and handling success and error states is outlined in the [controller actions](https://craftcms.com/docs/4.x/dev/controller-actions.html) documentation.
+> [!NOTE]
+> The process of submitting data and handling success and error states is outlined in the [forms](https://craftcms.com/docs/5.x/development/forms.html) documentation.
 
 ### Supported Params
 
 The following parameters can be sent with a submission:
 
-Name | Notes | Required
----- | ----- | --------
-`sectionHandle` | Determines what section the entry will be created in. | ✓
-`sectionUid` | Can be sent in lieu of `sectionHandle`. | 
-`sectionId` | Can be sent in lieu of `sectionHandle`. | 
-`typeId` | Entry type ID to use. This may affect which custom fields are required. When absent, the first configured type for the specified section is used. | 
-`title` | Optional if the section has automatic title formatting enabled. | ✓
-`slug` | Explicitly sets the new entry’s slug. | 
-`postDate` | Value should be processable by [`DateTimeHelper::toDateTime()`][api:date-time-helper] | 
-`expiryDate` | Value should be processable by [`DateTimeHelper::toDateTime()`][api:date-time-helper] | 
-`parentId` | Nest this entry under another. Invalid for channels and structures with a maximum depth of `1`. | 
-`siteId` | Create the entry in a specific site. | 
-`enabledForSite` | Whether the entry should be enabled in this site. The global `enabled` setting is configurable by administrators, so this alone will not immediately publish something. | 
-`fields[...]` | Any [custom fields](#sending-custom-fields) you want guests to be able to populate. | 
+| Name             | Notes                                                                                                                                                                   | Required |
+|------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------|
+| `sectionHandle`  | Determines what section the entry will be created in.                                                                                                                   | ✓        |
+| `sectionUid`     | Can be sent in lieu of `sectionHandle`.                                                                                                                                 |          |
+| `sectionId`      | Can be sent in lieu of `sectionHandle`.                                                                                                                                 |          |
+| `typeId`         | Entry type ID to use. This may affect which custom fields are required. When absent, the first configured type for the specified section is used.                       |          |
+| `title`          | Optional if the section has automatic title formatting enabled.                                                                                                         | ✓        |
+| `slug`           | Explicitly sets the new entry’s slug.                                                                                                                                   |          |
+| `postDate`       | Value should be processable by [`DateTimeHelper::toDateTime()`][api:date-time-helper]                                                                                   |          |
+| `expiryDate`     | Value should be processable by [`DateTimeHelper::toDateTime()`][api:date-time-helper]                                                                                   |          |
+| `parentId`       | Nest this entry under another. Invalid for channels and structures with a maximum depth of `1`.                                                                         |          |
+| `siteId`         | Create the entry in a specific site.                                                                                                                                    |          |
+| `enabledForSite` | Whether the entry should be enabled in this site. The global `enabled` setting is configurable by administrators, so this alone will not immediately publish something. |          |
+| `fields[...]`    | Any [custom fields](#sending-custom-fields) you want guests to be able to populate.                                                                                     |          |
 
-[api:date-time-helper]: https://docs.craftcms.com/api/v4/craft-helpers-datetimehelper.html#method-todatetime
-[docs:field-types]: https://craftcms.com/docs/4.x/fields.html#field-types
+[api:date-time-helper]: https://docs.craftcms.com/api/v5/craft-helpers-datetimehelper.html#method-todatetime
+[docs:field-types]: https://craftcms.com/docs/5.x/system/fields.html#field-types
 
 ### Form Tips
 

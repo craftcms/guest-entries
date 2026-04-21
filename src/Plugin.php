@@ -1,123 +1,52 @@
 <?php
-/**
- * @link https://craftcms.com/
- * @copyright Copyright (c) Pixel & Tonic, Inc.
- * @license MIT
- */
 
-namespace craft\guestentries;
+namespace CraftCms\GuestEntries;
 
-use Craft;
-use craft\base\Model;
-use craft\elements\User;
-use craft\guestentries\models\Settings;
-use craft\models\Section;
+use CraftCms\Cms\Plugin\Plugin as BasePlugin;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
+use function CraftCms\Cms\template;
+use Override;
 
 /**
- * Class Plugin
- *
- * @property Settings $settings
- * @method Settings getSettings()
+ * Guest Entries plugin base class.
  */
-class Plugin extends \craft\base\Plugin
+class Plugin extends BasePlugin
 {
-    // Properties
-    // =========================================================================
-
-    /**
-     * @inheritdoc
-     */
     public string $schemaVersion = '2.1.0';
-
-    /**
-     * @inheritdoc
-     */
     public bool $hasCpSettings = true;
+    public bool $config = true;
 
-    // Protected Methods
-    // =========================================================================
+    public array $styles = [
+        __DIR__ . '/../resources/css/guest-entries.css' => 'css/guest-entries.css',
+    ];
 
-    /**
-     * @return string
-     */
-    protected function settingsHtml(): ?string
+    #[Override]
+    public function bootPlugin(): void
     {
-        $sections = [];
-        $craftEdition = Craft::$app->getEdition();
+        RateLimiter::for('guest-entries', function(Request $request) {
+            $limit = $this->getSettings()->rateLimit;
 
-        if ($craftEdition !== Craft::Pro) {
-            $authors = [Craft::$app->getUser()->getIdentity()];
-            $authorOptions = $this->_formatAuthorOptions($authors);
-        }
-
-        if (version_compare(Craft::$app->getVersion(), '5.0.0-beta.1', '<')) {
-            $sectionService = Craft::$app->getSections();
-        } else {
-            $sectionService = Craft::$app->getEntries();
-        }
-        foreach ($sectionService->getAllSections() as $section) {
-            // No sense in doing this for singles.
-            if ($section->type === Section::TYPE_SINGLE) {
-                continue;
+            // `null` has special significance, but isn't handled by other limit methods:
+            if ($limit === null) {
+                return Limit::none();
             }
 
-            $sections[] = [
-                'section' => $section,
-                'authorOptions' => $authorOptions ?? $this->_getSectionAuthorOptions($section),
-            ];
-        }
+            return Limit::perMinute($limit)->by($request->getClientIp());
+        });
+    }
 
-        return Craft::$app->getView()->renderTemplate('guest-entries/_settings', [
+    #[Override]
+    protected function settingsHtml(): string
+    {
+        return template('guest-entries/_settings', [
             'settings' => $this->getSettings(),
-            'sections' => $sections,
         ]);
     }
 
-    /**
-     * @inheritdoc
-     */
-    protected function createSettingsModel(): ?Model
+    protected function createSettingsModel(): Settings
     {
-        return new Settings();
-    }
-
-    // Private Methods
-    // =========================================================================
-
-    /**
-     * Returns the authors that can publish to the given section.
-     *
-     * @param Section $section
-     * @return User[]
-     */
-    private function _getSectionAuthorOptions(Section $section): array
-    {
-        $authors = User::find()
-            ->can('createEntries:' . $section->uid)
-            ->all();
-        return $this->_formatAuthorOptions($authors);
-    }
-
-    /**
-     * Formats the given list of authors for a select input.
-     *
-     * @param User[] $authors
-     * @return array
-     */
-    private function _formatAuthorOptions(array $authors): array
-    {
-        $options = [];
-
-        foreach ($authors as $author) {
-            $authorLabel = $author->username;
-
-            if ($fullName = $author->fullName) {
-                $authorLabel .= ' (' . $fullName . ')';
-            }
-
-            $options[] = ['label' => $authorLabel, 'value' => $author->uid];
-        }
-
-        return $options;
+        return new Settings;
     }
 }
