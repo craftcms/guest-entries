@@ -41,6 +41,7 @@ class GuestEntryRequest extends FormRequest
     public function messages(): array
     {
         return array_merge(parent::messages(), [
+            'in' => t('This section is not allowed.', category: 'guest-entries'),
             'required_without_all' => t('A section must be specified by ID, handle, or UID.', category: 'guest-entries'),
         ]);
     }
