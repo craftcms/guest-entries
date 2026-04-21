@@ -3,7 +3,7 @@
 namespace CraftCms\GuestEntries\Http\Controllers;
 
 use CraftCms\Cms\Database\Table;
-use CraftCms\Cms\Element\Element;
+use CraftCms\Cms\Element\Validation\ElementRules;
 use CraftCms\Cms\Entry\Elements\Entry;
 use CraftCms\Cms\Entry\Entries;
 use CraftCms\Cms\Http\RespondsWithFlash;
@@ -97,7 +97,7 @@ class CreateGuestEntryController
         abort_if($saveEvent->isSpam || ! $saveEvent->isValid, 400, t('Your submission could not be saved.', category: 'guest-entries'));
 
         if ($sectionSettings['runValidation']) {
-            $entry->setScenario(Element::SCENARIO_LIVE);
+            $entry->setScenario(ElementRules::SCENARIO_LIVE);
         }
 
         if (! Elements::saveElement($entry)) {
