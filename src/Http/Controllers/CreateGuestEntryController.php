@@ -15,6 +15,7 @@ use CraftCms\GuestEntries\Events\SavingGuestEntry;
 use CraftCms\GuestEntries\Http\Requests\GuestEntryRequest;
 use CraftCms\GuestEntries\Plugin;
 use CraftCms\GuestEntries\Settings;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
 use function CraftCms\Cms\t;
 
@@ -31,8 +32,13 @@ class CreateGuestEntryController
 
     public function __invoke(GuestEntryRequest $request, Sites $sites)
     {
-        $site = $sites->getCurrentSite();
         $section = $request->resolveSection();
+
+        if (! $section) {
+            throw new AuthorizationException(t('Entries can only be created in designated sections.', category: 'guest-entries'));
+        }
+
+        $site = $sites->getCurrentSite();
         $types = $section->getEntryTypes();
 
         abort_unless(isset($section->getSiteSettings()[$site->id]), 400, t('The selected section does not exist in this site.', category: 'guest-entries'));

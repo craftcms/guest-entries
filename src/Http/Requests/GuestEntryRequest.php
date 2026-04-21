@@ -7,55 +7,51 @@ use CraftCms\Cms\Support\Facades\Sections;
 use CraftCms\GuestEntries\Plugin;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Collection;
-use Illuminate\Validation\Rule;
 use function CraftCms\Cms\t;
 
 class GuestEntryRequest extends FormRequest
 {
     public function rules(): array
     {
-        $allowedSections = $this->getAllowedSections();
-
-        $rules = [
+        $baseRules = [
             'type' => 'sometimes|string',
             'typeId' => 'sometimes|int',
         ];
 
-        // Define base rules for each type of section identifier:
-        $sectionRules = collect([
-            'sectionId' => [Rule::in($allowedSections->pluck('id'))],
-            'sectionHandle' => [Rule::in($allowedSections->pluck('handle'))],
-            'sectionUid' => [Rule::in($allowedSections->pluck('uid'))],
+        $exclusiveIdentifiers = collect([
+            'sectionId' => ['integer'],
+            'sectionHandle' => ['string'],
+            'sectionUid' => ['uuid'],
         ]);
 
-        foreach ($sectionRules as $param => $baseRules) {
-            $rules[$param] = [
-                sprintf('required_without_all:%s', $sectionRules->keys()->diff([$param])->join(',')),
-                ...$baseRules,
-            ];
-        }
+        return [
+            ...$baseRules,
+            ...$exclusiveIdentifiers->mapWithKeys(fn($rules, $param) => [
+                $param => [
+                    sprintf('required_without_all:%s', $exclusiveIdentifiers->keys()->diff([$param])->join(',')),
+                    ...$rules,
+                ],
+            ])->all(),
+        ];
+    }
 
-        return $rules;
+    public function attributes()
+    {
+        return [
+            'sectionId' => t('section ID', category: 'guest-entries'),
+            'sectionUid' => t('section UID', category: 'guest-entries'),
+        ];
     }
 
     public function messages(): array
     {
         return array_merge(parent::messages(), [
-            'in' => t('This section is not allowed.', category: 'guest-entries'),
             'required_without_all' => t('A section must be specified by ID, handle, or UID.', category: 'guest-entries'),
         ]);
     }
 
-    public function authorize(): bool
-    {
-        // Some of our “validation” and controller logic should probably go here.
-        // Rules can make sure data is present and of the expected type; `authorize()` can actually inspect it and reject incompatible input.
-        // Examples: The chosen entry type must be allowed in the section; the section must be enabled in the chosen/current site; ...
-        return true;
-    }
-
     /**
-     * @return Collection<Section>
+     * @return Collection<int, Section>
      */
     public function getAllowedSections(): Collection
     {
@@ -67,16 +63,16 @@ class GuestEntryRequest extends FormRequest
 
     public function resolveSection(): ?Section
     {
-        if ($sectionId = $this->integer('sectionId')) {
-            return Sections::getSectionById($sectionId);
+        if ($sectionId = $this->validated('sectionId')) {
+            return $this->getAllowedSections()->firstWhere('id', $sectionId);
         }
 
-        if ($sectionHandle = $this->input('sectionHandle')) {
-            return Sections::getSectionByHandle($sectionHandle);
+        if ($sectionHandle = $this->validated('sectionHandle')) {
+            return $this->getAllowedSections()->firstWhere('handle', $sectionHandle);
         }
 
-        if ($sectionUid = $this->input('sectionUid')) {
-            return Sections::getSectionByUid($sectionUid);
+        if ($sectionUid = $this->validated('sectionUid')) {
+            return $this->getAllowedSections()->firstWhere('uid', $sectionUid);
         }
 
         return null;
