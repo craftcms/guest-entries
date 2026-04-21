@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'settings' => [
+    'sections' => [
         // Each element in this array should use the following structure:
         // [
         //     'sectionUid' => '...',
@@ -9,7 +9,8 @@ return [
         //     'enabledByDefault' => true,
         //     'runValidation' => true,
         //     'authorUid' => '...',
-        // ]
+        // ],
     ],
-    'enableCsrfProtection' => true,
+    'rateLimit' => null,
+    'entryVariable' => 'entry',
 ];
