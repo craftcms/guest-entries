@@ -100,7 +100,7 @@ class Settings extends PluginSettings
             'sections.*.allowGuestSubmissions' => t('This must be true or false.', category: 'guest-entries'),
             'sections.*.enabledByDefault' => t('This must be true or false.', category: 'guest-entries'),
             'sections.*.runValidation' => t('This must be true or false.', category: 'guest-entries'),
-            'uuid.sections.*.authorUid' => t('This must be true or false.', category: 'guest-entries'),
+            'uuid.sections.*.authorUid' => t('You must specify the default author as a UUID.', category: 'guest-entries'),
             'sections.*.authorUid' => t('You must select an author with permissions to create entries in this section.', category: 'guest-entries'),
         ];
     }
