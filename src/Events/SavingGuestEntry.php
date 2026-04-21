@@ -10,7 +10,7 @@ namespace CraftCms\GuestEntries\Events;
 use CraftCms\Cms\Entry\Elements\Entry;
 use CraftCms\Cms\Shared\Concerns\ValidatableEvent;
 
-class Save
+class SavingGuestEntry
 {
     use ValidatableEvent;
 

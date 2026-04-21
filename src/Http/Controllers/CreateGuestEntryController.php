@@ -7,13 +7,11 @@ use CraftCms\Cms\Element\Element;
 use CraftCms\Cms\Entry\Elements\Entry;
 use CraftCms\Cms\Entry\Entries;
 use CraftCms\Cms\Http\RespondsWithFlash;
-use CraftCms\Cms\Section\Data\Section;
 use CraftCms\Cms\Section\Sections;
 use CraftCms\Cms\Site\Sites;
 use CraftCms\Cms\Support\DateTimeHelper;
 use CraftCms\Cms\Support\Facades\Elements;
-use CraftCms\Cms\Support\Facades\Sections as SectionsFacade;
-use CraftCms\GuestEntries\Events\Save;
+use CraftCms\GuestEntries\Events\SavingGuestEntry;
 use CraftCms\GuestEntries\Http\Requests\GuestEntryRequest;
 use CraftCms\GuestEntries\Plugin;
 use CraftCms\GuestEntries\Settings;
@@ -87,7 +85,7 @@ class CreateGuestEntryController
         $entry->setFieldValuesFromRequest($fieldsLocation);
 
         // Give the app (and other plugins) a chance to reject the submission:
-        event($saveEvent = new Save($entry));
+        event($saveEvent = new SavingGuestEntry($entry));
 
         // @todo Historically, we’ve not disclosed to the user when a submission is dropped after being flagged as spam!
         abort_if($saveEvent->isSpam || ! $saveEvent->isValid, 400, t('Your submission could not be saved.', category: 'guest-entries'));
