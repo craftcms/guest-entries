@@ -33,9 +33,6 @@ class CreateGuestEntryController
 
     public function __invoke(GuestEntryRequest $request, Sites $sites)
     {
-        // The form request should make this redundant:
-        // abort_if($request->isNotFilled(['sectionId', 'sectionHandle', 'sectionUid']), 400, t('The request did not include a section identifier.', category: 'guest-entries'));
-
         $site = $sites->getCurrentSite();
         $section = $request->resolveSection();
         $types = $section->getEntryTypes();
