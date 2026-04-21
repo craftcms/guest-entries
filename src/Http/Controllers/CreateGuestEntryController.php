@@ -99,7 +99,7 @@ class CreateGuestEntryController
             $entry->setScenario(Element::SCENARIO_LIVE);
         }
 
-        if (Elements::saveElement($entry)) {
+        if (! Elements::saveElement($entry)) {
             return $this->asModelFailure(
                 $entry,
                 t('Your submission could not be saved. Please review it for errors.', category: 'guest-entries'),
