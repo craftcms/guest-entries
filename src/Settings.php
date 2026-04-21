@@ -43,7 +43,7 @@ class Settings extends PluginSettings
      * Route::post('another/path', CreateGuestEntryController::class);
      * ```
      *
-     * Keep in mind that this bypasses any built-in rate limiting on the default
+     * Keep in mind that this bypasses any built-in rate limiting on the default endpoint.
      */
     public string $endpoint = 'guest-entries/save';
 
