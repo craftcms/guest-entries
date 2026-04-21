@@ -40,7 +40,7 @@ class CreateGuestEntryController
         $section = $this->resolveSection($request->safe(['sectionId', 'sectionHandle', 'sectionUid']));
         $types = $section->getEntryTypes();
 
-        abort_unless(isset($section->getSiteSettings()[$site->id]), t('The selected section does not exist in this site.', category: 'guest-entries'));
+        abort_unless(isset($section->getSiteSettings()[$site->id]), 400, t('The selected section does not exist in this site.', category: 'guest-entries'));
 
         $entry = new Entry;
         $entry->sectionId = $section->id;
