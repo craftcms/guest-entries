@@ -7,7 +7,7 @@
 
     {% for index, sectionSettings in settings.sections %}
         <div class="pane">
-            {% set section = craft.app.entries.getSectionByUid(sectionSettings.sectionUid) %}
+            {% set section = Sections.getSectionByUid(sectionSettings.sectionUid) %}
 
             <h3>
                 {{ chip(section, { hyperlink: true }) }}
@@ -83,8 +83,6 @@
     <span class="icon" aria-hidden="true"></span>
     <span>{{ 'These settings apply to **all** guest submissions.'|t('guest-entries')|md(inline_only = true) }}</span>
 </p>
-
-{% set systemCsrf = craft.app.config.general.enableCsrfProtection %}
 
 {{ forms.textField({
     id: 'entryVariable',
