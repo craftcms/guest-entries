@@ -27,7 +27,7 @@ class Settings extends PluginSettings
     public bool $enableCsrfProtection = true;
 
     /**
-     * @var int|null The number of requests allowed per IP. Use `null` to disable limiting.
+     * @var int|null The number of requests allowed per IP, per minute. Use `null` to disable limiting. Note that this only applies to the default route defined in `routes/web.php` ({@see $endpoint}), and must be applied to any aliases created in the host application.
      */
     public ?int $rateLimit = null;
 
