@@ -18,6 +18,7 @@ use CraftCms\GuestEntries\Plugin;
 use CraftCms\GuestEntries\Settings;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use function CraftCms\Cms\t;
 
 class CreateGuestEntryController
@@ -94,8 +95,15 @@ class CreateGuestEntryController
         // Give the app (and other plugins) a chance to reject the submission:
         event($saveEvent = new SavingGuestEntry($entry));
 
-        // @todo Historically, we’ve not disclosed to the user when a submission is dropped after being flagged as spam!
-        abort_if($saveEvent->isSpam || ! $saveEvent->isValid, 400, t('Your submission could not be saved.', category: 'guest-entries'));
+        // @todo Historically, we haven’t disclosed to the user when a submission is dropped after being flagged as spam!
+        if ($saveEvent->isSpam || ! $saveEvent->isValid) {
+            Log::warning('An event handler prevented a guest entry from being saved.', [
+                'isSpam' => $saveEvent->isSpam,
+                'isValid' => $saveEvent->isValid,
+            ]);
+
+            abort(400, t('Your submission could not be saved.', category: 'guest-entries'));
+        }
 
         if ($sectionSettings['runValidation']) {
             $entry->setScenario(ElementRules::SCENARIO_LIVE);
