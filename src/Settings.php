@@ -78,7 +78,7 @@ class Settings extends PluginSettings
             'sections.*.authorUid' => [
                 'required',
                 'uuid',
-                function(string $attribute, string $value, \Closure $fail, Validator $validator) {
+                function (string $attribute, string $value, \Closure $fail, Validator $validator) {
                     $index = explode('.', $attribute)[1];
                     $sectionUid = data_get($validator->getData(), "sections.{$index}.sectionUid");
                     $allowedAuthors = $this->getDefaultAuthorOptions($sectionUid)
@@ -107,19 +107,16 @@ class Settings extends PluginSettings
 
     public function getSectionSettings(): array
     {
-        if (isset($this->_sectionSettings)) {
-            return $this->_sectionSettings;
+        if (! isset($this->_sectionSettings)) {
+            // If we haven’t loaded config get, just apply an empty set:
+            $this->setSectionSettings([]);
         }
-
-        // If we haven’t loaded config get, just load the defaults:
-        $this->setSectionSettings([]);
 
         return $this->_sectionSettings;
     }
 
     public function setSectionSettings(array $settings): void
     {
-
         $settings = Arr::keyBy($settings, 'sectionUid');
 
         // “Fill” the incoming data with real section information, then overlay the configuration:
