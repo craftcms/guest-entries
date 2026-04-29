@@ -6,8 +6,8 @@ use CraftCms\Cms\Plugin\Plugin as BasePlugin;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
-use function CraftCms\Cms\template;
 use Override;
+use function CraftCms\Cms\template;
 
 /**
  * Guest Entries plugin base class.
@@ -19,13 +19,13 @@ class Plugin extends BasePlugin
     public bool $config = true;
 
     public array $styles = [
-        __DIR__ . '/../resources/css/guest-entries.css' => 'css/guest-entries.css',
+        __DIR__.'/../resources/css/guest-entries.css' => 'css/guest-entries.css',
     ];
 
     #[Override]
     public function bootPlugin(): void
     {
-        RateLimiter::for('guest-entries', function(Request $request) {
+        RateLimiter::for('guest-entries', function (Request $request) {
             $limit = $this->getSettings()->rateLimit;
 
             // `null` has special significance, but isn't handled by other limit methods:
