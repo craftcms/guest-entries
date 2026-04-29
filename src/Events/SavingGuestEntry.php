@@ -19,6 +19,5 @@ class SavingGuestEntry
      */
     public bool $isSpam = false;
 
-    public function __construct(public Entry $entry)
-    {}
+    public function __construct(public Entry $entry) {}
 }

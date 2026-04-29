@@ -25,11 +25,10 @@ class CreateGuestEntryController
     use RespondsWithFlash;
 
     public function __construct(
-        private Sections $sections,
-        private Sites $sites,
-        private Entries $entries,
-    )
-    {}
+        private readonly Sections $sections,
+        private readonly Sites $sites,
+        private readonly Entries $entries,
+    ) {}
 
     public function __invoke(GuestEntryRequest $request, Sites $sites)
     {
@@ -53,7 +52,7 @@ class CreateGuestEntryController
         $sectionSettings = $settings->getSectionConfig($section);
 
         // Look up based on what was present in the request, preferring by handle:
-        $typeId = match(true) {
+        $typeId = match (true) {
             $request->has('type') => collect($types)->firstWhere('handle', $request->input('type')),
             $request->has('typeId') => collect($types)->firstWhere('id', $request->integer('typeId')),
             default => null,
@@ -72,7 +71,7 @@ class CreateGuestEntryController
             ]),
             'title' => $request->input('title'),
             'slug' => $request->input('slug'),
-            'enabled' => (bool)$sectionSettings['enabledByDefault'],
+            'enabled' => (bool) $sectionSettings['enabledByDefault'],
             'enabledForSite' => $request->boolean('enabledForSite', true),
         ]);
 
