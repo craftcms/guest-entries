@@ -73,6 +73,7 @@ class CreateGuestEntryController
             'slug' => $request->input('slug'),
             'enabled' => (bool) $sectionSettings['enabledByDefault'],
             'enabledForSite' => $request->boolean('enabledForSite', true),
+            'revisionNotes' => t('Created by the Guest Entries plugin.', category: 'guest-entries'),
         ]);
 
         if (($postDate = $request->input('postDate')) !== null) {
