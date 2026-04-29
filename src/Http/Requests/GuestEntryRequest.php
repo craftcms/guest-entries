@@ -4,6 +4,7 @@ namespace CraftCms\GuestEntries\Http\Requests;
 
 use CraftCms\Cms\Section\Data\Section;
 use CraftCms\Cms\Support\Facades\Sections;
+use CraftCms\GuestEntries\Events\SectionResolutionFailed;
 use CraftCms\GuestEntries\Plugin;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Collection;
@@ -26,7 +27,7 @@ class GuestEntryRequest extends FormRequest
 
         return [
             ...$baseRules,
-            ...$exclusiveIdentifiers->mapWithKeys(fn($rules, $param) => [
+            ...$exclusiveIdentifiers->mapWithKeys(fn ($rules, $param) => [
                 $param => [
                     sprintf('required_without_all:%s', $exclusiveIdentifiers->keys()->diff([$param])->join(',')),
                     ...$rules,
@@ -63,18 +64,24 @@ class GuestEntryRequest extends FormRequest
 
     public function resolveSection(): ?Section
     {
-        if ($sectionId = $this->validated('sectionId')) {
-            return $this->getAllowedSections()->firstWhere('id', $sectionId);
+        $candidates = $this->getAllowedSections();
+        $checks = [
+            'sectionId' => 'id',
+            'sectionHandle' => 'handle',
+            'sectionUid' => 'uid',
+        ];
+
+        foreach ($checks as $param => $attribute) {
+            $value = $this->validated($param);
+
+            if ($section = $candidates->firstWhere($attribute, $value)) {
+                return $section;
+            }
         }
 
-        if ($sectionHandle = $this->validated('sectionHandle')) {
-            return $this->getAllowedSections()->firstWhere('handle', $sectionHandle);
-        }
+        // Last chance! Let the app determine what section:
+        event($failEvent = new SectionResolutionFailed($this));
 
-        if ($sectionUid = $this->validated('sectionUid')) {
-            return $this->getAllowedSections()->firstWhere('uid', $sectionUid);
-        }
-
-        return null;
+        return $failEvent->section;
     }
 }
