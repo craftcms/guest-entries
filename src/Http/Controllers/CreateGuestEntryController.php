@@ -67,7 +67,7 @@ class CreateGuestEntryController
 
         $entry->setAttributes([
             'authorIds' => array_filter([
-                DB::table(Table::ELEMENTS)->idByUid($sectionSettings['authorUid'])
+                $sectionSettings['authorUid'] ? DB::table(Table::ELEMENTS)->idByUid($sectionSettings['authorUid']) : null,
             ]),
             'title' => $request->input('title'),
             'slug' => $request->input('slug'),
