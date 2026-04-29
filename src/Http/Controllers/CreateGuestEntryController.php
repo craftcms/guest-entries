@@ -11,6 +11,7 @@ use CraftCms\Cms\Section\Sections;
 use CraftCms\Cms\Site\Sites;
 use CraftCms\Cms\Support\DateTimeHelper;
 use CraftCms\Cms\Support\Facades\Elements;
+use CraftCms\GuestEntries\Events\SavedGuestEntry;
 use CraftCms\GuestEntries\Events\SavingGuestEntry;
 use CraftCms\GuestEntries\Http\Requests\GuestEntryRequest;
 use CraftCms\GuestEntries\Plugin;
@@ -107,6 +108,8 @@ class CreateGuestEntryController
                 Plugin::getInstance()->getSettings()->entryVariable,
             );
         }
+
+        event(new SavedGuestEntry($entry));
 
         return $this->asModelSuccess(
             $entry,
