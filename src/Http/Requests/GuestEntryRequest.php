@@ -67,8 +67,8 @@ class GuestEntryRequest extends FormRequest
         $candidates = $this->getAllowedSections();
         $checks = [
             'sectionId' => 'id',
-            'sectionHandle' => 'handle',
             'sectionUid' => 'uid',
+            'sectionHandle' => 'handle',
         ];
 
         foreach ($checks as $param => $attribute) {
