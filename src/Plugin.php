@@ -9,9 +9,6 @@ use Illuminate\Support\Facades\RateLimiter;
 use Override;
 use function CraftCms\Cms\template;
 
-/**
- * Guest Entries plugin base class.
- */
 class Plugin extends BasePlugin
 {
     public string $schemaVersion = '2.1.0';
