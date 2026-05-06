@@ -50,7 +50,7 @@
   },
   "config": {
     "platform": {
-      "php": "8.0.2"
+      "php": "^8.0.2"
     },
     "allow-plugins": {
       "yiisoft/yii2-composer": true,
