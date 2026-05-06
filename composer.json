@@ -26,7 +26,7 @@
   "minimum-stability": "dev",
   "prefer-stable": true,
   "require": {
-    "craftcms/cms": "^4.0.0-RC3|^5.0.0-beta.1"
+    "craftcms/cms": "^4.0.0-RC3|^5.0.0-beta.1|^6.0.0-alpha.1"
   },
   "require-dev": {
     "craftcms/ecs": "dev-main",
@@ -46,7 +46,7 @@
   "extra": {
     "name": "Guest Entries",
     "handle": "guest-entries",
-    "documentationUrl": "https://github.com/craftcms/guest-entries/blob/v2/README.md"
+    "documentationUrl": "https://github.com/craftcms/guest-entries/blob/4.x/README.md"
   },
   "config": {
     "platform": {
