@@ -20,8 +20,8 @@
     "email": "support@craftcms.com",
     "issues": "https://github.com/craftcms/guest-entries/issues?state=open",
     "source": "https://github.com/craftcms/guest-entries",
-    "docs": "https://github.com/craftcms/guest-entries/blob/v2/README.md",
-    "rss": "https://github.com/craftcms/guest-entries/commits/v2.atom"
+    "docs": "https://github.com/craftcms/guest-entries/blob/4.x/README.md",
+    "rss": "https://github.com/craftcms/guest-entries/commits/4.x.atom"
   },
   "minimum-stability": "dev",
   "prefer-stable": true,
