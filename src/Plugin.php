@@ -7,12 +7,15 @@ use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Override;
+
 use function CraftCms\Cms\template;
 
 class Plugin extends BasePlugin
 {
     public string $schemaVersion = '2.1.0';
+
     public bool $hasCpSettings = true;
+
     public bool $config = true;
 
     public array $styles = [

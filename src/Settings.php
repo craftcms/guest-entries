@@ -14,6 +14,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
+
 use function CraftCms\Cms\t;
 
 /**
@@ -143,7 +144,7 @@ class Settings extends PluginSettings
         }
 
         return User::find()
-            ->can('createEntries:' . $sectionUid)
+            ->can('createEntries:'.$sectionUid)
             ->get();
     }
 
