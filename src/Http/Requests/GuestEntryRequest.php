@@ -8,6 +8,7 @@ use CraftCms\GuestEntries\Events\SectionResolutionFailed;
 use CraftCms\GuestEntries\Plugin;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Collection;
+
 use function CraftCms\Cms\t;
 
 class GuestEntryRequest extends FormRequest
@@ -36,7 +37,7 @@ class GuestEntryRequest extends FormRequest
         ];
     }
 
-    public function attributes()
+    public function attributes(): array
     {
         return [
             'sectionId' => t('section ID', category: 'guest-entries'),
