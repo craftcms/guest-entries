@@ -64,6 +64,9 @@ A basic guest entry template will look something like this:
 
     {# Custom redirect URI: #}
     {{ redirectInput('success') }}
+    
+    {# Customize success flash message: #}
+    {{ successMessageInput('Thanks for filling out the survey!') }}
 
     {# Section for new entries: #}
     {{ hiddenInput('sectionHandle', 'mySectionHandle') }}
