@@ -4,18 +4,13 @@ namespace CraftCms\GuestEntries;
 
 use CraftCms\Cms\Edition;
 use CraftCms\Cms\Plugin\PluginSettings;
-use CraftCms\Cms\Section\Enums\SectionType;
 use CraftCms\Cms\Section\Data\Section;
-use CraftCms\Cms\Section\Models\Section as SectionModel;
+use CraftCms\Cms\Section\Enums\SectionType;
 use CraftCms\Cms\Support\Arr;
 use CraftCms\Cms\Support\Facades\Sections;
 use CraftCms\Cms\User\Elements\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\Rule;
-use Illuminate\Validation\Validator;
-
-use function CraftCms\Cms\t;
 
 /**
  * Settings represents the global settings for Guest Entries.
@@ -64,47 +59,6 @@ class Settings extends PluginSettings
     }
 
     private ?array $_sectionSettings = null;
-
-    public function getRules(): array
-    {
-        return [
-            'sections.*.sectionUid' => [
-                'required',
-                'uuid',
-                Rule::exists(SectionModel::class, 'uid'),
-            ],
-            'sections.*.allowGuestSubmissions' => ['nullable', 'boolean'],
-            'sections.*.enabledByDefault' => ['nullable', 'boolean'],
-            'sections.*.runValidation' => ['nullable', 'boolean'],
-            'sections.*.authorUid' => [
-                'required',
-                'uuid',
-                function (string $attribute, string $value, \Closure $fail, Validator $validator) {
-                    $index = explode('.', $attribute)[1];
-                    $sectionUid = data_get($validator->getData(), "sections.{$index}.sectionUid");
-                    $allowedAuthors = $this->getDefaultAuthorOptions($sectionUid)
-                        ->pluck('uid')
-                        ->all();
-
-                    if (! $validator->validateIn($attribute, $value, $allowedAuthors)) {
-                        $fail(t('The selected author must have the correct permissions for this section.', category: 'guest-entries'));
-                    }
-                },
-            ],
-        ];
-    }
-
-    public function getMessages(): array
-    {
-        return [
-            'sections.*.sectionUid' => t('A valid section UID is required.', category: 'guest-entries'),
-            'sections.*.allowGuestSubmissions' => t('This must be true or false.', category: 'guest-entries'),
-            'sections.*.enabledByDefault' => t('This must be true or false.', category: 'guest-entries'),
-            'sections.*.runValidation' => t('This must be true or false.', category: 'guest-entries'),
-            'uuid.sections.*.authorUid' => t('You must specify the default author as a UUID.', category: 'guest-entries'),
-            'sections.*.authorUid' => t('You must select an author with permissions to create entries in this section.', category: 'guest-entries'),
-        ];
-    }
 
     public function getSectionSettings(): array
     {

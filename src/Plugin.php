@@ -3,6 +3,7 @@
 namespace CraftCms\GuestEntries;
 
 use CraftCms\Cms\Plugin\Plugin as BasePlugin;
+use CraftCms\GuestEntries\Http\Requests\SettingsRequest;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -48,5 +49,10 @@ class Plugin extends BasePlugin
     protected function createSettingsModel(): Settings
     {
         return new Settings;
+    }
+
+    public function getSettingsRequestClass(): ?string
+    {
+        return SettingsRequest::class;
     }
 }

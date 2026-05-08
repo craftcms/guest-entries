@@ -16,6 +16,7 @@
             <div class="section-settings-group">
                 {% namespace "sections[#{section.uid}]" %}
                     {{ hiddenInput('sectionUid', section.uid) }}
+                    {% set prefix = "settings.sections.#{section.uid}" %}
 
                     <div class="section-settings-fields-essential">
                         {{ forms.lightswitchField({
@@ -23,21 +24,22 @@
                             label: 'Allow guest submissions?'|t('guest-entries'),
                             instructions: 'When enabled, anonymous users will be able to create entries in this section.'|t('guest-entries'),
                             name: 'allowGuestSubmissions',
-                            on: sectionSettings.allowGuestSubmissions ?? false,
-                            errors: settings.errors().get("sections.#{index}.allowGuestSubmissions"),
-                            toggle: "section-settings-conditional-fields-#{section.uid}"
+                            on: old("#{prefix}.allowGuestSubmissions", sectionSettings.allowGuestSubmissions),
+                            errors: errors.get("#{prefix}.allowGuestSubmissions"),
+                            toggle: "section-settings-conditional-fields-#{section.uid}",
                         }) }}
                     </div>
 
                     <div class="section-settings-fields-conditional" id="section-settings-conditional-fields-{{ section.uid }}">
-                        {{ forms.selectField({
+                        {{ forms.textField({
                             id: 'authorUid',
+                            class: 'code',
                             name: 'authorUid',
-                            label: 'Default Author'|t('guest-entries'),
-                            instructions: 'Who the guest entries should be attributed to by default.'|t('guest-entries'),
-                            options: settings.getDefaultAuthorOptions(section.uid)|map(author => { label: author.fullName ? "#{author.fullName} (#{author.username})" : author.username, value: author.uid }),
-                            value: sectionSettings.authorUid ?? false,
-                            errors: settings.errors().get("sections.#{index}.authorId")
+                            label: 'Default Author Template'|t('guest-entries'),
+                            instructions: 'A template that resolves to the UUID of an author that entries in this section will be attributed to.'|t('guest-entries'),
+                            tip: 'Your template has access to all of this section’s properties, like `id`, `handle` and `uid`. The default behavior is equivalent to a query that finds the first user matching `.can("createEntries:#{uid}")`.'|t('guest-entries'),
+                            value: old("#{prefix}.authorUid", sectionSettings.authorUid),
+                            errors: errors.get("#{prefix}.authorUid"),
                         }) }}
 
                         {{ forms.lightswitchField({
@@ -45,18 +47,17 @@
                             label: 'Enable entries by default?'|t('guest-entries'),
                             instructions: 'Should entries created by guests in this section be **enabled**, by default?'|t('guest-entries'),
                             name: 'enabledByDefault',
-                            on: sectionSettings.enabledByDefault ?? false,
-                            errors: settings.errors().get("sections.#{index}.enabledByDefault")
+                            on: old("#{prefix}.enabledByDefault", sectionSettings.enabledByDefault),
+                            errors: errors.get("#{prefix}.enabledByDefault"),
                         }) }}
 
                         {{ forms.lightswitchField({
                             id: 'runValidation',
                             label: 'Validate?'|t('guest-entries'),
-                            instructions: 'Should validation rules be applied to the entry, when submitted by a guest?'|t('guest-entries'),
-                            warning: 'This should generally be **On** whenever entries are **Enabled by default**.'|t('guest-entries'),
+                            instructions: 'Should validation rules be applied to the entry, when submitted by a guest? This should generally be **On** whenever entries are **Enabled by default**.'|t('guest-entries'),
                             name: 'runValidation',
-                            on: sectionSettings.runValidation ?? false,
-                            errors: settings.errors().get("sections.#{index}.runValidation")
+                            on: old("#{prefix}.runValidation", sectionSettings.runValidation),
+                            errors: errors.get("#{prefix}.runValidation"),
                         }) }}
 
                         {{ forms.textField({
@@ -89,6 +90,7 @@
     label: 'Entry Variable Name'|t('guest-entries'),
     instructions: 'The template variable name that entry submissions should be assigned to, if there is a validation error.'|t('guest-entries'),
     name: 'entryVariable',
-    value: settings.entryVariable,
-    class: 'code'
+    value: old('settings.entryVariable', settings.entryVariable),
+    class: 'code',
+    errors: errors.get('settings.entryVariable'),
 }) }}

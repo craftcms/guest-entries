@@ -2,7 +2,6 @@
 
 namespace CraftCms\GuestEntries\Http\Controllers;
 
-use CraftCms\Cms\Database\Table;
 use CraftCms\Cms\Element\Validation\ElementRules;
 use CraftCms\Cms\Entry\Elements\Entry;
 use CraftCms\Cms\Entry\Entries;
@@ -11,14 +10,17 @@ use CraftCms\Cms\Section\Sections;
 use CraftCms\Cms\Site\Sites;
 use CraftCms\Cms\Support\DateTimeHelper;
 use CraftCms\Cms\Support\Facades\Elements;
+use CraftCms\Cms\User\Elements\User;
 use CraftCms\GuestEntries\Events\SavedGuestEntry;
 use CraftCms\GuestEntries\Events\SavingGuestEntry;
 use CraftCms\GuestEntries\Http\Requests\GuestEntryRequest;
 use CraftCms\GuestEntries\Plugin;
 use CraftCms\GuestEntries\Settings;
 use Illuminate\Auth\Access\AuthorizationException;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+
+use Twig\Error\Error;
+use function CraftCms\Cms\renderObjectTemplate;
 use function CraftCms\Cms\t;
 
 class CreateGuestEntryController
@@ -66,10 +68,19 @@ class CreateGuestEntryController
 
         $entry->typeId = $typeId;
 
+        try {
+            $uid = renderObjectTemplate($sectionSettings['authorUid'], $section);
+            $authors = User::find()
+                ->uid($uid)
+                ->all();
+
+            $entry->setAuthors($authors);
+        } catch (Error $e) {
+            // We’re only catching Twig rendering errors, here… it’ll be the developer’s responsibility to handle query errors, downstream.
+            Log::error(sprintf('Failed to assign authors using template `%s`: %s', $sectionSettings['authorUid'], $e->getMessage()));
+        }
+
         $entry->setAttributes([
-            'authorIds' => array_filter([
-                $sectionSettings['authorUid'] ? DB::table(Table::ELEMENTS)->idByUid($sectionSettings['authorUid']) : null,
-            ]),
             'title' => $request->input('title'),
             'slug' => $request->input('slug'),
             'enabled' => (bool) $sectionSettings['enabledByDefault'],
@@ -106,7 +117,7 @@ class CreateGuestEntryController
         }
 
         if ($sectionSettings['runValidation']) {
-            $entry->setScenario(ElementRules::SCENARIO_LIVE);
+            $entry->ruleset->useScenario(ElementRules::SCENARIO_LIVE);
         }
 
         if (! Elements::saveElement($entry)) {
