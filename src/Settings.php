@@ -67,18 +67,13 @@ class Settings extends PluginSettings
             $this->setSectionSettings([]);
         }
 
-        return $this->_sectionSettings;
-    }
+        $sections = Sections::getAllSections();
 
-    public function setSectionSettings(array $settings): void
-    {
-        $settings = Arr::keyBy($settings, 'sectionUid');
-
-        // “Fill” the incoming data with real section information, then overlay the configuration:
-        $this->_sectionSettings = Sections::getAllSections()
+        // “Fill” the saved or incoming data with real section information:
+        return $sections
             ->where('type', '!==', SectionType::Single)
-            ->map(function (Section $s) use ($settings) {
-                return ($settings[$s->uid] ?? []) + [
+            ->map(function (Section $s) {
+                return ($this->_sectionSettings[$s->uid] ?? []) + [
                     'sectionUid' => $s->uid,
                     'allowGuestSubmissions' => false,
                     'enabledByDefault' => false,
@@ -88,6 +83,11 @@ class Settings extends PluginSettings
             })
             ->values()
             ->all();
+    }
+
+    public function setSectionSettings(array $settings): void
+    {
+        $this->_sectionSettings = Arr::keyBy($settings, 'sectionUid');
     }
 
     public function getDefaultAuthorOptions(string $sectionUid): Collection
