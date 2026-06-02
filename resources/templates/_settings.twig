@@ -80,10 +80,7 @@
 
 <h2>{{ 'Global Settings'|t('guest-entries') }}</h2>
 
-<p class="warning has-icon">
-    <span class="icon" aria-hidden="true"></span>
-    <span>{{ 'These settings apply to **all** guest submissions.'|t('guest-entries')|md(inline_only = true) }}</span>
-</p>
+{{ 'These settings apply to **all** guest submissions.'|t('guest-entries')|md }}
 
 {{ forms.textField({
     id: 'entryVariable',
@@ -93,4 +90,7 @@
     value: old('settings.entryVariable', settings.entryVariable),
     class: 'code',
     errors: errors.get('settings.entryVariable'),
+    static: 'entryVariable' in overrides,
+    readonly: 'entryVariable' in overrides,
+    warning: 'entryVariable' in overrides ? 'This setting is being overridden by `{name}` in `{file}`.'|t('guest-entries', { name: 'entryVariable', file: 'config/craft/guest-entries.php' }),
 }) }}

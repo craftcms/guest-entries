@@ -41,8 +41,11 @@ class Plugin extends BasePlugin
     #[Override]
     protected function settingsHtml(): string
     {
+        $overrides = config(sprintf('craft.%s', $this->handle));
+
         return template('guest-entries/_settings', [
             'settings' => $this->getSettings(),
+            'overrides' => array_keys($overrides),
         ]);
     }
 
