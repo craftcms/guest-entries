@@ -24,7 +24,7 @@ class Plugin extends BasePlugin
     ];
 
     #[Override]
-    public function bootPlugin(): void
+    public function boot(): void
     {
         RateLimiter::for('guest-entries', function (Request $request) {
             $limit = $this->getSettings()->rateLimit;
