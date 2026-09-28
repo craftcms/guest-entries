@@ -30,6 +30,23 @@ ddev artisan craft:plugin:install guest-entries
 
 To get the unreleased dev version, replace the package constraint with `craftcms/guest-entries@5.x-dev`.
 
+## Upgrading
+
+The plugin has been completely rewritten for Craft 6.x, but [configuration](#settings) and [usage](#usage) are backward-compatible, when the adapter is installed.
+A handful of [template changes](#template-changes) will be required to eject the adapter.
+Please [report any issues](https://github.com/craftcms/guest-entries/issues) with the upgrade!
+
+Developers who maintain [advanced submission routes](#advanced-routing) or use [event handlers](#events) to customize the plugin’s behavior should read the corresponding sections.
+Concretely, we split the `craft\guestentries\events\SaveEvent` into separate [before](#the-savingguestentry-event) and [after](#the-savedguestentry-event) events, and the `EVENT_AFTER_ERROR` event is replaced by Laravel’s generic error handler.
+
+### Template Changes
+
+In Craft 6.x, the way you access submitted data and errors is slightly different.
+When there are issues with submitted data (including validation errors when **Run validation?** is enabled), the client is redirected back to the originating page.
+
+Because the initial submission request (POST) and the re-rendered form request (GET) are separate, the submitted data is preserved by flashing it to the session. 
+As a result, you’ll restore that data for the user with the `old()` helper function:
+
 ## Settings
 
 From the plugin settings page, you can configure:
@@ -41,6 +58,13 @@ From the plugin settings page, you can configure:
 Section configuration is stored in project config, and will be applied automatically in other environments.
 The plugin does not automatically grant any permissions to unauthenticated users—you must explicitly allow creation of entries in each section.
 
+### Overrides
+
+Settings defined in a `config/craft/guest-entries.php` file override project config.
+Craft combines these configuration arrays using a _shallow_ merge, meaning a `sections` key will completely clobber your section-by-section config.
+
+See the bundled `config/guest-entries.php` stub for a list of valid keys.
+
 ## Usage
 
 Once you’ve marked at least one section as eligible for creation via the front-end, you’ll need to build a form.
@@ -49,14 +73,11 @@ A basic guest entry template will look something like this:
 
 ```twig
 {# Macro to help output errors: #}
-{% macro errorList(errors) %}
-    {% if errors %}
-        {{ ul(errors, { class: 'errors' }) }}
+{% macro errorList(field) %}
+    {% if errors.has(field) %}
+        {{ ul(errors.get(field), { id: "form-errors-#{field}" }) }}
     {% endif %}
 {% endmacro %}
-
-{# Default value for the `entry` variable: #}
-{% set entry = entry ?? null %}
 
 <form method="post" action="{{ url('guest-entries/save') }}" accept-charset="UTF-8">
     {# Hidden inputs required for the form to work: #}
@@ -73,16 +94,16 @@ A basic guest entry template will look something like this:
 
     {# Entry properties and custom fields: #}
     <label for="title">Title</label>
-    {{ input('text', 'title', entry ? entry.title, { id: 'title' }) }}
-    {{ entry ? _self.errorList(entry.errors().get('title')) }}
+    {{ input('text', 'title', old('title'), { id: 'title' }) }}
+    {{ _self.errorList('title') }}
 
     <label for="body">Body</label>
     {{ tag('textarea', {
-        text: entry ? entry.body,
+        text: old('body'),
         id: 'body',
         name: 'fields[body]',
     }) }}
-    {{ entry ? _self.errorList(entry.errors().get('body')) }}
+    {{ _self.errorList('body') }}
 
     {# ... #}
 
@@ -144,6 +165,8 @@ You can also use the `entryType()` Twig function to directly fetch an entry type
 {{ hiddenInput('typeId', targetEntryType.id) }}
 ```
 
+Be aware that the former will honor section-specific handle overrides, while the latter is only aware of the entry types’ original handles.
+
 #### Sending Custom Fields
 
 Custom field data should be nested under the `fields` key, with the field name in `[squareBrackets]`:
@@ -152,7 +175,7 @@ Custom field data should be nested under the `fields` key, with the field name i
 <input
     type="text"
     name="fields[myCustomFieldHandle]"
-    value="{{ entry ? entry.myCustomFieldHandle }}">
+    value="{{ old('fields.myCustomFieldHandle') }}">
 ```
 
 If entries in the designated section are enabled by default, validation will occur on _all_ custom fields, meaning those marked as _required_ in the entry type’s field layout must be sent with the submission.
@@ -193,8 +216,9 @@ Place this snippet on the form page, or in a parent layout to display `success` 
 #### Redirection
 
 Send a `redirect` param to send the user to a specific location upon successfully saving an entry.
-In the example above, this is handled via the [`redirectInput('...')` function](https://craftcms.com/docs/5.x/reference/twig/functions.html#redirectinput).
+In initial [usage](#usage) example, this is handled by the [`redirectInput('...')` function](https://craftcms.com/docs/5.x/reference/twig/functions.html#redirectinput).
 The path is evaluated as an [object template](https://craftcms.com/docs/5.x/system/object-templates.html), and can include properties of the saved entry in `{curlyBraces}`.
+See the [viewing entries](#viewing-entries) section for more redirection and routing examples.
 
 ### Submitting via Ajax
 
@@ -239,16 +263,13 @@ If the section does _not_ have URLs, you can use the same strategy that is shown
 In order to display an entry that is _disabled_, you will need to set up a custom [route](https://craftcms.com/docs/5.x/system/routing.html#advanced-routing-with-url-rules):
 
 ```php
-<?php
-
-return [
-    // This route uses the special `{uid}` token, which will
-    // match any UUID generated by Craft:
-    'submissions/confirmation/<entryUid:{uid}>' => ['template' => '_submissions/confirmation'],
-];
+# routes/web.php
+Route::view('/contact/confirmation/{entryUid}', '_submission/confirmation')
+    ->whereUuid('entryUid');
 ```
 
-…and direct users to it by including `{{ redirectInput('submissions/confirmation/{uid}') }}` in the entry form. Your template (`_submissions/confirmation.twig`) will be responsible for looking up the disabled entry and displaying it, based on the `entryUid` route token that Craft makes available:
+…and direct users to it by including `{{ redirectInput('contact/confirmation/{uid}') }}` in the entry form.
+The template is then responsible for using the provided `entryUid` route parameter to look up the entry:
 
 ```twig
 {% set preview = craft.entries()
@@ -268,34 +289,56 @@ return [
 <p>Your submission has been recorded, and is awaiting moderation.</p>
 ```
 
-This query selects only `disabled` entries so that the “preview” is invalidated once the entry goes live. This “confirmation” URI does _not_ need to match the actual URI of the entry.
+> [!NOTE]
+> This query selects only `disabled` entries so that the “preview” is invalidated once the entry goes live.
+> This “confirmation” URI does _not_ need to match the actual URI of the entry; in fact, they don’t even need to be in a section that has URLs!
+> If adopting this behavior as-is, make sure the **Enable entries by default?** setting is _off_ for any sections that use this confirmation page.
 
-> [!TIP]
-> Take care when outputting sensitive or personal data in a confirmation.
-> If some details _must_ be shown to the user, consider redacting them after a certain amount of time:
-> 
-> ```twig
-> {% set elapsed = now.getTimestamp() - preview.dateCreated.getTimestamp() %}
-> 
-> Hello, {{ preview.submittedByName }}!
-> 
-> {% if elapsed < (60 * 60 * 24 * 5) %}
->   {# The entry was created recently; display context. #}
-> {% else %}
->   {# The entry is more than five days old; redact sensitive details.
-> {% endif %}
-> ```
+#### Advanced Routing
+
+In Craft 6.x, routes can handle lookups and other controller-like tasks directly in a closure:
+
+```php
+Route::get('/contact/confirmation/{entryUid}', function (int $entryUid) {
+    $entry = Entry::find()->uid($entryUid)->one();
+
+    if (! $entry) {
+        abort(404, t('The submission could not be found!', 'site'));
+    }
+
+    return pageTemplate('_submissions/confirmation', ['entry' => $entry]);
+})->whereUuid('entryUid');
+```
+
+Here, your template (`_submissions/confirmation.twig`) receives a complete entry element (instead of just its UID), as well as any other values you pass to `pageTemplate()`; the template can remain free of queries and error handling, and confidently output entry data.
+
+#### Sensitive Information
+
+Take care when outputting sensitive or personal data in a confirmation.
+If some details _must_ be shown to the user, consider redacting them after a certain amount of time:
+
+```twig
+{% set elapsed = now.getTimestamp() - preview.dateCreated.getTimestamp() %}
+{% set maxAge = 60 * 60 * 24 * 5 %}
+
+Hello, {{ preview.submittedByName }}!
+
+{% if elapsed < maxAge %}
+  {# The entry was created recently; display context. #}
+{% else %}
+  {# The entry is more than five days old; redact sensitive details. #}
+{% endif %}
+```
 
 ## Events
 
-_Guest Entries_ augments the normal [events](https://craftcms.com/docs/5.x/extend/events.html) emitted during the entry lifecycle with a few of its own, allowing developers to customize the submission process.
+_Guest Entries_ augments the normal [events](https://craftcms.com/docs/6.x/extend/events.html) emitted during the entry lifecycle with a few of its own, allowing developers to customize the submission process.
 
 The following snippets can be added to your app’s `boot()` method, or converted to dedicated [listeners](https://laravel.com/docs/13.x/events#defining-listeners).
 
 ### The `SavingGuestEntry` event
 
 Plugins can be notified _before_ a guest entry is saved, by listening to the `\CraftCms\GuestEntries\Events\SavingGuestEntry` event.
-Changes to fields on the entry element
 This is also an opportunity to flag the submission as spam, and prevent it being saved:
 
 ```php
