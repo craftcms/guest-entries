@@ -81,7 +81,7 @@ class Settings extends PluginSettings
                     'authorUid' => null,
                 ];
             })
-            ->values()
+            ->keyBy('sectionUid')
             ->all();
     }
 
