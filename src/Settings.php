@@ -5,9 +5,10 @@
  * @license MIT
  */
 
-namespace craft\guestentries\models;
+namespace CraftCms\GuestEntries;
 
 use CraftCms\Cms\Plugin\PluginSettings;
+use CraftCms\GuestEntries\Data\SectionSettings;
 use Illuminate\Support\Str;
 
 use function CraftCms\Cms\t;

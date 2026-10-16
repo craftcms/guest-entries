@@ -23,9 +23,9 @@ The three Yii-style events on `craft\guestentries\controllers\SaveController` we
 
 | Before | After |
 | --- | --- |
-| `SaveController::EVENT_BEFORE_SAVE_ENTRY` (`beforeSaveEntry`) | `craft\guestentries\events\SavingGuestEntry` |
-| `SaveController::EVENT_AFTER_SAVE_ENTRY` (`afterSaveEntry`) | `craft\guestentries\events\SavedGuestEntry` |
-| `SaveController::EVENT_AFTER_ERROR` (`afterError`) | `craft\guestentries\events\GuestEntrySaveFailed` |
+| `SaveController::EVENT_BEFORE_SAVE_ENTRY` (`beforeSaveEntry`) | `CraftCms\GuestEntries\Events\SavingGuestEntry` |
+| `SaveController::EVENT_AFTER_SAVE_ENTRY` (`afterSaveEntry`) | `CraftCms\GuestEntries\Events\SavedGuestEntry` |
+| `SaveController::EVENT_AFTER_ERROR` (`afterError`) | `CraftCms\GuestEntries\Events\GuestEntrySaveFailed` |
 
 Before:
 
@@ -48,7 +48,7 @@ Event::on(
 After:
 
 ```php
-use craft\guestentries\events\SavingGuestEntry;
+use CraftCms\GuestEntries\Events\SavingGuestEntry;
 use Illuminate\Support\Facades\Event;
 
 Event::listen(function(SavingGuestEntry $event): void {
@@ -97,16 +97,19 @@ Update any client code that reads other keys.
 - To override settings per project, use `config/craft/guest-entries.php`, which returns an array of settings (for example `return ['entryVariable' => 'submittedEntry'];`). Craft 5 projects used `config/guest-entries.php`.
 - The `enableCsrfProtection` setting still controls CSRF verification for the submission route.
 
-### Classes
+### Classes and namespaces
 
-The `craft\guestentries` namespace is unchanged, but these classes changed:
+The plugin now follows Craft 6 conventions: the namespace is `CraftCms\GuestEntries` (PSR-4 root `src/`) and classes are organized by role, like Craft’s own. Update any code that references the old classes.
 
-| Class | Change |
-| --- | --- |
-| `craft\guestentries\Plugin` | Extends `CraftCms\Cms\Plugin\Plugin`. `init()` and `createSettingsModel()` are replaced by `boot()` and `createSettings()`. |
-| `craft\guestentries\models\Settings` | Extends `CraftCms\Cms\Plugin\PluginSettings`. Validation uses `getRules()` instead of `defineRules()`. `sections` is a plain array keyed by section UID. `getSection()` and `getSections()` still return `SectionSettings` objects. |
-| `craft\guestentries\models\SectionSettings` | Extends `CraftCms\Cms\Component\Component` instead of `craft\base\Model`. |
-| `craft\guestentries\controllers\SaveController` | An invokable controller with no base class. It no longer has `actionIndex()` or Yii events. |
+| Before | After | Change |
+| --- | --- | --- |
+| `craft\guestentries\Plugin` | `CraftCms\GuestEntries\Plugin` | Extends `CraftCms\Cms\Plugin\Plugin`. `init()` and `createSettingsModel()` are replaced by `boot()` and `createSettings()`. |
+| `craft\guestentries\models\Settings` | `CraftCms\GuestEntries\Settings` | Extends `CraftCms\Cms\Plugin\PluginSettings`. Validation uses `getRules()` instead of `defineRules()`. `sections` is a plain array keyed by section UID. `getSection()` and `getSections()` still return `SectionSettings` objects. |
+| `craft\guestentries\models\SectionSettings` | `CraftCms\GuestEntries\Data\SectionSettings` | Extends `CraftCms\Cms\Component\Component` instead of `craft\base\Model`. |
+| `craft\guestentries\controllers\SaveController` | `CraftCms\GuestEntries\Http\Controllers\SaveController` | An invokable controller with no base class. It no longer has `actionIndex()` or Yii events. |
+| `craft\guestentries\events\SaveEvent` | removed | Replaced by the [events](#events) above. |
+
+The plugin handle (`guest-entries`) and the action URL (`actions/guest-entries/save`) are unchanged.
 
 ## Removed
 

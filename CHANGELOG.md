@@ -5,6 +5,7 @@
 ### Changed
 - Guest Entries now requires Craft 6 and PHP 8.5, and no longer uses the Yii 2 adapter.
 - The plugin class, settings, controller and events were ported to Craft 6’s Laravel-based architecture. See the [upgrade guide](UPGRADE.md) for what to change in your project.
+- Classes moved to the `CraftCms\GuestEntries` namespace and are organized like Craft’s own (`Http\Controllers`, `Events`, `Data`). See the [upgrade guide](UPGRADE.md) for the full list.
 - The plugin settings page now uses Craft’s form builder.
 - After a failed non-Ajax submission, templates repopulate the form with `old()` and `errors`, rather than an `entry` variable.
 

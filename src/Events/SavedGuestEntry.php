@@ -5,7 +5,7 @@
  * @license MIT
  */
 
-namespace craft\guestentries\events;
+namespace CraftCms\GuestEntries\Events;
 
 use CraftCms\Cms\Entry\Elements\Entry;
 

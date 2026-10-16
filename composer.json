@@ -6,8 +6,7 @@
     "cms",
     "craftcms",
     "guest",
-    "entries",
-    "yii2"
+    "entries"
   ],
   "license": "MIT",
   "authors": [
@@ -20,8 +19,8 @@
     "email": "support@craftcms.com",
     "issues": "https://github.com/craftcms/guest-entries/issues?state=open",
     "source": "https://github.com/craftcms/guest-entries",
-    "docs": "https://github.com/craftcms/guest-entries/blob/v2/README.md",
-    "rss": "https://github.com/craftcms/guest-entries/commits/v2.atom"
+    "docs": "https://github.com/craftcms/guest-entries/blob/5.x/README.md",
+    "rss": "https://github.com/craftcms/guest-entries/commits/5.x.atom"
   },
   "minimum-stability": "dev",
   "prefer-stable": true,
@@ -36,7 +35,7 @@
   },
   "autoload": {
     "psr-4": {
-      "craft\\guestentries\\": "src/"
+      "CraftCms\\GuestEntries\\": "src/"
     }
   },
   "scripts": {
@@ -47,7 +46,7 @@
   "extra": {
     "name": "Guest Entries",
     "handle": "guest-entries",
-    "documentationUrl": "https://github.com/craftcms/guest-entries/blob/v2/README.md"
+    "documentationUrl": "https://github.com/craftcms/guest-entries/blob/5.x/README.md"
   },
   "config": {
     "allow-plugins": {

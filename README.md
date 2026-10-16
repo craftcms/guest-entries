@@ -231,7 +231,7 @@ Register listeners in a service provider’s `boot()` method (for a project, `ap
 Dispatched _before_ a guest entry is saved. This is an opportunity to flag the submission as spam, or to reject it:
 
 ```php
-use craft\guestentries\events\SavingGuestEntry;
+use CraftCms\GuestEntries\Events\SavingGuestEntry;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Str;
 
@@ -257,7 +257,7 @@ Event::listen(function(SavingGuestEntry $event): void {
 Dispatched _after_ a guest entry is saved, or after a spam submission is discarded:
 
 ```php
-use craft\guestentries\events\SavedGuestEntry;
+use CraftCms\GuestEntries\Events\SavedGuestEntry;
 use Illuminate\Support\Facades\Event;
 
 // ...
@@ -276,7 +276,7 @@ Event::listen(function(SavedGuestEntry $event): void {
 Dispatched right after a submission is determined to be invalid, or rejected by a listener:
 
 ```php
-use craft\guestentries\events\GuestEntrySaveFailed;
+use CraftCms\GuestEntries\Events\GuestEntrySaveFailed;
 use Illuminate\Support\Facades\Event;
 
 // ...

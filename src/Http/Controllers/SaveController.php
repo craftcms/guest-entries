@@ -5,13 +5,8 @@
  * @license MIT
  */
 
-namespace craft\guestentries\controllers;
+namespace CraftCms\GuestEntries\Http\Controllers;
 
-use craft\guestentries\events\GuestEntrySaveFailed;
-use craft\guestentries\events\SavedGuestEntry;
-use craft\guestentries\events\SavingGuestEntry;
-use craft\guestentries\models\SectionSettings;
-use craft\guestentries\models\Settings;
 use CraftCms\Cms\Database\Table;
 use CraftCms\Cms\Element\Elements;
 use CraftCms\Cms\Element\Validation\ElementRules;
@@ -20,6 +15,11 @@ use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Section\Data\Section;
 use CraftCms\Cms\Section\Sections;
 use CraftCms\Cms\Support\DateTimeHelper;
+use CraftCms\GuestEntries\Data\SectionSettings;
+use CraftCms\GuestEntries\Events\GuestEntrySaveFailed;
+use CraftCms\GuestEntries\Events\SavedGuestEntry;
+use CraftCms\GuestEntries\Events\SavingGuestEntry;
+use CraftCms\GuestEntries\Settings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;

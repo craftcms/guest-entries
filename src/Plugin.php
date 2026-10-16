@@ -5,9 +5,8 @@
  * @license MIT
  */
 
-namespace craft\guestentries;
+namespace CraftCms\GuestEntries;
 
-use craft\guestentries\models\Settings;
 use CraftCms\Cms\Edition;
 use CraftCms\Cms\Form\Controls\Choice;
 use CraftCms\Cms\Form\Controls\Lightswitch;

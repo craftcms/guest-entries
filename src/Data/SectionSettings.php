@@ -5,7 +5,7 @@
  * @license MIT
  */
 
-namespace craft\guestentries\models;
+namespace CraftCms\GuestEntries\Data;
 
 use CraftCms\Cms\Component\Component;
 
