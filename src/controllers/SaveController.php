@@ -12,7 +12,6 @@ use craft\guestentries\events\SavedGuestEntry;
 use craft\guestentries\events\SavingGuestEntry;
 use craft\guestentries\models\SectionSettings;
 use craft\guestentries\models\Settings;
-use craft\guestentries\Plugin;
 use CraftCms\Cms\Database\Table;
 use CraftCms\Cms\Element\Elements;
 use CraftCms\Cms\Element\Validation\ElementRules;
@@ -35,8 +34,12 @@ class SaveController
 {
     use RespondsWithFlash;
 
-    public function __invoke(Request $request, Sections $sections, Elements $elements): Response
-    {
+    public function __invoke(
+        Request $request,
+        Sections $sections,
+        Elements $elements,
+        Settings $settings,
+    ): Response {
         // Only allow front end requests
         abort_if($request->isCpRequest(), 404);
 
@@ -56,8 +59,6 @@ class SaveController
         abort_if(!$section, 400, 'Section does not exist.');
 
         // Make sure the section allows guest submissions
-        /** @var Settings $settings */
-        $settings = Plugin::getInstance()->getSettings();
         $sectionSettings = $settings->getSection($section->uid);
 
         abort_if(!$sectionSettings->allowGuestSubmissions, 400, "Section $section->handle does not allow guest submissions.");

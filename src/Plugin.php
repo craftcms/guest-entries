@@ -58,6 +58,9 @@ class Plugin extends \CraftCms\Cms\Plugin\Plugin
      */
     public function boot(Routes $routes): void
     {
+        // Let classes type-hint the settings instead of looking up the plugin
+        $this->app->singleton(Settings::class, fn() => $this->getSettings());
+
         if (!$this->getSettings()->enableCsrfProtection) {
             PreventRequestForgery::except([
                 $routes->actionTriggerUriPrefix() . "/$this->handle/save",
