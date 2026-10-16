@@ -7,14 +7,14 @@
 
 namespace craft\guestentries\models;
 
-use CraftCms\Cms\Plugin\PluginSettings;
+use craft\base\Model;
 
 /**
  * Settings represents the global settings for Guest Entries.
  *
  * @property SectionSettings[] $sections The section settings
  */
-class Settings extends PluginSettings
+class Settings extends Model
 {
     // Properties
     // =========================================================================
