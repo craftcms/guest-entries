@@ -26,7 +26,8 @@
   "minimum-stability": "dev",
   "prefer-stable": true,
   "require": {
-    "craftcms/cms": "^4.0.0-RC3|^5.0.0-beta.1"
+    "php": "^8.5",
+    "craftcms/cms": "^6.0.0"
   },
   "require-dev": {
     "craftcms/ecs": "dev-main",
@@ -35,7 +36,7 @@
   },
   "autoload": {
     "psr-4": {
-      "craft\\guestentries\\": "src/"
+      "CraftCms\\GuestEntries\\": "src/"
     }
   },
   "scripts": {
@@ -49,11 +50,7 @@
     "documentationUrl": "https://github.com/craftcms/guest-entries/blob/v2/README.md"
   },
   "config": {
-    "platform": {
-      "php": "8.0.2"
-    },
     "allow-plugins": {
-      "yiisoft/yii2-composer": true,
       "craftcms/plugin-installer": true
     }
   }
