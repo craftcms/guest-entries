@@ -1,121 +1,138 @@
 <?php
+
+declare(strict_types=1);
+
+namespace CraftCms\GuestEntries;
+
+use CraftCms\Cms\Edition;
+use CraftCms\Cms\Form\Controls\Choice;
+use CraftCms\Cms\Form\Controls\Lightswitch;
+use CraftCms\Cms\Form\Controls\Text;
+use CraftCms\Cms\Form\Form;
+use CraftCms\Cms\Form\FormContext;
+use CraftCms\Cms\Form\Nodes\Callout;
+use CraftCms\Cms\Form\Nodes\CopyAttribute;
+use CraftCms\Cms\Form\Nodes\Field;
+use CraftCms\Cms\Form\Nodes\Group;
+use CraftCms\Cms\Plugin\Plugin as BasePlugin;
+use CraftCms\Cms\Plugin\PluginSettings;
+use CraftCms\Cms\Route\Routes;
+use CraftCms\Cms\Section\Data\Section;
+use CraftCms\Cms\Section\Enums\SectionType;
+use CraftCms\Cms\Section\Sections;
+use CraftCms\Cms\User\Elements\User;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
+
+use function CraftCms\Cms\currentUserElement;
+use function CraftCms\Cms\t;
+
 /**
- * @link https://craftcms.com/
- * @copyright Copyright (c) Pixel & Tonic, Inc.
- * @license MIT
- */
-
-namespace craft\guestentries;
-
-use Craft;
-use craft\base\Model;
-use craft\elements\User;
-use craft\guestentries\models\Settings;
-use craft\models\Section;
-
-/**
- * Class Plugin
- *
- * @property Settings $settings
  * @method Settings getSettings()
  */
-class Plugin extends \craft\base\Plugin
+class Plugin extends BasePlugin
 {
-    // Properties
-    // =========================================================================
-
-    /**
-     * @inheritdoc
-     */
     public string $schemaVersion = '2.1.0';
 
-    /**
-     * @inheritdoc
-     */
     public bool $hasCpSettings = true;
 
-    // Protected Methods
-    // =========================================================================
-
-    /**
-     * @return string
-     */
-    protected function settingsHtml(): ?string
+    public function boot(Routes $routes): void
     {
-        $sections = [];
-        $craftEdition = Craft::$app->getEdition();
+        $this->app->singleton(Settings::class, fn () => $this->getSettings());
 
-        if ($craftEdition !== Craft::Pro) {
-            $authors = [Craft::$app->getUser()->getIdentity()];
-            $authorOptions = $this->_formatAuthorOptions($authors);
+        if (! $this->getSettings()->enableCsrfProtection) {
+            PreventRequestForgery::except([$routes->actionTriggerUriPrefix()."/$this->handle/save"]);
         }
+    }
 
-        if (version_compare(Craft::$app->getVersion(), '5.0.0-beta.1', '<')) {
-            $sectionService = Craft::$app->getSections();
-        } else {
-            $sectionService = Craft::$app->getEntries();
-        }
-        foreach ($sectionService->getAllSections() as $section) {
+    protected static function createSettings(): ?PluginSettings
+    {
+        return new Settings;
+    }
+
+    public function settingsForm(FormContext $context = new FormContext): ?Form
+    {
+        $form = Form::make();
+        $sections = app(Sections::class)->getAllSections()
             // No sense in doing this for singles.
-            if ($section->type === Section::TYPE_SINGLE) {
-                continue;
-            }
+            ->reject(fn (Section $section) => $section->type === SectionType::Single);
 
-            $sections[] = [
-                'section' => $section,
-                'authorOptions' => $authorOptions ?? $this->_getSectionAuthorOptions($section),
-            ];
+        if ($sections->isEmpty()) {
+            $form->add(Callout::make('no-sections', t('No sections available.', category: 'guest-entries')));
         }
 
-        return Craft::$app->getView()->renderTemplate('guest-entries/_settings', [
-            'settings' => $this->getSettings(),
-            'sections' => $sections,
-        ]);
-    }
+        // Only Pro can attribute entries to any author who can create them
+        $allAuthors = Edition::isAtLeast(Edition::Pro) ? null : $this->formatAuthorOptions(array_filter([currentUserElement()]));
 
-    /**
-     * @inheritdoc
-     */
-    protected function createSettingsModel(): ?Model
-    {
-        return new Settings();
-    }
+        foreach ($sections as $section) {
+            $form->add(
+                Group::make("section-$section->uid", [
+                    Field::make(
+                        t('Allow guest submissions', category: 'guest-entries'),
+                        Lightswitch::make(['sections', $section->uid, 'allowGuestSubmissions']),
+                    ),
+                    Field::make(
+                        t('Default Author', category: 'guest-entries'),
+                        Choice::make(['sections', $section->uid, 'authorUid'])
+                            ->options($allAuthors ?? $this->getSectionAuthorOptions($section))
+                            ->placeholder(''),
+                    )->instructions(t('Who the guest entries should be attributed to by default.', category: 'guest-entries')),
+                    Field::make(
+                        t('Default Status', category: 'guest-entries'),
+                        Lightswitch::make(['sections', $section->uid, 'enabledByDefault']),
+                    )->instructions(t('Whether the guest entries should be enabled by default.', category: 'guest-entries')),
+                    Field::make(
+                        t('Validate?', category: 'guest-entries'),
+                        Lightswitch::make(['sections', $section->uid, 'runValidation']),
+                    )->instructions(t('Whether the guest entries should be validated when submitted.', category: 'guest-entries')),
+                    CopyAttribute::make("section-uid-$section->uid", $section->uid),
+                ])->label(t($section->name, category: 'site'))->collapsible(),
+            );
+        }
 
-    // Private Methods
-    // =========================================================================
+        $form->add(
+            Field::make(
+                t('Enable CSRF Protection?', category: 'guest-entries'),
+                Lightswitch::make('enableCsrfProtection'),
+            )->instructions(t('Whether `guest-entries/save` requests should be protected against CSRF attacks.', category: 'guest-entries')),
+            Field::make(
+                t('Entry Variable Name', category: 'guest-entries'),
+                Text::make('entryVariable'),
+            )->instructions(t('The template variable name that entry submissions should be assigned to, if there is a validation error.', category: 'guest-entries')),
+        );
+
+        return $form;
+    }
 
     /**
      * Returns the authors that can publish to the given section.
      *
-     * @param Section $section
-     * @return User[]
+     * @return list<array{label: string, value: string}>
      */
-    private function _getSectionAuthorOptions(Section $section): array
+    private function getSectionAuthorOptions(Section $section): array
     {
-        $authors = User::find()
-            ->can('createEntries:' . $section->uid)
-            ->all();
-        return $this->_formatAuthorOptions($authors);
+        return $this->formatAuthorOptions(
+            User::find()->can('createEntries:'.$section->uid)->all(),
+        );
     }
 
     /**
      * Formats the given list of authors for a select input.
      *
-     * @param User[] $authors
-     * @return array
+     * @param  iterable<User>  $authors
+     * @return list<array{label: string, value: string}>
      */
-    private function _formatAuthorOptions(array $authors): array
+    private function formatAuthorOptions(iterable $authors): array
     {
         $options = [];
 
         foreach ($authors as $author) {
-            $authorLabel = $author->username;
+            $label = $author->username;
 
             if ($fullName = $author->fullName) {
-                $authorLabel .= ' (' . $fullName . ')';
+                $label .= " ($fullName)";
             }
 
-            $options[] = ['label' => $authorLabel, 'value' => $author->uid];
+            $options[] = ['label' => $label, 'value' => $author->uid];
         }
 
         return $options;
