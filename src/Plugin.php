@@ -8,7 +8,7 @@
 namespace craft\guestentries;
 
 use Craft;
-use craft\base\Model;
+use CraftCms\Cms\Plugin\PluginSettings;
 use craft\elements\User;
 use craft\guestentries\models\Settings;
 use craft\models\Section;
@@ -19,7 +19,7 @@ use craft\models\Section;
  * @property Settings $settings
  * @method Settings getSettings()
  */
-class Plugin extends \craft\base\Plugin
+class Plugin extends \CraftCms\Cms\Plugin\Plugin
 {
     // Properties
     // =========================================================================
@@ -76,7 +76,7 @@ class Plugin extends \craft\base\Plugin
     /**
      * @inheritdoc
      */
-    protected function createSettingsModel(): ?Model
+    protected static function createSettings(): ?PluginSettings
     {
         return new Settings();
     }
