@@ -4,7 +4,9 @@ Allow guests to create entries from your site’s front end.
 
 ## Requirements
 
-_Guest Entries_ requires Craft CMS 4.0.0+ or 5.0.0+.
+_Guest Entries_ requires Craft CMS 6.0.0-alpha.1 or later, and PHP 8.5 or later.
+
+Using Craft 4 or 5? Stay on the 4.x line of this plugin. Upgrading a Craft 5 project that already has Guest Entries installed? See the [upgrade guide](UPGRADE.md).
 
 ## Installation
 
@@ -48,9 +50,6 @@ A basic guest entry template should look something like this:
     {% endif %}
 {% endmacro %}
 
-{# Default value for the `entry` variable: #}
-{% set entry = entry ?? null %}
-
 <form method="post" action="" accept-charset="UTF-8">
     {# Hidden inputs required for the form to work: #}
     {{ csrfInput() }}
@@ -64,16 +63,16 @@ A basic guest entry template should look something like this:
 
     {# Entry properties and custom fields: #}
     <label for="title">Title</label>
-    {{ input('text', 'title', entry ? entry.title, { id: 'title' }) }}
-    {{ entry ? _self.errorList(entry.getErrors('title')) }}
+    {{ input('text', 'title', old('title'), { id: 'title' }) }}
+    {{ _self.errorList(errors.get('title')) }}
 
     <label for="body">Body</label>
     {{ tag('textarea', {
-        text: entry ? entry.body,
+        text: old('fields.body'),
         id: 'body',
         name: 'fields[body]',
     }) }}
-    {{ entry ? _self.errorList(entry.getErrors('body')) }}
+    {{ _self.errorList(errors.get('body')) }}
 
     {# ... #}
 
@@ -115,7 +114,7 @@ The plugin determines what section the new entry is created in by looking for a 
 Granted you will already have a section (or at least a section _handle_), the easiest way to do this is via the section model:
 
 ```twig
-{% set targetSection = craft.app.sections.getSectionByHandle('resources') %}
+{% set targetSection = Sections.getSectionByHandle('resources') %}
 {% set entryTypes = targetSection.getEntryTypes() %}
 
 {# Select a single type, identified by its handle: #}
@@ -143,15 +142,15 @@ If entries in the designated section are enabled by default, validation will occ
 
 #### Validation Errors
 
-If there are validation errors on the entry, the page will be reloaded with the populated [`craft\elements\Entry`][api:entry] object available under an `entry` variable. You can access the posted values from that object as though it were a normal entry—or display errors with [`getErrors()`][yii:base-model-getErrors], [`getFirstError()`][yii:base-model-getFirstError], or [`getFirstErrors()`][yii:base-model-getFirstErrors].
+If the submission can’t be saved, the user is sent back to the page they came from. Use Laravel’s session helpers to repopulate the form and show what went wrong:
+
+- `old('title')` and `old('fields.body')` return the submitted values.
+- `errors.get('title')` returns the validation errors for an attribute, and `errors.has('title')` tells you whether there are any.
+- `session().get('error')` is the flash message (“Couldn’t save entry.”).
+- `session().get('entry')` holds the submitted entry’s data, under the name set by the “Entry Variable” [setting](#settings) (`entry` by default). It is an array, not an element, so it is mostly useful for debugging; prefer `old()` and `errors`.
 
 > **Note**  
-> The `entry` variable can be renamed with the “Entry Variable Name” [setting](#settings) in the control panel. This might be necessary if you want to use a form on an entry page that already injects a variable of that name.
-
-[api:entry]: https://docs.craftcms.com/api/v4/craft-elements-entry.html
-[yii:base-model-getErrors]: http://www.yiiframework.com/doc-2.0/yii-base-model.html#getErrors()-detail
-[yii:base-model-getFirstError]: http://www.yiiframework.com/doc-2.0/yii-base-model.html#getFirstError()-detail
-[yii:base-model-getFirstErrors]: http://www.yiiframework.com/doc-2.0/yii-base-model.html#getFirstErrors()-detail
+> The entry variable name can be changed with the `entryVariable` setting. This might be necessary if the page already uses a variable of that name.
 
 #### Redirection
 
@@ -159,17 +158,16 @@ Send a `redirect` param to send the user to a specific location upon successfull
 
 ### Submitting via Ajax
 
-If you submit your form [via Ajax](https://craftcms.com/docs/4.x/dev/controller-actions.html#ajax) with an `Accept: application/json` header, a JSON response will be returned with the following keys:
+If you submit your form via Ajax with an `Accept: application/json` header, a JSON response is returned. The HTTP status tells you the outcome: `200` when the entry was saved, `400` when it was not.
 
-- `success` _(boolean)_ – Whether the entry was saved successfully
-- `errors` _(object)_ – All of the validation errors indexed by field name (if not saved)
-- `id` _(string)_ – the entry’s ID (if saved)
-- `title` _(string)_ – the entry’s title (if saved)
-- `authorUsername` _(string)_ – the entry’s author’s username (if saved)
-- `dateCreated` _(string)_ – the entry’s creation date in ISO 8601 format (if saved)
-- `dateUpdated` _(string)_ – the entry’s update date in ISO 8601 format (if saved)
-- `postDate` _(string, null)_ – the entry’s post date in ISO 8601 format (if saved and enabled)
-- `url` _(string, null)_ – the entry’s public URL (if saved, enabled, and in a section that has URLs)
+Key | Notes
+--- | -----
+`message` | A success or failure message.
+`modelName` | `entry`, or the configured entry variable name when the submission failed.
+`modelClass` | The entry class.
+`modelId` | The entry’s ID (if saved).
+`entry` | All of the entry’s data.
+`errors` | Validation errors indexed by attribute name (if the entry was invalid).
 
 ### Viewing Entries
 
@@ -224,82 +222,70 @@ This query selects only `disabled` entries so that the “preview” is invalida
 
 ## Events
 
-_Guest Entries_ augments the normal [events](https://craftcms.com/docs/4.x/extend/events.html) emitted during the entry lifecycle with a few of its own, allowing developers to customize the submission process.
+_Guest Entries_ dispatches a few [Laravel events](https://craftcms.com/docs/6.x/extend/events.html) of its own, allowing developers to customize the submission process.
 
-The following snippets should be added to your plugin or module’s `init()` method, per the official [event usage instructions](https://craftcms.com/knowledge-base/custom-module-events).
+Register listeners in a service provider’s `boot()` method (for a project, `app/Providers/AppServiceProvider.php`), or in your own plugin’s `boot()` method.
 
-### The `beforeSaveEntry` event
+### `SavingGuestEntry`
 
-Plugins can be notified _before_ a guest entry is saved, using the `beforeSaveEntry` event. This is also an opportunity to flag the submission as spam, and prevent it being saved:
+Dispatched _before_ a guest entry is saved. This is an opportunity to flag the submission as spam, or to reject it:
 
 ```php
-use craft\helpers\StringHelper;
-use craft\guestentries\controllers\SaveController;
-use craft\guestentries\events\SaveEvent;
-use yii\base\Event;
+use craft\guestentries\events\SavingGuestEntry;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Str;
 
 // ...
 
-Event::on(
-    SaveController::class,
-    SaveController::EVENT_BEFORE_SAVE_ENTRY,
-    function(SaveEvent $e) {
-        // Get a reference to the entry object:
-        $entry = $e->entry;
+Event::listen(function(SavingGuestEntry $event): void {
+    // Get a reference to the entry object:
+    $entry = $event->entry;
 
-        // Perform spam detection logic of your own design:
-        if (StringHelper::contains($entry->title, 'synergy', false)) {
-            // Set the event property:
-            $e->isSpam = true;
-        }
+    // Perform spam detection logic of your own design:
+    if (Str::contains($entry->title, 'synergy', ignoreCase: true)) {
+        // Pretend it worked, but discard the entry:
+        $event->isSpam = true;
     }
-);
+
+    // Or reject it, so the submission fails:
+    // $event->isValid = false;
+});
 ```
 
-### The `afterSaveEntry` event
+### `SavedGuestEntry`
 
-Plugins can be notified _after_ a guest entry is saved, using the `afterSaveEntry` event:
+Dispatched _after_ a guest entry is saved, or after a spam submission is discarded:
 
 ```php
-use craft\guestentries\controllers\SaveController;
-use craft\guestentries\events\SaveEvent;
-use yii\base\Event;
+use craft\guestentries\events\SavedGuestEntry;
+use Illuminate\Support\Facades\Event;
 
 // ...
 
-Event::on(
-    SaveController::class,
-    SaveController::EVENT_AFTER_SAVE_ENTRY,
-    function(SaveEvent $e) {
-        // Grab the entry
-        $entry = $e->entry;
+Event::listen(function(SavedGuestEntry $event): void {
+    // Grab the entry
+    $entry = $event->entry;
 
-        // Was it flagged as spam?
-        $isSpam = $e->isSpam;
-    }
-);
+    // Was it flagged as spam?
+    $isSpam = $event->isSpam;
+});
 ```
 
-### The `afterError` event
+### `GuestEntrySaveFailed`
 
-Plugins can be notified right after a submission is determined to be invalid using the `afterError` event:
+Dispatched right after a submission is determined to be invalid, or rejected by a listener:
 
 ```php
-use craft\guestentries\controllers\SaveController;
-use craft\guestentries\events\SaveEvent;
-use yii\base\Event;
+use craft\guestentries\events\GuestEntrySaveFailed;
+use Illuminate\Support\Facades\Event;
 
 // ...
 
-Event::on(
-    SaveController::class,
-    SaveController::EVENT_AFTER_ERROR,
-    function(SaveEvent $e) {
-        // Grab the entry
-        $entry = $e->entry;
+Event::listen(function(GuestEntrySaveFailed $event): void {
+    // Grab the entry
+    $entry = $event->entry;
 
-        // Get any validation errors
-        $errors = $entry->getErrors();
-    }
-);
+    // Get any validation errors
+    $errors = $entry->errors()->getMessages();
+});
 ```

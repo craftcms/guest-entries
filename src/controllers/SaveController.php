@@ -7,229 +7,140 @@
 
 namespace craft\guestentries\controllers;
 
-use Craft;
-use craft\base\Element;
-use craft\elements\Entry;
-use craft\guestentries\events\SaveEvent;
+use craft\guestentries\events\GuestEntrySaveFailed;
+use craft\guestentries\events\SavedGuestEntry;
+use craft\guestentries\events\SavingGuestEntry;
 use craft\guestentries\models\SectionSettings;
 use craft\guestentries\models\Settings;
 use craft\guestentries\Plugin;
-use craft\helpers\DateTimeHelper;
-use craft\helpers\Db;
-use craft\models\Section;
-use craft\web\Controller;
-use craft\web\Request;
-use yii\web\BadRequestHttpException;
-use yii\web\NotFoundHttpException;
-use yii\web\Response;
+use CraftCms\Cms\Database\Table;
+use CraftCms\Cms\Element\Elements;
+use CraftCms\Cms\Element\Validation\ElementRules;
+use CraftCms\Cms\Entry\Elements\Entry;
+use CraftCms\Cms\Http\RespondsWithFlash;
+use CraftCms\Cms\Section\Data\Section;
+use CraftCms\Cms\Section\Sections;
+use CraftCms\Cms\Support\DateTimeHelper;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Symfony\Component\HttpFoundation\Response;
+
+use function CraftCms\Cms\t;
 
 /**
- * Guest Entries controller
+ * Saves entries submitted by guests from the front end.
  */
-class SaveController extends Controller
+class SaveController
 {
-    // Properties
-    // =========================================================================
+    use RespondsWithFlash;
 
-    /**
-     * @inheritdoc
-     */
-    protected array|int|bool $allowAnonymous = true;
-
-    // Constants
-    // =========================================================================
-
-    /**
-     * @event SaveEvent The event that is triggered before a guest entry is saved.
-     */
-    public const EVENT_BEFORE_SAVE_ENTRY = 'beforeSaveEntry';
-
-    /**
-     * @event SaveEvent The event that is triggered after a guest entry is saved.
-     */
-    public const EVENT_AFTER_SAVE_ENTRY = 'afterSaveEntry';
-
-    /**
-     * @event SaveEvent The event that is triggered after an error occurs.
-     */
-    public const EVENT_AFTER_ERROR = 'afterError';
-
-    // Public Methods
-    // =========================================================================
-
-    /**
-     * @inheritdoc
-     */
-    public function init(): void
+    public function __invoke(Request $request, Sections $sections, Elements $elements): Response
     {
-        $this->enableCsrfValidation = Plugin::getInstance()->getSettings()->enableCsrfProtection;
-        parent::init();
-    }
-
-    /**
-     * Saves a guest entry.
-     *
-     * @return Response|null
-     * @throws BadRequestHttpException if it's not a post request or the requested section doesn't exist/allow guest submissions
-     * @throws NotFoundHttpException if it's not a front end request
-     */
-    public function actionIndex()
-    {
-        $this->requirePostRequest();
-
         // Only allow front end requests
-        $request = Craft::$app->getRequest();
-        if (!$request->getIsSiteRequest()) {
-            throw new NotFoundHttpException();
-        }
+        abort_if($request->isCpRequest(), 404);
 
         // Make sure the section exists
-        $sectionId = $request->getBodyParam('sectionId');
-        $sectionUid = $request->getBodyParam('sectionUid');
-        $sectionHandle = $request->getBodyParam('sectionHandle');
-
-        if (version_compare(Craft::$app->getVersion(), '5.0.0-beta.1', '<')) {
-            $sectionService = Craft::$app->getSections();
-        } else {
-            $sectionService = Craft::$app->getEntries();
-        }
+        $sectionId = $request->input('sectionId');
+        $sectionUid = $request->input('sectionUid');
+        $sectionHandle = $request->input('sectionHandle');
 
         if ($sectionHandle) {
-            $section = $sectionService->getSectionByHandle($sectionHandle);
+            $section = $sections->getSectionByHandle($sectionHandle);
         } elseif ($sectionUid) {
-            $section = $sectionService->getSectionByUid($sectionUid);
+            $section = $sections->getSectionByUid($sectionUid);
         } else {
-            $section = $sectionService->getSectionById((int) $sectionId);
+            $section = $sections->getSectionById((int)$sectionId);
         }
 
-        if (!$section) {
-            throw new BadRequestHttpException('Section does not exist.');
-        }
-
-        $sectionUid = $section->uid;
+        abort_if(!$section, 400, 'Section does not exist.');
 
         // Make sure the section allows guest submissions
+        /** @var Settings $settings */
         $settings = Plugin::getInstance()->getSettings();
-        $sectionSettings = $settings->getSection($sectionUid);
+        $sectionSettings = $settings->getSection($section->uid);
 
-        if (!$sectionSettings->allowGuestSubmissions) {
-            throw new BadRequestHttpException('Section ' . $section->handle . ' does not allow guest submissions.');
-        }
+        abort_if(!$sectionSettings->allowGuestSubmissions, 400, "Section $section->handle does not allow guest submissions.");
 
         // Populate the entry
-        $entry = $this->_populateEntryModel($section, $sectionSettings, $request);
+        $entry = $this->populateEntry($request, $section, $sectionSettings);
 
-        // Fire an 'onBeforeSave' event
-        $event = new SaveEvent(['entry' => $entry]);
-        $this->trigger(self::EVENT_BEFORE_SAVE_ENTRY, $event);
+        // Give listeners a chance to veto the entry or flag it as spam
+        event($saving = new SavingGuestEntry($entry));
 
-        if (!$event->isValid) {
-            return $this->_returnError($settings, $entry);
+        if (!$saving->isValid) {
+            return $this->returnError($settings, $entry);
         }
 
-        if ($event->isSpam) {
-            Craft::info('Guest entry submission suspected to be spam.', __METHOD__);
+        if ($saving->isSpam) {
+            Log::info('Guest entry submission suspected to be spam.');
             // Pretend it worked.
-            return $this->_returnSuccess($entry, true);
+            return $this->returnSuccess($entry, true);
         }
 
         // Try to save it
         if ($sectionSettings->runValidation) {
-            $entry->setScenario(Element::SCENARIO_LIVE);
+            $entry->ruleset->useScenario(ElementRules::SCENARIO_LIVE);
         }
 
-        if (!Craft::$app->getElements()->saveElement($entry)) {
-            return $this->_returnError($settings, $entry);
+        if (!$elements->saveElement($entry)) {
+            return $this->returnError($settings, $entry);
         }
 
-        return $this->_returnSuccess($entry);
+        return $this->returnSuccess($entry);
     }
 
-    // Private Methods
-    // =========================================================================
-
-    /**
-     * Returns a 'success' response.
-     *
-     * @param Entry $entry
-     * @param bool $isSpam
-     * @return Response
-     */
-    private function _returnSuccess(Entry $entry, $isSpam = false): Response
+    private function returnSuccess(Entry $entry, bool $isSpam = false): Response
     {
-        if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_ENTRY)) {
-            $this->trigger(self::EVENT_AFTER_SAVE_ENTRY, new SaveEvent([
-                'entry' => $entry,
-                'isSpam' => $isSpam,
-            ]));
-        }
+        event(new SavedGuestEntry($entry, $isSpam));
 
         return $this->asModelSuccess(
             $entry,
-            Craft::t('guest-entries', 'Entry saved.'),
+            t('Entry saved.', category: 'guest-entries'),
             'entry',
         );
     }
 
-    /**
-     * Returns an 'error' response.
-     *
-     * @param Settings $settings
-     * @param Entry $entry
-     * @return Response|null
-     */
-    private function _returnError(Settings $settings, Entry $entry): ?Response
+    private function returnError(Settings $settings, Entry $entry): Response
     {
-        if ($this->hasEventHandlers(self::EVENT_AFTER_ERROR)) {
-            $this->trigger(self::EVENT_AFTER_ERROR, new SaveEvent([
-                'entry' => $entry,
-            ]));
-        }
+        event(new GuestEntrySaveFailed($entry));
 
         return $this->asModelFailure(
             $entry,
-            Craft::t('guest-entries', 'Couldn’t save entry.'),
+            t('Couldn’t save entry.', category: 'guest-entries'),
             $settings->entryVariable,
         );
     }
 
     /**
-     * Populates an EntryModel with post data.
-     *
-     * @param Section $section
-     * @param SectionSettings $sectionSettings
-     * @param Request $request
-     * @throws BadRequestHttpException if the requested section doesn't allow guest submissions
-     * @return Entry
+     * Creates an entry and populates it with the submitted data.
      */
-    private function _populateEntryModel(Section $section, SectionSettings $sectionSettings, Request $request): Entry
+    private function populateEntry(Request $request, Section $section, SectionSettings $sectionSettings): Entry
     {
-        // Create and populate the entry
         $entry = new Entry([
             'sectionId' => $section->id,
-            'authorId' => Db::idByUid('{{%elements}}', $sectionSettings->authorUid),
-            'siteId' => $request->getBodyParam('siteId'),
-            'typeId' => $request->getBodyParam('typeId') ?? $section->getEntryTypes()[0]->id,
-            'title' => $request->getBodyParam('title'),
-            'slug' => $request->getBodyParam('slug'),
-            'enabled' => (bool)$sectionSettings->enabledByDefault,
-            'enabledForSite' => (bool)$request->getBodyParam('enabledForSite', true),
+            'authorId' => DB::table(Table::ELEMENTS)->idByUid((string)$sectionSettings->authorUid),
+            'siteId' => $request->input('siteId'),
+            'typeId' => $request->input('typeId') ?? $section->getEntryTypes()[0]->id,
+            'title' => $request->input('title'),
+            'slug' => $request->input('slug'),
+            'enabled' => $sectionSettings->enabledByDefault,
+            'enabledForSite' => $request->boolean('enabledForSite', true),
         ]);
 
-        if (($postDate = $request->getBodyParam('postDate')) !== null) {
+        if (($postDate = $request->input('postDate')) !== null) {
             $entry->postDate = DateTimeHelper::toDateTime($postDate) ?: null;
         }
 
-        if (($expiryDate = $request->getBodyParam('expiryDate')) !== null) {
+        if (($expiryDate = $request->input('expiryDate')) !== null) {
             $entry->expiryDate = DateTimeHelper::toDateTime($expiryDate) ?: null;
         }
 
-        if (($newParentId = $request->getBodyParam('parentId')) !== null) {
+        if (($newParentId = $request->input('parentId')) !== null) {
             $entry->setParentId($newParentId);
         }
 
-        $fieldsLocation = $request->getParam('fieldsLocation', 'fields');
-        $entry->setFieldValuesFromRequest($fieldsLocation);
+        $entry->setFieldValuesFromRequest($request->input('fieldsLocation', 'fields'));
 
         return $entry;
     }

@@ -7,23 +7,34 @@
 
 namespace craft\guestentries;
 
-use Craft;
-use craft\base\Model;
-use craft\elements\User;
 use craft\guestentries\models\Settings;
-use craft\models\Section;
+use CraftCms\Cms\Edition;
+use CraftCms\Cms\Form\Controls\Choice;
+use CraftCms\Cms\Form\Controls\Lightswitch;
+use CraftCms\Cms\Form\Form;
+use CraftCms\Cms\Form\FormContext;
+use CraftCms\Cms\Form\Nodes\Callout;
+use CraftCms\Cms\Form\Nodes\CopyAttribute;
+use CraftCms\Cms\Form\Nodes\Field;
+use CraftCms\Cms\Form\Nodes\Group;
+use CraftCms\Cms\Plugin\PluginSettings;
+use CraftCms\Cms\Route\Routes;
+use CraftCms\Cms\Section\Data\Section;
+use CraftCms\Cms\Section\Enums\SectionType;
+use CraftCms\Cms\Support\Facades\Sections;
+use CraftCms\Cms\User\Elements\User;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
+
+use function CraftCms\Cms\currentUserElement;
+use function CraftCms\Cms\t;
 
 /**
  * Class Plugin
  *
- * @property Settings $settings
  * @method Settings getSettings()
  */
-class Plugin extends \craft\base\Plugin
+class Plugin extends \CraftCms\Cms\Plugin\Plugin
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @inheritdoc
      */
@@ -34,77 +45,99 @@ class Plugin extends \craft\base\Plugin
      */
     public bool $hasCpSettings = true;
 
-    // Protected Methods
-    // =========================================================================
-
     /**
-     * @return string
+     * @inheritdoc
      */
-    protected function settingsHtml(): ?string
+    protected static function createSettings(): ?PluginSettings
     {
-        $sections = [];
-        $craftEdition = Craft::$app->getEdition();
-
-        if ($craftEdition !== Craft::Pro) {
-            $authors = [Craft::$app->getUser()->getIdentity()];
-            $authorOptions = $this->_formatAuthorOptions($authors);
-        }
-
-        if (version_compare(Craft::$app->getVersion(), '5.0.0-beta.1', '<')) {
-            $sectionService = Craft::$app->getSections();
-        } else {
-            $sectionService = Craft::$app->getEntries();
-        }
-        foreach ($sectionService->getAllSections() as $section) {
-            // No sense in doing this for singles.
-            if ($section->type === Section::TYPE_SINGLE) {
-                continue;
-            }
-
-            $sections[] = [
-                'section' => $section,
-                'authorOptions' => $authorOptions ?? $this->_getSectionAuthorOptions($section),
-            ];
-        }
-
-        return Craft::$app->getView()->renderTemplate('guest-entries/_settings', [
-            'settings' => $this->getSettings(),
-            'sections' => $sections,
-        ]);
+        return new Settings();
     }
 
     /**
      * @inheritdoc
      */
-    protected function createSettingsModel(): ?Model
+    public function boot(Routes $routes): void
     {
-        return new Settings();
+        if (!$this->getSettings()->enableCsrfProtection) {
+            PreventRequestForgery::except([
+                $routes->actionTriggerUriPrefix() . "/$this->handle/save",
+            ]);
+        }
     }
 
-    // Private Methods
-    // =========================================================================
+    /**
+     * @inheritdoc
+     */
+    public function settingsForm(FormContext $context = new FormContext): ?Form
+    {
+        $sections = Sections::getAllSections()
+            // No sense in doing this for singles.
+            ->reject(fn(Section $section) => $section->type === SectionType::Single);
+
+        if ($sections->isEmpty()) {
+            return Form::make([
+                Callout::make('no-sections', t('Create a channel or structure section to allow guest submissions.', category: 'guest-entries')),
+            ]);
+        }
+
+        $currentUser = currentUserElement();
+        $proAuthors = Edition::isAtLeast(Edition::Pro);
+        $form = Form::make();
+
+        foreach ($sections as $section) {
+            $authorOptions = $this->authorOptions($proAuthors || !$currentUser ? $this->sectionAuthors($section) : [$currentUser]);
+
+            $form->add(
+                Group::make("section-$section->uid", [
+                    Field::make(
+                        t('Allow guest submissions', category: 'guest-entries'),
+                        Lightswitch::make(['sections', $section->uid, 'allowGuestSubmissions']),
+                    ),
+                    Field::make(
+                        t('Default Author', category: 'guest-entries'),
+                        Choice::make(['sections', $section->uid, 'authorUid'])
+                            ->options($authorOptions)
+                            ->placeholder(''),
+                    )->instructions(t('Who the guest entries should be attributed to by default.', category: 'guest-entries')),
+                    Field::make(
+                        t('Default Status', category: 'guest-entries'),
+                        Lightswitch::make(['sections', $section->uid, 'enabledByDefault']),
+                    )->instructions(t('Whether the guest entries should be enabled by default.', category: 'guest-entries')),
+                    Field::make(
+                        t('Validate?', category: 'guest-entries'),
+                        Lightswitch::make(['sections', $section->uid, 'runValidation']),
+                    )->instructions(t('Whether the guest entries should be validated when submitted.', category: 'guest-entries')),
+                    CopyAttribute::make("section-uid-$section->uid", $section->uid),
+                ])->label($section->name)->collapsible(),
+            );
+        }
+
+        return $form;
+    }
 
     /**
-     * Returns the authors that can publish to the given section.
+     * Returns the users that can publish to the given section.
      *
-     * @param Section $section
      * @return User[]
      */
-    private function _getSectionAuthorOptions(Section $section): array
+    private function sectionAuthors(Section $section): array
     {
-        $authors = User::find()
-            ->can('createEntries:' . $section->uid)
-            ->all();
-        return $this->_formatAuthorOptions($authors);
+        $authors = [];
+
+        foreach (User::find()->can('createEntries:' . $section->uid)->all() as $author) {
+            $authors[] = $author;
+        }
+
+        return $authors;
     }
 
     /**
      * Formats the given list of authors for a select input.
      *
      * @param User[] $authors
-     * @return array
+     * @return array<int, array{label: string, value: string}>
      */
-    private function _formatAuthorOptions(array $authors): array
+    private function authorOptions(array $authors): array
     {
         $options = [];
 

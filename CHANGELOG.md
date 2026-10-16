@@ -1,5 +1,17 @@
 # Release Notes for Guest Entries
 
+## Unreleased
+
+### Changed
+- Guest Entries now requires Craft 6 and PHP 8.5, and no longer uses the Yii 2 adapter.
+- The plugin class, settings, controller and events were ported to Craft 6’s Laravel-based architecture. See the [upgrade guide](UPGRADE.md) for what to change in your project.
+- The plugin settings page now uses Craft’s form builder.
+- After a failed non-Ajax submission, templates repopulate the form with `old()` and `errors`, rather than an `entry` variable.
+
+### Removed
+- Removed the `beforeSaveEntry`, `afterSaveEntry` and `afterError` events and `craft\guestentries\events\SaveEvent`. Use the new `SavingGuestEntry`, `SavedGuestEntry` and `GuestEntrySaveFailed` Laravel events instead.
+- Removed the migrations that upgraded settings from versions before 2.1.0. Upgrade to 4.x first if you are on an older version.
+
 ## 4.0.1 - 2024-05-22
 
 - Fixed a PHP error that could occur when front-end validation failed. ([#87](https://github.com/craftcms/guest-entries/issues/87))

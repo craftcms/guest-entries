@@ -7,106 +7,106 @@
 
 namespace craft\guestentries\models;
 
-use craft\base\Model;
+use CraftCms\Cms\Plugin\PluginSettings;
+use Illuminate\Support\Str;
+
+use function CraftCms\Cms\t;
 
 /**
  * Settings represents the global settings for Guest Entries.
- *
- * @property SectionSettings[] $sections The section settings
  */
-class Settings extends Model
+class Settings extends PluginSettings
 {
-    // Properties
-    // =========================================================================
+    /**
+     * @var bool Whether CSRF protection is enabled for the front-end submission route
+     */
+    public bool $enableCsrfProtection = true;
 
     /**
-     * @var bool Whether `guest-entries/save` requests should be protected against CSRF attacks.
-     * Note this will be ignored if CSRF protection has been disabled at the system level.
+     * @var string The name of the variable that the submitted entry is made available as, when a submission fails
      */
-    public $enableCsrfProtection = true;
+    public string $entryVariable = 'entry';
 
     /**
-     * @var string The name of the variable to return to the template in case there is a validation error.
+     * @var array<string, array{sectionUid: string, allowGuestSubmissions: bool, enabledByDefault: bool, runValidation: bool, authorUid: ?string}>
+     * Settings for sections that allow guest submissions, keyed by section UID.
      */
-    public $entryVariable = 'entry';
-
-    /**
-     * @var SectionSettings[]
-     */
-    private $_sections = [];
-
-    // Public Methods
-    // =========================================================================
-
-    /**
-     * Returns a section’s settings by its ID.
-     *
-     * @param string $uid
-     * @return SectionSettings
-     */
-    public function getSection(string $uid): SectionSettings
-    {
-        return $this->_sections[$uid] ?? new SectionSettings(['sectionUid' => $uid]);
+    public array $sections = [] {
+        set(array $sections) => $this->normalizeSections($sections);
     }
 
     /**
-     * Returns the section settings.
+     * Returns the settings for a section, whether or not it allows guest submissions.
+     */
+    public function getSection(string $uid): SectionSettings
+    {
+        return new SectionSettings($this->sections[$uid] ?? ['sectionUid' => $uid]);
+    }
+
+    /**
+     * Returns the settings for each section that allows guest submissions, keyed by section UID.
      *
      * @return SectionSettings[]
      */
     public function getSections(): array
     {
-        return $this->_sections;
-    }
-
-    /**
-     * Sets the section settings.
-     *
-     * @param array $sections
-     */
-    public function setSections(array $sections)
-    {
-        foreach ($sections as $key => $config) {
-            // Watch out for old config data that's not updated yet
-            if (!isset($config['sectionUid'])) {
-                continue;
-            }
-
-            // Ignore sections that don't allow guest submissions
-            if ($config['allowGuestSubmissions']) {
-                $this->_sections[$config['sectionUid']] = new SectionSettings($config);
-            } else {
-                unset($this->_sections[$config['sectionUid']]);
-            }
-        }
+        return array_map(fn(array $config) => new SectionSettings($config), $this->sections);
     }
 
     /**
      * @inheritdoc
      */
-    public function attributes(): array
+    public function getRules(): array
     {
-        $names = parent::attributes();
-        $names[] = 'sections';
-        return $names;
+        return array_merge(parent::getRules(), [
+            'enableCsrfProtection' => ['boolean'],
+            'entryVariable' => ['required', 'string'],
+            'sections' => ['array'],
+            'sections.*.authorUid' => ['required', 'string'],
+        ]);
     }
 
     /**
      * @inheritdoc
      */
-    protected function defineRules(): array
+    public function getMessages(): array
     {
         return [
-            [['sections'], 'validateSections'],
+            'sections.*.authorUid.required' => t('A default author is required for sections that allow guest submissions.', category: 'guest-entries'),
         ];
     }
 
-    public function validateSections()
+    /**
+     * Keeps only sections that allow guest submissions, keyed by UID, with a consistent shape.
+     *
+     * @param array<array-key, array<string, mixed>> $sections
+     * @return array<string, array<string, mixed>>
+     */
+    private function normalizeSections(array $sections): array
     {
-        foreach ($this->_sections as $uid => $section) {
-            if ($section->allowGuestSubmissions && !$section->validate()) {
-                $this->addModelErrors($section, "sections[$uid]");
+        $normalized = [];
+
+        foreach ($sections as $key => $config) {
+            if (!is_array($config)) {
+                continue;
             }
+
+            // Ignore old config data (keyed by section ID) that isn't updated yet
+            $uid = $config['sectionUid'] ?? (Str::isUuid((string)$key) ? (string)$key : null);
+
+            if ($uid === null || !filter_var($config['allowGuestSubmissions'] ?? false, FILTER_VALIDATE_BOOLEAN)) {
+                continue;
+            }
+
+            $normalized[$uid] = [
+                'sectionUid' => $uid,
+                'allowGuestSubmissions' => true,
+                'enabledByDefault' => filter_var($config['enabledByDefault'] ?? false, FILTER_VALIDATE_BOOLEAN),
+                'runValidation' => filter_var($config['runValidation'] ?? false, FILTER_VALIDATE_BOOLEAN),
+                'authorUid' => ($config['authorUid'] ?? '') !== '' ? $config['authorUid'] : null,
+            ];
         }
+
+        return $normalized;
     }
 }

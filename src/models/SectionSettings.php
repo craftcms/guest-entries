@@ -7,45 +7,35 @@
 
 namespace craft\guestentries\models;
 
-use craft\base\Model;
+use CraftCms\Cms\Component\Component;
 
-class SectionSettings extends Model
+/**
+ * Settings for a single section.
+ */
+class SectionSettings extends Component
 {
-    // Properties
-    // =========================================================================
+    /**
+     * @var string|null The section’s UID
+     */
+    public ?string $sectionUid = null;
 
     /**
-     * @var string|null The section UID
+     * @var bool Whether guests may submit entries to the section
      */
-    public $sectionUid;
+    public bool $allowGuestSubmissions = false;
 
     /**
-     * @var bool Whether the section allows guest entry submissions
+     * @var bool Whether new guest entries are enabled by default
      */
-    public $allowGuestSubmissions = false;
+    public bool $enabledByDefault = false;
 
     /**
-     * @var bool Whether guest entry submissions should be enabled by default
+     * @var bool Whether guest entries are validated as if they were being published
      */
-    public $enabledByDefault = false;
+    public bool $runValidation = false;
 
     /**
-     * @var bool Whether guest entry submissions should be validated
+     * @var string|null The UID of the user that new guest entries are attributed to
      */
-    public $runValidation = false;
-
-    /**
-     * @var string|null The UID of the author that guest entries should be attributed to
-     */
-    public $authorUid;
-
-    /**
-     * @inheritdoc
-     */
-    protected function defineRules(): array
-    {
-        return [
-            [['authorUid'], 'required'],
-        ];
-    }
+    public ?string $authorUid = null;
 }

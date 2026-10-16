@@ -27,8 +27,7 @@
   "prefer-stable": true,
   "require": {
     "php": "^8.5",
-    "craftcms/cms": "^6.0.0",
-    "craftcms/yii2-adapter": "^6.0.0-alpha.1"
+    "craftcms/cms": "^6.0.0"
   },
   "require-dev": {
     "craftcms/ecs": "dev-main",
@@ -52,7 +51,6 @@
   },
   "config": {
     "allow-plugins": {
-      "yiisoft/yii2-composer": true,
       "craftcms/plugin-installer": true
     }
   }
