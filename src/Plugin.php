@@ -2,22 +2,23 @@
 
 namespace CraftCms\GuestEntries;
 
-use CraftCms\Cms\Form\Controls\Concerns\HasTextExpander;
-use CraftCms\Cms\Form\Controls\Lightswitch;
-use CraftCms\Cms\Form\Controls\Text;
-use CraftCms\Cms\Form\Enums\ControlMode;
-use CraftCms\Cms\Form\Form;
-use CraftCms\Cms\Form\FormContext;
-use CraftCms\Cms\Form\Nodes\Callout;
-use CraftCms\Cms\Form\Nodes\CopyAttribute;
-use CraftCms\Cms\Form\Nodes\Field;
-use CraftCms\Cms\Form\Nodes\Group;
-use CraftCms\Cms\Form\Nodes\Heading;
-use CraftCms\Cms\Form\Nodes\HiddenField;
-use CraftCms\Cms\Form\Nodes\MarkdownContent;
 use CraftCms\Cms\Plugin\Plugin as BasePlugin;
 use CraftCms\Cms\Support\Arr;
 use CraftCms\Cms\Support\Facades\Sections;
+use CraftCms\Cms\Ui\Controls\Concerns\HasTextExpander;
+use CraftCms\Cms\Ui\Controls\Lightswitch;
+use CraftCms\Cms\Ui\Controls\Text;
+use CraftCms\Cms\Ui\Enums\ControlMode;
+use CraftCms\Cms\Ui\Nodes\Callout;
+use CraftCms\Cms\Ui\Nodes\CopyAttribute;
+use CraftCms\Cms\Ui\Nodes\Field;
+use CraftCms\Cms\Ui\Nodes\Group;
+use CraftCms\Cms\Ui\Nodes\Heading;
+use CraftCms\Cms\Ui\Nodes\HiddenField;
+use CraftCms\Cms\Ui\Nodes\MarkdownContent;
+use CraftCms\Cms\Ui\Nodes\Separator;
+use CraftCms\Cms\Ui\Ui;
+use CraftCms\Cms\Ui\UiContext;
 use CraftCms\GuestEntries\Http\Requests\SettingsRequest;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
@@ -50,12 +51,12 @@ class Plugin extends BasePlugin
         });
     }
 
-    public function settingsForm(FormContext $context = new FormContext): ?Form
+    public function settingsUi(UiContext $context = new UiContext): ?Ui
     {
         // Capture anything stored in config files so we can alert the administrator that their changes may be overwritten:
         $overrides = config(sprintf('craft.%s', $this->handle));
 
-        $settingsForm = Form::make([
+        $settingsForm = Ui::make([
             Heading::make('section-settings-heading', t('Section Settings', category: 'aws-s3')),
             MarkdownContent::make('section-settings-note', t('Choose which sections should allow guest submissions, and configure section-specific rules.', category: 'aws-s3'))->displayInPane(false),
         ]);
@@ -90,12 +91,12 @@ class Plugin extends BasePlugin
 
             $sectionGroup = Group::make("sections.$section->uid", [
                 HiddenField::make("sections.$section->uid.sectionUid"),
-                Heading::make("sections.$section->uid.heading", t($section->name, category: 'site'))->level(3),
                 Field::make(t('Allow guest submissions?', category: 'guest-entries'), Lightswitch::make("sections.$section->uid.allowGuestSubmissions")
                     ->mode($sectionsOverride ? ControlMode::ReadOnly : ControlMode::Editable)
                     ->reactive())
                     ->instructions(t('When enabled, anonymous users will be able to create entries in this section.', category: 'guest-entries')),
-            ]);
+            ])
+                ->label($section->name);
 
             // The rest of the form is only relevant when submissions are allowed:
             if ($sectionSettings['allowGuestSubmissions']) {
@@ -116,6 +117,7 @@ class Plugin extends BasePlugin
             }
 
             $settingsForm->add($sectionGroup);
+            $settingsForm->add(Separator::make("after-section-{$section->uid}"));
         }
 
         // Global settings
