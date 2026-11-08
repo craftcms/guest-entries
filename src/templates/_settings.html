@@ -17,7 +17,7 @@
         {% set sectionRows = sectionRows|merge({
             (section.handle): {
                 sectionName: section.name|t('site'),
-                allowGuestSubmissions: include('_includes/forms/lightswitch', {
+                allowGuestSubmissions: isCraft6 ? sectionSettings.allowGuestSubmissions : include('_includes/forms/lightswitch', {
                     id: idPrefix~'-allowGuestSubmissions',
                     name: namePrefix~'[allowGuestSubmissions]',
                     on: sectionSettings.allowGuestSubmissions,
@@ -30,12 +30,12 @@
                 },
                 enabledByDefault: sectionSettings.enabledByDefault,
                 runValidation: sectionSettings.runValidation,
-                sectionUid: {
+                (isCraft6 ? 'copyUid' : 'sectionUid'): {
                     value: '<button class="uid-btn btn small" data-uid="' ~ section.uid ~ '">' ~ 'Copy'|t('guest-entries') ~ '</button>' ~
-                        '<input type="hidden" name="'~namePrefix~'[sectionUid]" value="'~section.uid~'">',
+                        (isCraft6 ? '' : '<input type="hidden" name="'~namePrefix~'[sectionUid]" value="'~section.uid~'">'),
                     class: 'code centeralign'
                 }
-            }
+            }|merge(isCraft6 ? {hiddenInputs: {sectionUid: section.uid}} : {})
         }) %}
     {% endfor %}
 
@@ -51,7 +51,11 @@
                 heading: "Section"|t('guest-entries'),
                 class: 'thin'
             },
-            allowGuestSubmissions: {
+            allowGuestSubmissions: isCraft6 ? {
+                type: 'lightswitch',
+                heading: "Allow guest submissions?"|t('guest-entries'),
+                class: 'thin'
+            } : {
                 type: 'heading',
                 class: 'thin'
             },
@@ -73,7 +77,7 @@
                 info: "Whether the guest entries should be validated when submitted."|t('guest-entries'),
                 class: 'leftalign'
             },
-            sectionUid: {
+            (isCraft6 ? 'copyUid' : 'sectionUid'): {
                 type: 'html',
                 heading: "UID"|t('guest-entries'),
                 class: 'thin'

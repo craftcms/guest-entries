@@ -1,5 +1,10 @@
 # Release Notes for Guest Entries
 
+## Unreleased
+
+- Added Craft CMS 6 compatibility, when the `craftcms/yii2-adapter` package is installed.
+- Fixed a bug where per-section settings weren’t saved from the plugin settings page on Craft CMS 6.
+
 ## 4.0.1 - 2024-05-22
 
 - Fixed a PHP error that could occur when front-end validation failed. ([#87](https://github.com/craftcms/guest-entries/issues/87))
