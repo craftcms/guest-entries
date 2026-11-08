@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CraftCms\GuestEntries\Http\Requests;
 
 use CraftCms\Cms\Section\Models\Section as SectionModel;

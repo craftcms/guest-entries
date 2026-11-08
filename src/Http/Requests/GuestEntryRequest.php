@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CraftCms\GuestEntries\Http\Requests;
 
 use CraftCms\Cms\Section\Data\Section;
 use CraftCms\Cms\Support\Facades\Sections;
 use CraftCms\GuestEntries\Events\SectionResolutionFailed;
-use CraftCms\GuestEntries\Plugin;
+use CraftCms\GuestEntries\Settings;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Collection;
 
@@ -18,6 +20,7 @@ class GuestEntryRequest extends FormRequest
         $baseRules = [
             'type' => 'sometimes|string',
             'typeId' => 'sometimes|int',
+            'siteId' => 'sometimes|int',
         ];
 
         $exclusiveIdentifiers = collect([
@@ -57,10 +60,12 @@ class GuestEntryRequest extends FormRequest
      */
     public function getAllowedSections(): Collection
     {
-        return collect(Plugin::getInstance()->getSettings()->sections)
+        return collect(app(Settings::class)->sections)
             ->where('allowGuestSubmissions')
             ->pluck('sectionUid')
-            ->map(Sections::getSectionByUid(...));
+            ->map(Sections::getSectionByUid(...))
+            ->filter()
+            ->values();
     }
 
     public function resolveSection(): ?Section

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CraftCms\GuestEntries;
 
 use CraftCms\Cms\Plugin\Plugin as BasePlugin;
@@ -27,6 +29,8 @@ use Illuminate\Support\Facades\RateLimiter;
 use function CraftCms\Cms\t;
 
 /**
+ * @method Settings getSettings()
+ *
  * @phpstan-import-type TextExpanderTriggers from HasTextExpander
  */
 class Plugin extends BasePlugin
@@ -36,6 +40,14 @@ class Plugin extends BasePlugin
     public bool $hasCpSettings = true;
 
     public bool $config = true;
+
+    public function register(): void
+    {
+        parent::register();
+
+        // Let controllers, form requests and routes type-hint the plugin’s settings:
+        $this->app->singleton(Settings::class, fn () => $this->getSettings());
+    }
 
     public function boot(): void
     {
@@ -57,8 +69,8 @@ class Plugin extends BasePlugin
         $overrides = config(sprintf('craft.%s', $this->handle));
 
         $settingsForm = Ui::make([
-            Heading::make('section-settings-heading', t('Section Settings', category: 'aws-s3')),
-            MarkdownContent::make('section-settings-note', t('Choose which sections should allow guest submissions, and configure section-specific rules.', category: 'aws-s3'))->displayInPane(false),
+            Heading::make('section-settings-heading', t('Section Settings', category: 'guest-entries')),
+            MarkdownContent::make('section-settings-note', t('Choose which sections should allow guest submissions, and configure section-specific rules.', category: 'guest-entries'))->displayInPane(false),
         ]);
 
         $sections = $context->values['settings']['sections'] ?? $this->getSettings()->sections;
@@ -107,7 +119,7 @@ class Plugin extends BasePlugin
                         ->textExpanderTriggers($sectionExpansions)
                         ->mode($sectionsOverride ? ControlMode::ReadOnly : ControlMode::Editable))
                         ->instructions(t('An object template that resolves to the UUIDs of one or more authors that entries in this section will be attributed to.', category: 'guest-entries'))
-                        ->tip(t('Your template has access to all of this section’s properties, like `id`, `handle` and `uid`. The default behavior is equivalent to a query that finds the first user matching `.can("createEntries:#{uid}")`.', category: 'guest-entries')),
+                        ->tip(t('Your template has access to all of this section’s properties, like `id`, `handle` and `uid`.', category: 'guest-entries')),
                     Field::make(t('Enable entries by default?', category: 'guest-entries'), Lightswitch::make("sections.$section->uid.enabledByDefault")
                         ->mode($sectionsOverride ? ControlMode::ReadOnly : ControlMode::Editable)),
                     Field::make(t('Run validation?', category: 'guest-entries'), Lightswitch::make("sections.$section->uid.runValidation")

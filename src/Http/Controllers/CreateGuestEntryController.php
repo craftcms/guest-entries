@@ -1,25 +1,26 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CraftCms\GuestEntries\Http\Controllers;
 
+use CraftCms\Cms\Element\Elements;
 use CraftCms\Cms\Element\Validation\ElementRules;
 use CraftCms\Cms\Entry\Elements\Entry;
-use CraftCms\Cms\Entry\Entries;
 use CraftCms\Cms\Http\RespondsWithFlash;
-use CraftCms\Cms\Section\Sections;
 use CraftCms\Cms\Site\Sites;
 use CraftCms\Cms\Support\DateTimeHelper;
-use CraftCms\Cms\Support\Facades\Elements;
 use CraftCms\Cms\User\Elements\User;
+use CraftCms\GuestEntries\Events\GuestEntrySaveFailed;
 use CraftCms\GuestEntries\Events\SavedGuestEntry;
 use CraftCms\GuestEntries\Events\SavingGuestEntry;
 use CraftCms\GuestEntries\Http\Requests\GuestEntryRequest;
-use CraftCms\GuestEntries\Plugin;
 use CraftCms\GuestEntries\Settings;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\Log;
-
+use Symfony\Component\HttpFoundation\Response;
 use Twig\Error\Error;
+
 use function CraftCms\Cms\renderObjectTemplate;
 use function CraftCms\Cms\t;
 
@@ -28,62 +29,52 @@ class CreateGuestEntryController
     use RespondsWithFlash;
 
     public function __construct(
-        private readonly Sections $sections,
+        private readonly Settings $settings,
         private readonly Sites $sites,
-        private readonly Entries $entries,
+        private readonly Elements $elements,
     ) {}
 
-    public function __invoke(GuestEntryRequest $request, Sites $sites)
+    public function __invoke(GuestEntryRequest $request): Response
     {
-        $section = $request->resolveSection();
+        $section = $request->resolveSection()
+            ?? throw new AuthorizationException(t('Entries can only be created in designated sections.', category: 'guest-entries'));
 
-        if (! $section) {
-            throw new AuthorizationException(t('Entries can only be created in designated sections.', category: 'guest-entries'));
-        }
+        $site = $request->filled('siteId')
+            ? $this->sites->getSiteById($request->integer('siteId'))
+            : $this->sites->getCurrentSite();
 
-        $site = $sites->getCurrentSite();
-        $types = $section->getEntryTypes();
+        abort_unless($site && isset($section->getSiteSettings()[$site->id]), 400, t('The selected section does not exist in this site.', category: 'guest-entries'));
 
-        abort_unless(isset($section->getSiteSettings()[$site->id]), 400, t('The selected section does not exist in this site.', category: 'guest-entries'));
+        $sectionSettings = $this->settings->getSectionConfig($section);
+        $types = collect($section->getEntryTypes());
+
+        // Look up based on what was present in the request, preferring the handle, then fall back to the section’s first type:
+        $type = match (true) {
+            $request->filled('type') => $types->firstWhere('handle', $request->input('type')),
+            $request->filled('typeId') => $types->firstWhere('id', $request->integer('typeId')),
+            default => null,
+        } ?? $types->first();
 
         $entry = new Entry;
         $entry->sectionId = $section->id;
         $entry->siteId = $site->id;
+        $entry->typeId = $type->id;
 
-        /** @var Settings $settings */
-        $settings = Plugin::getInstance()->getSettings();
-        $sectionSettings = $settings->getSectionConfig($section);
-
-        // Look up based on what was present in the request, preferring by handle:
-        $typeId = match (true) {
-            $request->has('type') => collect($types)->firstWhere('handle', $request->input('type')),
-            $request->has('typeId') => collect($types)->firstWhere('id', $request->integer('typeId')),
-            default => null,
-        };
-
-        // Still nothing? Let’s just use the first one available to the section:
-        if (! $typeId) {
-            $typeId = $types[0]->id;
-        }
-
-        $entry->typeId = $typeId;
-
-        try {
-            $uid = renderObjectTemplate($sectionSettings['authorUid'], $section);
-            $authors = User::find()
-                ->uid($uid)
-                ->all();
-
-            $entry->setAuthors($authors);
-        } catch (Error $e) {
-            // We’re only catching Twig rendering errors, here… it’ll be the developer’s responsibility to handle query errors, downstream.
-            Log::error(sprintf('Failed to assign authors using template `%s`: %s', $sectionSettings['authorUid'], $e->getMessage()));
+        if ($authorTemplate = $sectionSettings['authorUid'] ?? null) {
+            try {
+                $entry->setAuthors(User::find()
+                    ->uid(renderObjectTemplate($authorTemplate, $section))
+                    ->all());
+            } catch (Error $e) {
+                // We’re only catching Twig rendering errors, here… it’ll be the developer’s responsibility to handle query errors, downstream.
+                Log::error(sprintf('Failed to assign authors using template `%s`: %s', $authorTemplate, $e->getMessage()));
+            }
         }
 
         $entry->setAttributes([
             'title' => $request->input('title'),
             'slug' => $request->input('slug'),
-            'enabled' => (bool) $sectionSettings['enabledByDefault'],
+            'enabled' => (bool) ($sectionSettings['enabledByDefault'] ?? false),
             'enabledForSite' => $request->boolean('enabledForSite', true),
             'revisionNotes' => t('Created by the Guest Entries plugin.', category: 'guest-entries'),
         ]);
@@ -96,44 +87,58 @@ class CreateGuestEntryController
             $entry->expiryDate = DateTimeHelper::toDateTime($expiryDate) ?: null;
         }
 
-        if (($newParentId = $request->input('parentId')) !== null) {
-            $entry->setParentId($newParentId);
+        if ($request->filled('parentId')) {
+            $entry->setParentId($request->integer('parentId'));
         }
 
-        $fieldsLocation = $request->string('fieldsLocation', 'fields');
-        $entry->setFieldValuesFromRequest($fieldsLocation);
+        $entry->setFieldValuesFromRequest($request->string('fieldsLocation', 'fields')->toString());
 
         // Give the app (and other plugins) a chance to reject the submission:
-        event($saveEvent = new SavingGuestEntry($entry));
+        event($savingEvent = new SavingGuestEntry($entry));
 
-        // @todo Historically, we haven’t disclosed to the user when a submission is dropped after being flagged as spam!
-        if ($saveEvent->isSpam || ! $saveEvent->isValid) {
-            Log::warning('An event handler prevented a guest entry from being saved.', [
-                'isSpam' => $saveEvent->isSpam,
-                'isValid' => $saveEvent->isValid,
-            ]);
+        if (! $savingEvent->isValid) {
+            Log::warning('An event handler prevented a guest entry from being saved.');
 
-            abort(400, t('Your submission could not be saved.', category: 'guest-entries'));
+            return $this->failure($entry);
         }
 
-        if ($sectionSettings['runValidation']) {
+        if ($savingEvent->isSpam) {
+            Log::info('Guest entry submission suspected to be spam.');
+
+            // Pretend it worked, so the submitter can’t tell that it was dropped:
+            return $this->success($entry);
+        }
+
+        if ($sectionSettings['runValidation'] ?? false) {
             $entry->ruleset->useScenario(ElementRules::SCENARIO_LIVE);
         }
 
-        if (! Elements::saveElement($entry)) {
-            return $this->asModelFailure(
-                $entry,
-                t('Your submission could not be saved. Please review it for errors.', category: 'guest-entries'),
-                Plugin::getInstance()->getSettings()->entryVariable,
-            );
+        if (! $this->elements->saveElement($entry)) {
+            return $this->failure($entry);
         }
 
         event(new SavedGuestEntry($entry));
 
+        return $this->success($entry);
+    }
+
+    private function success(Entry $entry): Response
+    {
         return $this->asModelSuccess(
             $entry,
             t('The entry was saved successfully.', category: 'guest-entries'),
-            Plugin::getInstance()->getSettings()->entryVariable,
+            $this->settings->entryVariable,
+        );
+    }
+
+    private function failure(Entry $entry): Response
+    {
+        event(new GuestEntrySaveFailed($entry));
+
+        return $this->asModelFailure(
+            $entry,
+            t('Your submission could not be saved. Please review it for errors.', category: 'guest-entries'),
+            $this->settings->entryVariable,
         );
     }
 }
