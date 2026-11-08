@@ -1,5 +1,22 @@
 # Release Notes for Guest Entries
 
+## 5.0.0 - Unreleased
+
+> [!IMPORTANT]
+> Guest Entries 5 requires Craft CMS 6 and PHP 8.5, and no longer needs `craftcms/yii2-adapter`. See [UPGRADE.md](UPGRADE.md) for the breaking changes.
+
+- Added Craft CMS 6 support.
+- Moved the plugin to the `CraftCms\GuestEntries` namespace.
+- Guest submissions are now also accepted at a configurable front-end URI (`guest-entries/save` by default).
+- Added the `rateLimit` setting.
+- Entry types can now be chosen by handle, with a `type` param.
+- Default authors are now set with an object template.
+- Failed submissions now redirect back to the form, with the submitted values available via `old()` and errors via `errors`.
+- Replaced `SaveEvent` and the save controller’s events with `SavingGuestEntry`, `SavedGuestEntry` and `GuestEntrySaveFailed`.
+- Added the `SectionResolutionFailed` event.
+- Submissions to sections that don’t allow guest entries now get a 403 response.
+- Deprecated the `enableCsrfProtection` setting. It no longer has any effect.
+
 ## 4.0.1 - 2024-05-22
 
 - Fixed a PHP error that could occur when front-end validation failed. ([#87](https://github.com/craftcms/guest-entries/issues/87))
