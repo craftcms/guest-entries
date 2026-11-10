@@ -1,6 +1,6 @@
 # Release Notes for Guest Entries
 
-## Unreleased
+## 4.1.0 - 2026-11-10
 
 - Added Craft CMS 6 compatibility, when the `craftcms/yii2-adapter` package is installed.
 - Fixed a bug where per-section settings weren’t saved from the plugin settings page on Craft CMS 6.
