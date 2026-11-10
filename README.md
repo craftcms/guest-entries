@@ -334,18 +334,18 @@ _Guest Entries_ augments the normal [events](https://craftcms.com/docs/6.x/exten
 
 The following snippets can be added to your app’s `boot()` method, or converted to dedicated [listeners](https://laravel.com/docs/13.x/events#defining-listeners).
 
-### The `SavingGuestEntry` event
+### The `GuestEntrySaving` event
 
-Plugins can be notified _before_ a guest entry is saved, by listening to the `\CraftCms\GuestEntries\Events\SavingGuestEntry` event.
+Plugins can be notified _before_ a guest entry is saved, by listening to the `\CraftCms\GuestEntries\Events\GuestEntrySaving` event.
 This is also an opportunity to flag the submission as spam, and prevent it being saved:
 
 ```php
 use CraftCms\Cms\Support\Str;
-use CraftCms\GuestEntries\Events\SavingGuestEntry;
+use CraftCms\GuestEntries\Events\GuestEntrySaving;
 
 // ...
 
-Event::listen(function (SavingGuestEntry $event) {
+Event::listen(function (GuestEntrySaving $event) {
     // Get a reference to the entry object:
     $entry = $event->entry;
 
@@ -360,18 +360,18 @@ Event::listen(function (SavingGuestEntry $event) {
 Submissions flagged as spam aren’t saved, but the user gets the same response as though they were.
 You may also set `$event->isValid` to `false` to reject the entry for other reasons. The user then gets an error response.
 
-### The `SavedGuestEntry` event
+### The `GuestEntrySaved` event
 
-Plugins can be notified _after_ a guest entry is saved, by listening to the `\CraftCms\GuestEntries\Events\SavedGuestEntry` event.
+Plugins can be notified _after_ a guest entry is saved, by listening to the `\CraftCms\GuestEntries\Events\GuestEntrySaved` event.
 It isn’t dispatched for submissions flagged as spam, because they aren’t saved:
 
 ```php
 use CraftCms\Cms\Support\Str;
-use CraftCms\GuestEntries\Events\SavedGuestEntry;
+use CraftCms\GuestEntries\Events\GuestEntrySaved;
 
 // ...
 
-Event::listen(function (SavedGuestEntry $event) {
+Event::listen(function (GuestEntrySaved $event) {
     $entry = $event->entry;
 
     Log::info(sprintf('Saved a new guest entry: %s', $entry->title));
@@ -380,7 +380,7 @@ Event::listen(function (SavedGuestEntry $event) {
 
 ### The `GuestEntrySaveFailed` event
 
-The `\CraftCms\GuestEntries\Events\GuestEntrySaveFailed` event is dispatched when a `SavingGuestEntry` listener rejects the submission, or the entry fails to save (for example, because of validation errors):
+The `\CraftCms\GuestEntries\Events\GuestEntrySaveFailed` event is dispatched when a `GuestEntrySaving` listener rejects the submission, or the entry fails to save (for example, because of validation errors):
 
 ```php
 use CraftCms\GuestEntries\Events\GuestEntrySaveFailed;

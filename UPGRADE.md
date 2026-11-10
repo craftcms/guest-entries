@@ -24,8 +24,8 @@ The Yii events on the save controller were removed, along with `craft\guestentri
 
 | Before | After |
 | --- | --- |
-| `SaveController::EVENT_BEFORE_SAVE_ENTRY` | `CraftCms\GuestEntries\Events\SavingGuestEntry` |
-| `SaveController::EVENT_AFTER_SAVE_ENTRY` | `CraftCms\GuestEntries\Events\SavedGuestEntry` |
+| `SaveController::EVENT_BEFORE_SAVE_ENTRY` | `CraftCms\GuestEntries\Events\GuestEntrySaving` |
+| `SaveController::EVENT_AFTER_SAVE_ENTRY` | `CraftCms\GuestEntries\Events\GuestEntrySaved` |
 | `SaveController::EVENT_AFTER_ERROR` | `CraftCms\GuestEntries\Events\GuestEntrySaveFailed` |
 
 Before:
@@ -49,19 +49,19 @@ Event::on(
 After:
 
 ```php
-use CraftCms\GuestEntries\Events\SavingGuestEntry;
+use CraftCms\GuestEntries\Events\GuestEntrySaving;
 use Illuminate\Support\Facades\Event;
 
-Event::listen(function (SavingGuestEntry $event): void {
+Event::listen(function (GuestEntrySaving $event): void {
     if (str_contains($event->entry->title, 'synergy')) {
         $event->isSpam = true;
     }
 });
 ```
 
-- `SavingGuestEntry` has `$entry`, `$isValid` and `$isSpam`, as `SaveEvent` did. Setting `$isValid` to `false` rejects the submission. Setting `$isSpam` to `true` drops it but still responds as though it was saved.
-- `SavedGuestEntry` has `$entry`. It is only dispatched for entries that were saved, so it no longer fires for spam and has no `$isSpam` property. Check for spam in a `SavingGuestEntry` listener instead.
-- `GuestEntrySaveFailed` has `$entry`. It is dispatched when a `SavingGuestEntry` listener rejects the submission, or when the entry fails to save.
+- `GuestEntrySaving` has `$entry`, `$isValid` and `$isSpam`, as `SaveEvent` did. Setting `$isValid` to `false` rejects the submission. Setting `$isSpam` to `true` drops it but still responds as though it was saved.
+- `GuestEntrySaved` has `$entry`. It is only dispatched for entries that were saved, so it no longer fires for spam and has no `$isSpam` property. Check for spam in a `GuestEntrySaving` listener instead.
+- `GuestEntrySaveFailed` has `$entry`. It is dispatched when a `GuestEntrySaving` listener rejects the submission, or when the entry fails to save.
 - Added `SectionResolutionFailed`, dispatched when no section allowing guest submissions matches the submitted section parameters. A listener can set `$event->section`, using `$event->request` to decide. The section doesn’t need to allow guest submissions, so never pick it from user input.
 
 ### Classes and namespaces

@@ -5,9 +5,9 @@ declare(strict_types=1);
 use CraftCms\Cms\Entry\Elements\Entry;
 use CraftCms\Cms\Site\Models\Site;
 use CraftCms\Cms\Support\Facades\Sections;
+use CraftCms\GuestEntries\Events\GuestEntrySaved;
 use CraftCms\GuestEntries\Events\GuestEntrySaveFailed;
-use CraftCms\GuestEntries\Events\SavedGuestEntry;
-use CraftCms\GuestEntries\Events\SavingGuestEntry;
+use CraftCms\GuestEntries\Events\GuestEntrySaving;
 use CraftCms\GuestEntries\Events\SectionResolutionFailed;
 use Illuminate\Support\Facades\Event;
 
@@ -78,44 +78,44 @@ it('creates the entry in the requested site', function () {
 
 it('dispatches events around a successful save', function () {
     $dispatched = [];
-    Event::listen(SavingGuestEntry::class, function (SavingGuestEntry $event) use (&$dispatched) {
+    Event::listen(GuestEntrySaving::class, function (GuestEntrySaving $event) use (&$dispatched) {
         $dispatched[] = [$event::class, $event->entry->id];
     });
-    Event::listen(SavedGuestEntry::class, function (SavedGuestEntry $event) use (&$dispatched) {
+    Event::listen(GuestEntrySaved::class, function (GuestEntrySaved $event) use (&$dispatched) {
         $dispatched[] = [$event::class, $event->entry->id];
     });
 
     postJson('/actions/guest-entries/save', $this->submission)->assertOk();
 
     $id = Entry::find()->section('submissions')->one()->id;
-    expect($dispatched)->toBe([[SavingGuestEntry::class, null], [SavedGuestEntry::class, $id]]);
+    expect($dispatched)->toBe([[GuestEntrySaving::class, null], [GuestEntrySaved::class, $id]]);
 });
 
 it('pretends spam was saved', function () {
-    Event::listen(fn (SavingGuestEntry $event) => $event->isSpam = true);
-    Event::fake([SavedGuestEntry::class, GuestEntrySaveFailed::class]);
+    Event::listen(fn (GuestEntrySaving $event) => $event->isSpam = true);
+    Event::fake([GuestEntrySaved::class, GuestEntrySaveFailed::class]);
 
     postJson('/actions/guest-entries/save', $this->submission)
         ->assertOk()
         ->assertJsonPath('modelId', null);
 
     expect(Entry::find()->status(null)->count())->toBe(0);
-    Event::assertNotDispatched(SavedGuestEntry::class);
+    Event::assertNotDispatched(GuestEntrySaved::class);
     Event::assertNotDispatched(GuestEntrySaveFailed::class);
 });
 
 it('reports rejected and invalid submissions', function (Closure $setUp, array $submission, array $errors) {
     $setUp();
-    Event::fake([SavedGuestEntry::class, GuestEntrySaveFailed::class]);
+    Event::fake([GuestEntrySaved::class, GuestEntrySaveFailed::class]);
 
     $response = postJson('/actions/guest-entries/save', [...$this->submission, ...$submission])->assertBadRequest();
 
     expect(array_keys($response->json('errors') ?? []))->toBe($errors)
         ->and(Entry::find()->status(null)->count())->toBe(0);
     Event::assertDispatchedTimes(GuestEntrySaveFailed::class, 1);
-    Event::assertNotDispatched(SavedGuestEntry::class);
+    Event::assertNotDispatched(GuestEntrySaved::class);
 })->with([
-    'rejected by a listener' => [fn () => Event::listen(fn (SavingGuestEntry $event) => $event->isValid = false), [], []],
+    'rejected by a listener' => [fn () => Event::listen(fn (GuestEntrySaving $event) => $event->isValid = false), [], []],
     'failed validation' => [fn () => null, ['fields' => ['body' => '']], ['body']],
 ]);
 

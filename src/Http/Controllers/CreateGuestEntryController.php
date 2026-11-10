@@ -11,9 +11,9 @@ use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Site\Sites;
 use CraftCms\Cms\Support\DateTimeHelper;
 use CraftCms\Cms\User\Elements\User;
+use CraftCms\GuestEntries\Events\GuestEntrySaved;
 use CraftCms\GuestEntries\Events\GuestEntrySaveFailed;
-use CraftCms\GuestEntries\Events\SavedGuestEntry;
-use CraftCms\GuestEntries\Events\SavingGuestEntry;
+use CraftCms\GuestEntries\Events\GuestEntrySaving;
 use CraftCms\GuestEntries\Http\Requests\GuestEntryRequest;
 use CraftCms\GuestEntries\Settings;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -94,7 +94,7 @@ class CreateGuestEntryController
         $entry->setFieldValuesFromRequest($request->string('fieldsLocation', 'fields')->toString());
 
         // Give the app (and other plugins) a chance to reject the submission:
-        event($savingEvent = new SavingGuestEntry($entry));
+        event($savingEvent = new GuestEntrySaving($entry));
 
         if (! $savingEvent->isValid) {
             Log::warning('An event handler prevented a guest entry from being saved.');
@@ -117,7 +117,7 @@ class CreateGuestEntryController
             return $this->failure($entry);
         }
 
-        event(new SavedGuestEntry($entry));
+        event(new GuestEntrySaved($entry));
 
         return $this->success($entry);
     }

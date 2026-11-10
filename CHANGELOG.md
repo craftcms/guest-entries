@@ -12,7 +12,7 @@
 - Entry types can now be chosen by handle, with a `type` param.
 - Default authors are now set with an object template.
 - Failed submissions now redirect back to the form, with the submitted values available via `old()` and errors via `errors`.
-- Replaced `SaveEvent` and the save controller’s events with `SavingGuestEntry`, `SavedGuestEntry` and `GuestEntrySaveFailed`.
+- Replaced `SaveEvent` and the save controller’s events with `GuestEntrySaving`, `GuestEntrySaved` and `GuestEntrySaveFailed`.
 - Added the `SectionResolutionFailed` event.
 - Submissions to sections that don’t allow guest entries now get a 403 response.
 - Deprecated the `enableCsrfProtection` setting. It no longer has any effect.
