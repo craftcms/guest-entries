@@ -70,6 +70,8 @@ class Plugin extends \craft\base\Plugin
         return Craft::$app->getView()->renderTemplate('guest-entries/_settings', [
             'settings' => $this->getSettings(),
             'sections' => $sections,
+            // Craft 6 renders editable tables from JSON, so inputs embedded in heading/HTML cells aren't namespaced
+            'isCraft6' => version_compare(Craft::$app->getVersion(), '6.0.0-alpha', '>='),
         ]);
     }
 
