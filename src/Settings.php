@@ -4,15 +4,11 @@ declare(strict_types=1);
 
 namespace CraftCms\GuestEntries;
 
-use CraftCms\Cms\Edition;
 use CraftCms\Cms\Plugin\PluginSettings;
 use CraftCms\Cms\Section\Data\Section;
 use CraftCms\Cms\Section\Enums\SectionType;
 use CraftCms\Cms\Support\Arr;
 use CraftCms\Cms\Support\Facades\Sections;
-use CraftCms\Cms\User\Elements\User;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
 
 /**
  * Settings represents the global settings for Guest Entries.
