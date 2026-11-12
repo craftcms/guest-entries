@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use CraftCms\Cms\Entry\Elements\Entry;
+use CraftCms\Cms\Entry\Models\EntryType;
 use CraftCms\Cms\Site\Models\Site;
 use CraftCms\Cms\Support\Facades\Sections;
 use CraftCms\GuestEntries\Events\GuestEntrySaved;
@@ -53,6 +54,19 @@ it('uses the requested entry type', function (string $param) {
 
     expect(Entry::find()->section('submissions')->one()->getType()->handle)->toBe('question');
 })->with(['type', 'typeId']);
+
+it('rejects entry types that aren’t in the section', function (string $param, string $attribute) {
+    $other = EntryType::factory()->create(['handle' => 'other']);
+
+    postJson('/actions/guest-entries/save', [...$this->submission, $param => $other->$attribute])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors($param);
+
+    expect(Entry::find()->status(null)->count())->toBe(0);
+})->with([
+    'type' => ['type', 'handle'],
+    'typeId' => ['typeId', 'id'],
+]);
 
 it('only accepts sections that allow guest submissions', function (array $section) {
     guestSection('closed', ['allowGuestSubmissions' => false]);

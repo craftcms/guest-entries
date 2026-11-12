@@ -110,18 +110,18 @@ A basic guest entry template will look something like this:
 
 The following parameters can be sent with a submission:
 
-| Name                                          | Notes                                                                                                                                                                   | Required |
-|-----------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------|
-| `sectionHandle`, `sectionUid`, or `sectionId` | Determines what section the entry will be created in.                                                                                                                   | ✓        |
-| `type` or `typeId`                            | Entry type handle or ID to use. This may affect which custom fields are required. When absent, the first configured type for the specified section is used.            |          |
-| `title`                                       | Optional if the section has automatic title formatting enabled.                                                                                                         | ✓        |
-| `slug`                                        | Explicitly sets the new entry’s slug.                                                                                                                                   |          |
-| `postDate`                                    | Value should be processable by [`DateTimeHelper::toDateTime()`][api:date-time-helper]                                                                                   |          |
-| `expiryDate`                                  | Value should be processable by [`DateTimeHelper::toDateTime()`][api:date-time-helper]                                                                                   |          |
-| `parentId`                                    | Nest this entry under another. Invalid for channels and structures with a maximum depth of `1`.                                                                         |          |
-| `siteId`                                      | Create the entry in a specific site. The section must be enabled for it. Defaults to the current site.                                                                  |          |
-| `enabledForSite`                              | Whether the entry should be enabled in this site. The global `enabled` setting is configurable by administrators, so this alone will not immediately publish something. |          |
-| `fields[...]`                                 | Any [custom fields](#sending-custom-fields) you want guests to be able to populate.                                                                                     |          |
+| Name                                          | Notes                                                                                                                                                                                          | Required |
+|-----------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------|
+| `sectionHandle`, `sectionUid`, or `sectionId` | Determines what section the entry will be created in.                                                                                                                                          | ✓        |
+| `type` or `typeId`                            | Entry type handle or ID to use. This may affect which custom fields are required. When absent, the section’s first entry type is used. A type that isn’t in the section is a validation error. |          |
+| `title`                                       | Optional if the section has automatic title formatting enabled.                                                                                                                                | ✓        |
+| `slug`                                        | Explicitly sets the new entry’s slug.                                                                                                                                                          |          |
+| `postDate`                                    | Value should be processable by [`DateTimeHelper::toDateTime()`][api:date-time-helper]                                                                                                          |          |
+| `expiryDate`                                  | Value should be processable by [`DateTimeHelper::toDateTime()`][api:date-time-helper]                                                                                                          |          |
+| `parentId`                                    | Nest this entry under another. Invalid for channels and structures with a maximum depth of `1`.                                                                                                |          |
+| `siteId`                                      | Create the entry in a specific site. The section must be enabled for it. Defaults to the current site.                                                                                         |          |
+| `enabledForSite`                              | Whether the entry should be enabled in this site. The global `enabled` setting is configurable by administrators, so this alone will not immediately publish something.                        |          |
+| `fields[...]`                                 | Any [custom fields](#sending-custom-fields) you want guests to be able to populate.                                                                                                            |          |
 
 [api:date-time-helper]: https://docs.craftcms.com/api/v5/craft-helpers-datetimehelper.html#method-todatetime
 [docs:field-types]: https://craftcms.com/docs/5.x/system/fields.html#field-types

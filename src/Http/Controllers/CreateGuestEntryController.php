@@ -18,6 +18,7 @@ use CraftCms\GuestEntries\Http\Requests\GuestEntryRequest;
 use CraftCms\GuestEntries\Settings;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
 use Twig\Error\Error;
 
@@ -48,12 +49,14 @@ class CreateGuestEntryController
         $sectionSettings = $this->settings->getSectionConfig($section);
         $types = collect($section->getEntryTypes());
 
-        // Look up based on what was present in the request, preferring the handle, then fall back to the section’s first type:
+        // Look up based on what was present in the request, preferring the handle. Without either, use the section’s first type:
         $type = match (true) {
             $request->filled('type') => $types->firstWhere('handle', $request->input('type')),
             $request->filled('typeId') => $types->firstWhere('id', $request->integer('typeId')),
-            default => null,
-        } ?? $types->first();
+            default => $types->first(),
+        } ?? throw ValidationException::withMessages([
+            ($request->filled('type') ? 'type' : 'typeId') => t('The selected entry type isn’t available in this section.', category: 'guest-entries'),
+        ]);
 
         $entry = new Entry;
         $entry->sectionId = $section->id;
