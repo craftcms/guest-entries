@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CraftCms\GuestEntries\Http\Requests;
 
 use CraftCms\Cms\Section\Models\Section as SectionModel;
@@ -54,7 +56,7 @@ class SettingsRequest extends FormRequest
             'settings.entryVariable' => t('This must be a valid Twig variable name.', category: 'guest-entries'),
             'settings.sections.*.sectionUid' => t('A valid section UID is required.', category: 'guest-entries'),
             'settings.sections.*.allowGuestSubmissions' => t('This must be true or false.', category: 'guest-entries'),
-            'required.settings.sections.*.authorUid' => t('You must provide a way to determine the default author.', category: 'guest-entries'),
+            'settings.sections.*.authorUid.required' => t('You must provide a way to determine the default author.', category: 'guest-entries'),
             'settings.sections.*.enabledByDefault' => t('This must be true or false.', category: 'guest-entries'),
             'settings.sections.*.runValidation' => t('This must be true or false.', category: 'guest-entries'),
         ];

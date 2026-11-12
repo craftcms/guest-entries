@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CraftCms\GuestEntries\Http\Requests;
 
 use CraftCms\Cms\Section\Data\Section;
 use CraftCms\Cms\Support\Facades\Sections;
 use CraftCms\GuestEntries\Events\SectionResolutionFailed;
-use CraftCms\GuestEntries\Plugin;
+use CraftCms\GuestEntries\Settings;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Collection;
 
@@ -18,12 +20,13 @@ class GuestEntryRequest extends FormRequest
         $baseRules = [
             'type' => 'sometimes|string',
             'typeId' => 'sometimes|int',
+            'siteId' => 'sometimes|nullable|int',
         ];
 
         $exclusiveIdentifiers = collect([
-            'sectionId' => ['integer'],
-            'sectionHandle' => ['string'],
-            'sectionUid' => ['uuid'],
+            'sectionId' => ['nullable', 'integer'],
+            'sectionHandle' => ['nullable', 'string'],
+            'sectionUid' => ['nullable', 'uuid'],
         ]);
 
         return [
@@ -57,27 +60,27 @@ class GuestEntryRequest extends FormRequest
      */
     public function getAllowedSections(): Collection
     {
-        return collect(Plugin::getInstance()->getSettings()->sections)
+        return collect(app(Settings::class)->sections)
             ->where('allowGuestSubmissions')
             ->pluck('sectionUid')
-            ->map(Sections::getSectionByUid(...));
+            ->map(Sections::getSectionByUid(...))
+            ->filter()
+            ->values();
     }
 
     public function resolveSection(): ?Section
     {
-        $candidates = $this->getAllowedSections();
         $checks = [
             'sectionId' => 'id',
             'sectionUid' => 'uid',
             'sectionHandle' => 'handle',
         ];
 
-        foreach ($checks as $param => $attribute) {
-            $value = $this->validated($param);
+        // Only the first identifier that was sent is used; the rest are ignored:
+        $param = collect(array_keys($checks))->first(fn (string $param) => $this->filled($param));
 
-            if ($section = $candidates->firstWhere($attribute, $value)) {
-                return $section;
-            }
+        if ($param && $section = $this->getAllowedSections()->firstWhere($checks[$param], $this->validated($param))) {
+            return $section;
         }
 
         // Last chance! Let the app determine what section:

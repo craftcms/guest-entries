@@ -32,20 +32,8 @@ To get the unreleased dev version, replace the package constraint with `craftcms
 
 ## Upgrading
 
-The plugin has been completely rewritten for Craft 6.x, but [configuration](#settings) and [usage](#usage) are backward-compatible, when the adapter is installed.
-A handful of [template changes](#template-changes) will be required to eject the adapter.
-Please [report any issues](https://github.com/craftcms/guest-entries/issues) with the upgrade!
-
-Developers who maintain [advanced submission routes](#advanced-routing) or use [event handlers](#events) to customize the plugin’s behavior should read the corresponding sections.
-Concretely, we split the `craft\guestentries\events\SaveEvent` into separate [before](#the-savingguestentry-event) and [after](#the-savedguestentry-event) events, and the `EVENT_AFTER_ERROR` event is replaced by Laravel’s generic error handler.
-
-### Template Changes
-
-In Craft 6.x, the way you access submitted data and errors is slightly different.
-When there are issues with submitted data (including validation errors when **Run validation?** is enabled), the client is redirected back to the originating page.
-
-Because the initial submission request (POST) and the re-rendered form request (GET) are separate, the submitted data is preserved by flashing it to the session. 
-As a result, you’ll restore that data for the user with the `old()` helper function:
+The plugin has been rewritten for Craft 6. Your settings carry over, but the plugin’s events, classes and template variables changed.
+Read [UPGRADE.md](UPGRADE.md) before updating, and please [report any issues](https://github.com/craftcms/guest-entries/issues) with the upgrade!
 
 ## Settings
 
@@ -63,7 +51,11 @@ The plugin does not automatically grant any permissions to unauthenticated users
 Settings defined in a `config/craft/guest-entries.php` file override project config.
 Craft combines these configuration arrays using a _shallow_ merge, meaning a `sections` key will completely clobber your section-by-section config.
 
-See the bundled `config/guest-entries.php` stub for a list of valid keys.
+To start from the plugin’s stub, which lists the valid keys, run:
+
+```bash
+php artisan vendor:publish --tag=guest-entries
+```
 
 ## Usage
 
@@ -118,18 +110,18 @@ A basic guest entry template will look something like this:
 
 The following parameters can be sent with a submission:
 
-| Name                                          | Notes                                                                                                                                                                   | Required |
-|-----------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------|
-| `sectionHandle`, `sectionUid`, or `sectionId` | Determines what section the entry will be created in.                                                                                                                   | ✓        |
-| `typeId`                                      | Entry type ID to use. This may affect which custom fields are required. When absent, the first configured type for the specified section is used.                       |          |
-| `title`                                       | Optional if the section has automatic title formatting enabled.                                                                                                         | ✓        |
-| `slug`                                        | Explicitly sets the new entry’s slug.                                                                                                                                   |          |
-| `postDate`                                    | Value should be processable by [`DateTimeHelper::toDateTime()`][api:date-time-helper]                                                                                   |          |
-| `expiryDate`                                  | Value should be processable by [`DateTimeHelper::toDateTime()`][api:date-time-helper]                                                                                   |          |
-| `parentId`                                    | Nest this entry under another. Invalid for channels and structures with a maximum depth of `1`.                                                                         |          |
-| `siteId`                                      | Create the entry in a specific site.                                                                                                                                    |          |
-| `enabledForSite`                              | Whether the entry should be enabled in this site. The global `enabled` setting is configurable by administrators, so this alone will not immediately publish something. |          |
-| `fields[...]`                                 | Any [custom fields](#sending-custom-fields) you want guests to be able to populate.                                                                                     |          |
+| Name                                          | Notes                                                                                                                                                                                          | Required |
+|-----------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------|
+| `sectionHandle`, `sectionUid`, or `sectionId` | Determines what section the entry will be created in.                                                                                                                                          | ✓        |
+| `type` or `typeId`                            | Entry type handle or ID to use. This may affect which custom fields are required. When absent, the section’s first entry type is used. A type that isn’t in the section is a validation error. |          |
+| `title`                                       | Optional if the section has automatic title formatting enabled.                                                                                                                                | ✓        |
+| `slug`                                        | Explicitly sets the new entry’s slug.                                                                                                                                                          |          |
+| `postDate`                                    | Value should be processable by [`DateTimeHelper::toDateTime()`][api:date-time-helper]                                                                                                          |          |
+| `expiryDate`                                  | Value should be processable by [`DateTimeHelper::toDateTime()`][api:date-time-helper]                                                                                                          |          |
+| `parentId`                                    | Nest this entry under another. Invalid for channels and structures with a maximum depth of `1`.                                                                                                |          |
+| `siteId`                                      | Create the entry in a specific site. The section must be enabled for it. Defaults to the current site.                                                                                         |          |
+| `enabledForSite`                              | Whether the entry should be enabled in this site. The global `enabled` setting is configurable by administrators, so this alone will not immediately publish something.                        |          |
+| `fields[...]`                                 | Any [custom fields](#sending-custom-fields) you want guests to be able to populate.                                                                                                            |          |
 
 [api:date-time-helper]: https://docs.craftcms.com/api/v5/craft-helpers-datetimehelper.html#method-todatetime
 [docs:field-types]: https://craftcms.com/docs/5.x/system/fields.html#field-types
@@ -139,7 +131,8 @@ The following parameters can be sent with a submission:
 #### Specifying a Section + Entry Type
 
 The plugin determines what section the new entry is created in by looking for a `sectionId`, `sectionUid`, or `sectionHandle` param, _in this order_.
-Entry types, on the other hand, can only be defined by a `typeId` param—but because IDs [can be unstable](https://craftcms.com/docs/5.x/system/project-config.html#ids-uuids-and-handles) between environments, you must look them up by a known identifier.
+Entry types are chosen with a `type` param (the entry type’s handle), or a `typeId` param.
+IDs [can be unstable](https://craftcms.com/docs/5.x/system/project-config.html#ids-uuids-and-handles) between environments, so if you use `typeId`, look the ID up by a known identifier.
 
 Granted you will already have a section (or at least a section _handle_), the easiest way to do this is via the section object:
 
@@ -162,7 +155,7 @@ You can also use the `entryType()` Twig function to directly fetch an entry type
 ```twig
 {% set type = entryType('question') %}
 
-{{ hiddenInput('typeId', targetEntryType.id) }}
+{{ hiddenInput('typeId', type.id) }}
 ```
 
 Be aware that the former will honor section-specific handle overrides, while the latter is only aware of the entry types’ original handles.
@@ -186,17 +179,22 @@ Refer to the [field types][docs:field-types] documentation to learn about the ki
 
 #### Validation Errors
 
-If there are validation errors on the entry, the page will be reloaded with the populated `\CraftCms\Cms\Entry\Elements\Entry` object available under a variable corresponding to the plugin’s **Entry Variable Name** setting (`entry`, by default). You can access the posted values from that object as though it were a normal entry—or display errors by accessing `errors().get('attrOrFieldName')`.
-
-POSTed fields are also exposed via the `old()` helper:
+If the entry can’t be saved (for example, because of validation errors), the user is redirected back to the form.
+The submitted values are available through the `old()` helper, and the errors through the `errors` variable:
 
 ```twig
 {{ input('text', 'fields[body]', old('fields.body'), {}) }}
+
+{% if errors.has('body') %}
+    {{ ul(errors.get('body')) }}
+{% endif %}
 ```
 
-> [!TIP]
-> The `entry` variable can be renamed with the **Entry Variable Name** [setting](#settings) in the control panel.
-> This might be necessary if you want to use a form on an entry page that already injects a variable of that name.
+The entry’s attributes are also flashed to the session as an array, under the plugin’s **Entry Variable Name** setting (`entry`, by default):
+
+```twig
+{% set submission = session().get('entry') %}
+```
 
 General messages are flashed to the session.
 Place this snippet on the form page, or in a parent layout to display `success` and `error` flashes:
@@ -299,11 +297,18 @@ The template is then responsible for using the provided `entryUid` route paramet
 In Craft 6.x, routes can handle lookups and other controller-like tasks directly in a closure:
 
 ```php
-Route::get('/contact/confirmation/{entryUid}', function (int $entryUid) {
-    $entry = Entry::find()->uid($entryUid)->one();
+# routes/web.php
+use CraftCms\Cms\Entry\Elements\Entry;
+use Illuminate\Support\Facades\Route;
+
+use function CraftCms\Cms\pageTemplate;
+use function CraftCms\Cms\t;
+
+Route::get('/contact/confirmation/{entryUid}', function (string $entryUid) {
+    $entry = Entry::find()->status('disabled')->uid($entryUid)->one();
 
     if (! $entry) {
-        abort(404, t('The submission could not be found!', 'site'));
+        abort(404, t('The submission could not be found!', category: 'site'));
     }
 
     return pageTemplate('_submissions/confirmation', ['entry' => $entry]);
@@ -336,18 +341,18 @@ _Guest Entries_ augments the normal [events](https://craftcms.com/docs/6.x/exten
 
 The following snippets can be added to your app’s `boot()` method, or converted to dedicated [listeners](https://laravel.com/docs/13.x/events#defining-listeners).
 
-### The `SavingGuestEntry` event
+### The `GuestEntrySaving` event
 
-Plugins can be notified _before_ a guest entry is saved, by listening to the `\CraftCms\GuestEntries\Events\SavingGuestEntry` event.
+Plugins can be notified _before_ a guest entry is saved, by listening to the `\CraftCms\GuestEntries\Events\GuestEntrySaving` event.
 This is also an opportunity to flag the submission as spam, and prevent it being saved:
 
 ```php
 use CraftCms\Cms\Support\Str;
-use CraftCms\GuestEntries\Events\SavingGuestEntry;
+use CraftCms\GuestEntries\Events\GuestEntrySaving;
 
 // ...
 
-Event::listen(function (SavingGuestEntry $event) {
+Event::listen(function (GuestEntrySaving $event) {
     // Get a reference to the entry object:
     $entry = $event->entry;
 
@@ -359,22 +364,36 @@ Event::listen(function (SavingGuestEntry $event) {
 });
 ```
 
-You may also set the `$event->isValid` property to prevent saving the entry for other reasons.
+Submissions flagged as spam aren’t saved, but the user gets the same response as though they were.
+You may also set `$event->isValid` to `false` to reject the entry for other reasons. The user then gets an error response.
 
-### The `SavedGuestEntry` event
+### The `GuestEntrySaved` event
 
-Plugins can be notified _after_ a guest entry is saved, by listening to the `\CraftCms\GuestEntries\Events\SavedGuestEntry` event:
+Plugins can be notified _after_ a guest entry is saved, by listening to the `\CraftCms\GuestEntries\Events\GuestEntrySaved` event.
+It isn’t dispatched for submissions flagged as spam, because they aren’t saved:
 
 ```php
 use CraftCms\Cms\Support\Str;
-use CraftCms\GuestEntries\Events\SavedGuestEntry;
+use CraftCms\GuestEntries\Events\GuestEntrySaved;
 
 // ...
 
-Event::listen(function (SavedGuestEntry $event) {
+Event::listen(function (GuestEntrySaved $event) {
     $entry = $event->entry;
 
     Log::info(sprintf('Saved a new guest entry: %s', $entry->title));
+});
+```
+
+### The `GuestEntrySaveFailed` event
+
+The `\CraftCms\GuestEntries\Events\GuestEntrySaveFailed` event is dispatched when a `GuestEntrySaving` listener rejects the submission, or the entry fails to save (for example, because of validation errors):
+
+```php
+use CraftCms\GuestEntries\Events\GuestEntrySaveFailed;
+
+Event::listen(function (GuestEntrySaveFailed $event) {
+    Log::info('Guest entry was not saved.', ['errors' => $event->entry->errors()->toArray()]);
 });
 ```
 

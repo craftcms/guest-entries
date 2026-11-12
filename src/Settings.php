@@ -1,16 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CraftCms\GuestEntries;
 
-use CraftCms\Cms\Edition;
 use CraftCms\Cms\Plugin\PluginSettings;
 use CraftCms\Cms\Section\Data\Section;
 use CraftCms\Cms\Section\Enums\SectionType;
 use CraftCms\Cms\Support\Arr;
 use CraftCms\Cms\Support\Facades\Sections;
-use CraftCms\Cms\User\Elements\User;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
 
 /**
  * Settings represents the global settings for Guest Entries.
@@ -23,7 +21,7 @@ class Settings extends PluginSettings
     public bool $enableCsrfProtection = true;
 
     /**
-     * @var int|null The number of requests allowed per IP, per minute. Use `null` to disable limiting. Note that this only applies to the default route defined in `routes/web.php` ({@see $endpoint}), and must be applied to any aliases created in the host application.
+     * @var int|null The number of requests allowed per IP, per minute. Use `null` to disable limiting. Note that this only applies to the default route defined in `routes/web.php` (the `endpoint` setting), and must be applied to any aliases created in the host application.
      */
     public ?int $rateLimit = null;
 
@@ -88,18 +86,6 @@ class Settings extends PluginSettings
     public function setSectionSettings(array $settings): void
     {
         $this->_sectionSettings = Arr::keyBy($settings, 'sectionUid');
-    }
-
-    public function getDefaultAuthorOptions(string $sectionUid): Collection
-    {
-        // Only multi-user installations need to query by permissions:
-        if (Edition::get()->value < Edition::Team->value) {
-            return collect([Auth::user()]);
-        }
-
-        return User::find()
-            ->can('createEntries:'.$sectionUid)
-            ->get();
     }
 
     public function getSectionConfig(Section $section): ?array

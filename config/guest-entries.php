@@ -16,5 +16,8 @@ return [
     // ],
     // Set to a positive integer (requests per minute), or `null` to disable rate limiting:
     'rateLimit' => null,
-    'entryVariable' => 'entry',
+    // The front-end URI that accepts submissions:
+    // 'endpoint' => 'guest-entries/save',
+    // The session key that holds the submitted entry after a failed submission. Setting it here locks the setting in the control panel:
+    // 'entryVariable' => 'entry',
 ];
