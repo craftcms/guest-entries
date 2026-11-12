@@ -155,7 +155,7 @@ You can also use the `entryType()` Twig function to directly fetch an entry type
 ```twig
 {% set type = entryType('question') %}
 
-{{ hiddenInput('typeId', targetEntryType.id) }}
+{{ hiddenInput('typeId', type.id) }}
 ```
 
 Be aware that the former will honor section-specific handle overrides, while the latter is only aware of the entry types’ original handles.
@@ -297,11 +297,18 @@ The template is then responsible for using the provided `entryUid` route paramet
 In Craft 6.x, routes can handle lookups and other controller-like tasks directly in a closure:
 
 ```php
-Route::get('/contact/confirmation/{entryUid}', function (int $entryUid) {
-    $entry = Entry::find()->uid($entryUid)->one();
+# routes/web.php
+use CraftCms\Cms\Entry\Elements\Entry;
+use Illuminate\Support\Facades\Route;
+
+use function CraftCms\Cms\pageTemplate;
+use function CraftCms\Cms\t;
+
+Route::get('/contact/confirmation/{entryUid}', function (string $entryUid) {
+    $entry = Entry::find()->status('disabled')->uid($entryUid)->one();
 
     if (! $entry) {
-        abort(404, t('The submission could not be found!', 'site'));
+        abort(404, t('The submission could not be found!', category: 'site'));
     }
 
     return pageTemplate('_submissions/confirmation', ['entry' => $entry]);
