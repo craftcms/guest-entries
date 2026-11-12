@@ -1,6 +1,6 @@
 # Release Notes for Guest Entries
 
-## 5.0.0 - Unreleased
+## 5.0.0 - 2026-11-12
 
 > [!IMPORTANT]
 > Guest Entries 5 requires Craft CMS 6 and PHP 8.5, and no longer needs `craftcms/yii2-adapter`. See [UPGRADE.md](UPGRADE.md) for the breaking changes.
