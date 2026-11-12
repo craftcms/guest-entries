@@ -96,6 +96,7 @@ The plugin’s settings are bound in the container, so you can type-hint `CraftC
 - `actions/guest-entries/save` still works, and so do forms that post to their own page with `{{ actionInput('guest-entries/save') }}`.
 - Submissions are also accepted at the `endpoint` setting (`/guest-entries/save` by default), so forms can use `action="{{ url('guest-entries/save') }}"`.
 - Posting to a section that doesn’t allow guest submissions, or doesn’t exist, now responds with 403 instead of 400. Leaving out `sectionId`, `sectionUid` and `sectionHandle` is a validation error.
+- The section is chosen by the first of `sectionId`, `sectionUid` and `sectionHandle` that isn’t blank, in that order, and the others are ignored. Before, the order was `sectionHandle`, `sectionUid`, `sectionId`, so forms that send more than one may now resolve to a different section.
 - The entry type can also be chosen by handle, with a `type` parameter. A `type` or `typeId` that isn’t one of the section’s entry types is now a validation error.
 - `siteId` must be a site the section is enabled for, otherwise the response is 400.
 

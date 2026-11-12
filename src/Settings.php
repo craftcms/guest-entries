@@ -92,18 +92,6 @@ class Settings extends PluginSettings
         $this->_sectionSettings = Arr::keyBy($settings, 'sectionUid');
     }
 
-    public function getDefaultAuthorOptions(string $sectionUid): Collection
-    {
-        // Only multi-user installations need to query by permissions:
-        if (Edition::get()->value < Edition::Team->value) {
-            return collect([Auth::user()]);
-        }
-
-        return User::find()
-            ->can('createEntries:'.$sectionUid)
-            ->get();
-    }
-
     public function getSectionConfig(Section $section): ?array
     {
         foreach ($this->sections as $config) {

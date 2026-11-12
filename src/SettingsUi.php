@@ -110,8 +110,8 @@ readonly class SettingsUi
                 ->monospace()
                 ->textExpanderTriggers($this->sectionExpansions())
                 ->mode($mode))
-                ->instructions(t('An object template that resolves to the UUIDs of one or more authors that entries in this section will be attributed to.', category: 'guest-entries'))
-                ->tip(t('Your template has access to all of this section’s properties, like `id`, `handle` and `uid`.', category: 'guest-entries')),
+                ->instructions(t('An object template that outputs one or more author UIDs, separated by commas, that entries in this section will be attributed to.', category: 'guest-entries'))
+                ->tip(t('Your template has access to all of this section’s properties, like `id`, `uid` and `handle`.', category: 'guest-entries')),
             Field::make(t('Enable entries by default?', category: 'guest-entries'), Lightswitch::make("sections.$section->uid.enabledByDefault")
                 ->mode($mode)),
             Field::make(t('Run validation?', category: 'guest-entries'), Lightswitch::make("sections.$section->uid.runValidation")
@@ -132,7 +132,7 @@ readonly class SettingsUi
                 'options' => array_map(fn (string $attribute): array => [
                     'label' => $attribute,
                     'value' => '{'.$attribute.'}',
-                ], ['id', 'uid', 'name']),
+                ], ['id', 'uid', 'handle']),
             ],
         ];
     }

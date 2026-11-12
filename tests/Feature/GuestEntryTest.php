@@ -79,6 +79,14 @@ it('only accepts sections that allow guest submissions', function (array $sectio
     'unknown section' => [['sectionHandle' => 'nope']],
 ]);
 
+it('ignores other section identifiers once one is sent', function () {
+    $closed = guestSection('closed', ['allowGuestSubmissions' => false]);
+
+    postJson('/actions/guest-entries/save', [...$this->submission, 'sectionId' => $closed->id])->assertForbidden();
+
+    expect(Entry::find()->status(null)->count())->toBe(0);
+});
+
 it('creates the entry in the requested site', function () {
     $other = Site::factory()->create(['handle' => 'other', 'primary' => false]);
     guestSection('everywhere', [], Site::query()->where('primary', true)->first(), $other);
@@ -88,6 +96,19 @@ it('creates the entry in the requested site', function () {
 
     // The `submissions` section isn’t enabled for the other site:
     postJson('/actions/guest-entries/save', [...$this->submission, 'siteId' => $other->id])->assertBadRequest();
+});
+
+it('ignores a blank section ID when another identifier is sent', function () {
+    postJson('/actions/guest-entries/save', [...$this->submission, 'sectionId' => ''])->assertOk();
+
+    expect(Entry::find()->section('submissions')->status(null)->count())->toBe(1);
+});
+
+it('uses the current site when the site ID is blank', function () {
+    postJson('/actions/guest-entries/save', [...$this->submission, 'siteId' => ''])->assertOk();
+
+    $primary = Site::query()->where('primary', true)->first();
+    expect(Entry::find()->section('submissions')->siteId($primary->id)->status(null)->count())->toBe(1);
 });
 
 it('dispatches events around a successful save', function () {

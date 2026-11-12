@@ -10,11 +10,12 @@
 - Guest submissions are now also accepted at a configurable front-end URI (`guest-entries/save` by default).
 - Added the `rateLimit` setting.
 - Entry types can now be chosen by handle, with a `type` param.
-- Default authors are now set with an object template.
+- Default authors are now set with an object template, which can output several comma-separated user UIDs.
 - Failed submissions now redirect back to the form, with the submitted values available via `old()` and errors via `errors`.
 - Replaced `SaveEvent` and the save controller’s events with `GuestEntrySaving`, `GuestEntrySaved` and `GuestEntrySaveFailed`.
 - Added the `SectionResolutionFailed` event.
 - Submissions to sections that don’t allow guest entries now get a 403 response.
+- The section is now chosen by the first of `sectionId`, `sectionUid` or `sectionHandle` that’s sent, in that order. Previously `sectionHandle` was checked first.
 - Deprecated the `enableCsrfProtection` setting. It no longer has any effect.
 
 ## 4.0.1 - 2024-05-22
