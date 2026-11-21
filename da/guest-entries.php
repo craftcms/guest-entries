@@ -28,7 +28,7 @@ return [
     'The template variable name that entry submissions should be assigned to, if there is a validation error.' => 'Navnet på den skabelonvariabel, som indsendte poster skal tildeles, hvis der opstår en valideringsfejl.',
     'These settings apply to **all** guest submissions.' => 'Disse indstillinger gælder for **alle** indsendelser fra gæster.',
     'This must be a valid Twig variable name.' => 'Dette skal være et gyldigt Twig-variabelnavn.',
-    'This must be true or false.' => 'Dette skal være sand eller falsk.',
+    'This must be true or false.' => 'Dette skal være true eller false.',
     'This value was set by the `{key}` key in `{file}`.' => 'Denne værdi blev angivet af nøglen `{key}` i `{file}`.',
     'When enabled, anonymous users will be able to create entries in this section.' => 'Når dette er aktiveret, kan anonyme brugere oprette poster i denne sektion.',
     'You must provide a way to determine the default author.' => 'Du skal angive en måde at bestemme standardforfatteren på.',

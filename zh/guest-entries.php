@@ -20,7 +20,7 @@ return [
     'section ID' => '版块 ID',
     'Section Settings' => '版块设置',
     'section UID' => '版块 UID',
-    'Should validation rules be applied to the entry, when submitted by a guest? This should generally be **On** whenever entries are **Enabled by default**.' => '访客提交条目时，是否应对其应用验证规则？如果条目为**默认启用**，通常应将此项设为**开启**。',
+    'Should validation rules be applied to the entry, when submitted by a guest? This should generally be **On** whenever entries are **Enabled by default**.' => '访客提交条目时，是否应对其应用验证规则？如果条目为**默认启用**，通常应将此项设为**打开**。',
     'The entry was saved successfully.' => '条目已成功保存。',
     'The selected entry type isn’t available in this section.' => '所选条目类型在此版块中不可用。',
     'The selected section does not exist in this site.' => '所选版块在此站点中不存在。',

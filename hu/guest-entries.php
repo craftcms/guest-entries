@@ -20,7 +20,7 @@ return [
     'section ID' => 'szekcióazonosító',
     'Section Settings' => 'Szekcióbeállítások',
     'section UID' => 'szekció-UID',
-    'Should validation rules be applied to the entry, when submitted by a guest? This should generally be **On** whenever entries are **Enabled by default**.' => 'Alkalmazni kell-e az érvényesítési szabályokat a vendég által beküldött bejegyzésre? Ennek általában **Bekapcsolva** kell lennie, ha a bejegyzések **alapértelmezés szerint engedélyezve** vannak.',
+    'Should validation rules be applied to the entry, when submitted by a guest? This should generally be **On** whenever entries are **Enabled by default**.' => 'Alkalmazni kell-e az érvényesítési szabályokat a vendég által beküldött bejegyzésre? Ennek általában **BE** állásban kell lennie, ha a bejegyzések **alapértelmezés szerint engedélyezve** vannak.',
     'The entry was saved successfully.' => 'A bejegyzés sikeresen elmentve.',
     'The selected entry type isn’t available in this section.' => 'A kiválasztott bejegyzéstípus nem érhető el ebben a szekcióban.',
     'The selected section does not exist in this site.' => 'A kiválasztott szekció nem létezik ezen a webhelyen.',

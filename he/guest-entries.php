@@ -20,7 +20,7 @@ return [
     'section ID' => 'מזהה הסקשן',
     'Section Settings' => 'הגדרות סקשנים',
     'section UID' => 'UID של הסקשן',
-    'Should validation rules be applied to the entry, when submitted by a guest? This should generally be **On** whenever entries are **Enabled by default**.' => 'האם להחיל כללי אימות על הרשומה כאשר היא נשלחת על ידי אורח? בדרך כלל הגדרה זו צריכה להיות **פועל** בכל פעם שהרשומות **מופעלות כברירת מחדל**.',
+    'Should validation rules be applied to the entry, when submitted by a guest? This should generally be **On** whenever entries are **Enabled by default**.' => 'האם להחיל כללי אימות על הרשומה כאשר היא נשלחת על ידי אורח? בדרך כלל הגדרה זו צריכה להיות **ON** בכל פעם שהרשומות **מופעלות כברירת מחדל**.',
     'The entry was saved successfully.' => 'הרשומה נשמרה בהצלחה.',
     'The selected entry type isn’t available in this section.' => 'סוג הרשומה שנבחר אינו זמין בסקשן זה.',
     'The selected section does not exist in this site.' => 'הסקשן שנבחר אינו קיים באתר זה.',
