@@ -1,0 +1,12 @@
+# Branches whose translation files are kept in sync, oldest first. Remove a
+# branch once it stops getting releases; the sync then leaves it alone.
+# When branches translate a string differently, the newest branch's translation wins.
+branches:
+  4.x: src/translations
+  5.x: lang
+files:
+  - guest-entries.php
+source_language: en
+commit_message: Update translations
+# Branch each pull request comes from. {branch} is the target branch.
+pr_branch: t9n/{branch}
