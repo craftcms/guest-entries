@@ -28,7 +28,7 @@ return [
     'The template variable name that entry submissions should be assigned to, if there is a validation error.' => 'Το όνομα της μεταβλητής προτύπου στην οποία θα αντιστοιχίζονται οι υποβληθείσες καταχωρήσεις, αν υπάρξει σφάλμα επικύρωσης.',
     'These settings apply to **all** guest submissions.' => 'Αυτές οι ρυθμίσεις ισχύουν για **όλες** τις υποβολές επισκεπτών.',
     'This must be a valid Twig variable name.' => 'Πρέπει να είναι έγκυρο όνομα μεταβλητής Twig.',
-    'This must be true or false.' => 'Πρέπει να είναι αληθές ή ψευδές.',
+    'This must be true or false.' => 'Πρέπει να είναι true ή false.',
     'This value was set by the `{key}` key in `{file}`.' => 'Αυτή η τιμή ορίστηκε από το κλειδί `{key}` στο `{file}`.',
     'When enabled, anonymous users will be able to create entries in this section.' => 'Όταν είναι ενεργοποιημένο, οι ανώνυμοι χρήστες θα μπορούν να δημιουργούν καταχωρήσεις σε αυτή την ενότητα.',
     'You must provide a way to determine the default author.' => 'Πρέπει να παρέχετε έναν τρόπο προσδιορισμού του προεπιλεγμένου συγγραφέα.',

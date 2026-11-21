@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'A section must be specified by ID, handle, or UID.' => 'Een sectie moet worden opgegeven via id, ingang of UID.',
+    'A section must be specified by ID, handle, or UID.' => 'Een sectie moet worden opgegeven via id, handle of UID.',
     'A valid section UID is required.' => 'Een geldige sectie-UID is vereist.',
     'Allow guest submissions?' => 'Inzendingen van gasten toestaan?',
     'An object template that outputs one or more author UIDs, separated by commas, that entries in this section will be attributed to.' => 'Een objectsjabloon dat een of meer auteur-UID\'s uitvoert, gescheiden door komma\'s, waaraan vermeldingen in deze sectie worden toegeschreven.',
@@ -20,7 +20,7 @@ return [
     'section ID' => 'sectie-id',
     'Section Settings' => 'Sectie-instellingen',
     'section UID' => 'sectie-UID',
-    'Should validation rules be applied to the entry, when submitted by a guest? This should generally be **On** whenever entries are **Enabled by default**.' => 'Moeten validatieregels op de vermelding worden toegepast wanneer deze door een gast wordt ingezonden? Dit zou doorgaans **Aan** moeten staan wanneer vermeldingen **Standaard ingeschakeld** zijn.',
+    'Should validation rules be applied to the entry, when submitted by a guest? This should generally be **On** whenever entries are **Enabled by default**.' => 'Moeten validatieregels op de vermelding worden toegepast wanneer deze door een gast wordt ingezonden? Dit zou doorgaans **ON** moeten staan wanneer vermeldingen **Standaard ingeschakeld** zijn.',
     'The entry was saved successfully.' => 'De vermelding is opgeslagen.',
     'The selected entry type isn’t available in this section.' => 'Het geselecteerde vermeldingstype is niet beschikbaar in deze sectie.',
     'The selected section does not exist in this site.' => 'De geselecteerde sectie bestaat niet op deze website.',
@@ -28,7 +28,7 @@ return [
     'The template variable name that entry submissions should be assigned to, if there is a validation error.' => 'De naam van de sjabloonvariabele waaraan ingezonden vermeldingen moeten worden toegewezen als er een validatiefout is.',
     'These settings apply to **all** guest submissions.' => 'Deze instellingen gelden voor **alle** inzendingen van gasten.',
     'This must be a valid Twig variable name.' => 'Dit moet een geldige Twig-variabelenaam zijn.',
-    'This must be true or false.' => 'Dit moet waar of onwaar zijn.',
+    'This must be true or false.' => 'Dit moet true of false zijn.',
     'This value was set by the `{key}` key in `{file}`.' => 'Deze waarde is ingesteld door de sleutel `{key}` in `{file}`.',
     'When enabled, anonymous users will be able to create entries in this section.' => 'Indien ingeschakeld kunnen anonieme gebruikers vermeldingen in deze sectie aanmaken.',
     'You must provide a way to determine the default author.' => 'U moet een manier opgeven om de standaardauteur te bepalen.',

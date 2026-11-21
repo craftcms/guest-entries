@@ -20,7 +20,7 @@ return [
     'section ID' => 'معرف القسم',
     'Section Settings' => 'إعدادات الأقسام',
     'section UID' => 'المعرّف العالمي للقسم',
-    'Should validation rules be applied to the entry, when submitted by a guest? This should generally be **On** whenever entries are **Enabled by default**.' => 'هل يجب تطبيق قواعد التحقق من الصحة على الإدخال عندما يرسله ضيف؟ يجب أن يكون هذا الخيار **قيد التشغيل** بشكل عام كلما كانت الإدخالات **ممكّنة افتراضيًا**.',
+    'Should validation rules be applied to the entry, when submitted by a guest? This should generally be **On** whenever entries are **Enabled by default**.' => 'هل يجب تطبيق قواعد التحقق من الصحة على الإدخال عندما يرسله ضيف؟ يجب أن يكون هذا الخيار في وضع **التشغيل** بشكل عام كلما كانت الإدخالات **ممكّنة افتراضيًا**.',
     'The entry was saved successfully.' => 'تم حفظ الإدخال بنجاح.',
     'The selected entry type isn’t available in this section.' => 'نوع الإدخال المحدد غير متاح في هذا القسم.',
     'The selected section does not exist in this site.' => 'القسم المحدد غير موجود في هذا الموقع.',

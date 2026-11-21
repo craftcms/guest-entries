@@ -28,7 +28,7 @@ return [
     'The template variable name that entry submissions should be assigned to, if there is a validation error.' => 'Le nom de la variable de modèle à laquelle les entrées soumises doivent être assignées en cas d\'erreur de validation.',
     'These settings apply to **all** guest submissions.' => 'Ces paramètres s\'appliquent à **toutes** les soumissions d\'invités.',
     'This must be a valid Twig variable name.' => 'Cette valeur doit être un nom de variable Twig valide.',
-    'This must be true or false.' => 'Cette valeur doit être vraie ou fausse.',
+    'This must be true or false.' => 'Cette valeur doit être true ou false.',
     'This value was set by the `{key}` key in `{file}`.' => 'Cette valeur a été définie par la clé `{key}` dans `{file}`.',
     'When enabled, anonymous users will be able to create entries in this section.' => 'Lorsque cette option est activée, les utilisateurs anonymes peuvent créer des entrées dans cette section.',
     'You must provide a way to determine the default author.' => 'Vous devez fournir un moyen de déterminer l\'auteur par défaut.',
