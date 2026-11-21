@@ -4,7 +4,7 @@ return [
     'A section must be specified by ID, handle, or UID.' => 'En sektion skal angives via ID, handle eller UID.',
     'A valid section UID is required.' => 'Et gyldigt sektions-UID er påkrævet.',
     'Allow guest submissions?' => 'Tillad indsendelser fra gæster?',
-    'An object template that outputs one or more author UIDs, separated by commas, that entries in this section will be attributed to.' => 'En objektskabelon, der udsender ét eller flere forfatter-UID\'er adskilt med kommaer, som poster i denne sektion tilskrives.',
+    'An object template that outputs one or more author UIDs, separated by commas, that entries in this section will be attributed to.' => 'En objektskabelon, der udsender ét eller flere forfatter-UID’er adskilt med kommaer, som poster i denne sektion tilskrives.',
     'author UID template' => 'skabelon for forfatter-UID',
     'Choose which sections should allow guest submissions, and configure section-specific rules.' => 'Vælg, hvilke sektioner der skal tillade indsendelser fra gæster, og konfigurer sektionsspecifikke regler.',
     'Created by the Guest Entries plugin.' => 'Oprettet af pluginnet Guest Entries.',

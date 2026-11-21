@@ -4,7 +4,7 @@ return [
     'A section must be specified by ID, handle, or UID.' => 'Een sectie moet worden opgegeven via id, handle of UID.',
     'A valid section UID is required.' => 'Een geldige sectie-UID is vereist.',
     'Allow guest submissions?' => 'Inzendingen van gasten toestaan?',
-    'An object template that outputs one or more author UIDs, separated by commas, that entries in this section will be attributed to.' => 'Een objectsjabloon dat een of meer auteur-UID\'s uitvoert, gescheiden door komma\'s, waaraan vermeldingen in deze sectie worden toegeschreven.',
+    'An object template that outputs one or more author UIDs, separated by commas, that entries in this section will be attributed to.' => 'Een objectsjabloon dat een of meer auteur-UID’s uitvoert, gescheiden door komma’s, waaraan vermeldingen in deze sectie worden toegeschreven.',
     'author UID template' => 'auteur-UID-sjabloon',
     'Choose which sections should allow guest submissions, and configure section-specific rules.' => 'Kies welke secties inzendingen van gasten moeten toestaan en configureer sectiespecifieke regels.',
     'Created by the Guest Entries plugin.' => 'Gemaakt door de plug-in Guest Entries.',

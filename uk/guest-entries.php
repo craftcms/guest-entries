@@ -4,7 +4,7 @@ return [
     'A section must be specified by ID, handle, or UID.' => 'Розділ має бути вказано за ID, дескриптором або UID.',
     'A valid section UID is required.' => 'Потрібен дійсний UID розділу.',
     'Allow guest submissions?' => 'Дозволити надсилання від гостей?',
-    'An object template that outputs one or more author UIDs, separated by commas, that entries in this section will be attributed to.' => 'Шаблон об\'єкта, який виводить один або кілька UID авторів через кому; записи в цьому розділі буде приписано цим авторам.',
+    'An object template that outputs one or more author UIDs, separated by commas, that entries in this section will be attributed to.' => 'Шаблон об’єкта, який виводить один або кілька UID авторів через кому; записи в цьому розділі буде приписано цим авторам.',
     'author UID template' => 'шаблон UID автора',
     'Choose which sections should allow guest submissions, and configure section-specific rules.' => 'Виберіть розділи, у яких дозволено надсилання від гостей, і налаштуйте правила для кожного розділу.',
     'Created by the Guest Entries plugin.' => 'Створено плагіном Guest Entries.',
