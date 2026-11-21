@@ -23,7 +23,7 @@ return [
     'Should validation rules be applied to the entry, when submitted by a guest? This should generally be **On** whenever entries are **Enabled by default**.' => 'Skal valideringsregler anvendes på posten, når den indsendes af en gæst? Dette bør generelt være **Til**, når poster er **Aktiveret som standard**.',
     'The entry was saved successfully.' => 'Posten blev gemt.',
     'The selected entry type isn’t available in this section.' => 'Den valgte posttype er ikke tilgængelig i denne sektion.',
-    'The selected section does not exist in this site.' => 'Den valgte sektion findes ikke på denne side.',
+    'The selected section does not exist in this site.' => 'Den valgte sektion findes ikke på dette site.',
     'The template is invalid: {err}' => 'Skabelonen er ugyldig: {err}',
     'The template variable name that entry submissions should be assigned to, if there is a validation error.' => 'Navnet på den skabelonvariabel, som indsendte poster skal tildeles, hvis der opstår en valideringsfejl.',
     'These settings apply to **all** guest submissions.' => 'Disse indstillinger gælder for **alle** indsendelser fra gæster.',

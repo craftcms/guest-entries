@@ -13,7 +13,7 @@ return [
     'Entries can only be created in designated sections.' => 'Kayıtlar yalnızca belirlenmiş bölümlerde oluşturulabilir.',
     'Entry Variable Name' => 'Kayıt Değişkeni Adı',
     'entry variable name' => 'kayıt değişkeni adı',
-    'Global Settings' => 'Genel Ayarlar',
+    'Global Settings' => 'Global Ayarlar',
     'No sections available.' => 'Kullanılabilir bölüm yok.',
     'Run validation?' => 'Doğrulama çalıştırılsın mı?',
     'Section configuration is being overridden by `{file}`.' => 'Bölüm yapılandırması `{file}` tarafından geçersiz kılınıyor.',

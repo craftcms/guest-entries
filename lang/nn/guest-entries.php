@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'A section must be specified by ID, handle, or UID.' => 'Ein seksjon må angjevast med ID, kodeord eller UID.',
+    'A section must be specified by ID, handle, or UID.' => 'Ein seksjon må angjevast med ID, handle eller UID.',
     'A valid section UID is required.' => 'Ein gyldig seksjons-UID er påkravd.',
     'Allow guest submissions?' => 'Tillat innsendingar frå gjester?',
     'An object template that outputs one or more author UIDs, separated by commas, that entries in this section will be attributed to.' => 'Ein objektmal som returnerer éin eller fleire forfattar-UID-ar, skilde med komma, som artiklar i denne seksjonen skal tilskrivast.',

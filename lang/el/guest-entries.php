@@ -13,7 +13,7 @@ return [
     'Entries can only be created in designated sections.' => 'Οι καταχωρήσεις μπορούν να δημιουργούνται μόνο σε καθορισμένες ενότητες.',
     'Entry Variable Name' => 'Όνομα μεταβλητής καταχώρησης',
     'entry variable name' => 'όνομα μεταβλητής καταχώρησης',
-    'Global Settings' => 'Γενικές ρυθμίσεις',
+    'Global Settings' => 'Καθολικές ρυθμίσεις',
     'No sections available.' => 'Δεν υπάρχουν διαθέσιμες ενότητες.',
     'Run validation?' => 'Εκτέλεση επικύρωσης;',
     'Section configuration is being overridden by `{file}`.' => 'Η διαμόρφωση των ενοτήτων παρακάμπτεται από το `{file}`.',
