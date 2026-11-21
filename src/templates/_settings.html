@@ -31,7 +31,7 @@
                 enabledByDefault: sectionSettings.enabledByDefault,
                 runValidation: sectionSettings.runValidation,
                 (isCraft6 ? 'copyUid' : 'sectionUid'): {
-                    value: '<button class="uid-btn btn small" data-uid="' ~ section.uid ~ '">' ~ 'Copy'|t('guest-entries') ~ '</button>' ~
+                    value: '<button class="uid-btn btn small" data-uid="' ~ section.uid ~ '">' ~ 'Copy'|t('app') ~ '</button>' ~
                         (isCraft6 ? '' : '<input type="hidden" name="'~namePrefix~'[sectionUid]" value="'~section.uid~'">'),
                     class: 'code centeralign'
                 }
@@ -48,7 +48,7 @@
         cols: {
             sectionName: {
                 type: 'heading',
-                heading: "Section"|t('guest-entries'),
+                heading: "Section"|t('app'),
                 class: 'thin'
             },
             allowGuestSubmissions: isCraft6 ? {
@@ -67,7 +67,7 @@
             },
             enabledByDefault: {
                 type: 'lightswitch',
-                heading: "Default Status"|t('guest-entries'),
+                heading: "Default Status"|t('app'),
                 info: "Whether the guest entries should be enabled by default."|t('guest-entries'),
                 class: 'leftalign'
             },
@@ -79,7 +79,7 @@
             },
             (isCraft6 ? 'copyUid' : 'sectionUid'): {
                 type: 'html',
-                heading: "UID"|t('guest-entries'),
+                heading: "UID"|t('app'),
                 class: 'thin'
             }
         },
@@ -109,6 +109,10 @@
     value: settings.entryVariable,
     class: 'code'
 }) }}
+
+{% do view.registerTranslations('app', [
+    '{ctrl}C to copy.',
+]) %}
 
 {% js %}
     var $sectionRows = $('#{{ "sections"|namespaceInputId }}').children('tbody').children(),
