@@ -5,7 +5,7 @@ on:
   push:
     branches: [translations]
   schedule:
-    - cron: "0 9 * * *"
+    - cron: '0 9 * * *'
   workflow_dispatch:
 concurrency:
   group: translation-sync
