@@ -188,7 +188,7 @@ class SaveController extends Controller
 
         return $this->asModelFailure(
             $entry,
-            Craft::t('guest-entries', 'Couldn’t save entry.'),
+            Craft::t('app', 'Couldn’t save entry.'),
             $settings->entryVariable,
         );
     }
