@@ -97,7 +97,7 @@ readonly class SettingsUi
                 ->reactive())
                 ->instructions(t('When enabled, anonymous users will be able to create entries in this section.', category: 'guest-entries')),
         ])
-            ->label($section->name);
+            ->label(t($section->name, category: 'site'));
 
         // The rest of the form is only relevant when submissions are allowed:
         if (! $allowGuestSubmissions) {

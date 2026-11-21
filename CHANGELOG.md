@@ -1,5 +1,10 @@
 # Release Notes for Guest Entries
 
+## Unreleased
+
+- Added translations for Arabic, Chinese, Czech, Danish, Dutch, English (UK), Farsi, French, French (Canada), German, German (Switzerland), Greek, Hebrew, Hungarian, Icelandic, Indonesian, Italian, Japanese, Korean, Kyrgyz, Norwegian Bokmål, Norwegian Nynorsk, Polish, Portuguese, Russian, Slovak, Spanish, Swedish, Thai, Turkish, Ukrainian, and Welsh.
+- Section names on the plugin settings page are now translated.
+
 ## 5.0.0 - 2026-11-12
 
 > [!IMPORTANT]
