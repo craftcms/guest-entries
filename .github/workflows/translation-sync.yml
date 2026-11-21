@@ -1,0 +1,19 @@
+# Add this file as .github/workflows/translation-sync.yml on the repository's default
+# branch (for the schedule) and on the catalog branch (to sync after translation edits).
+name: Translation sync
+on:
+  push:
+    branches: [translations]
+  schedule:
+    - cron: "0 9 * * *"
+  workflow_dispatch:
+concurrency:
+  group: translation-sync
+permissions:
+  contents: write
+  pull-requests: write
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: craftcms/translation-sync@v1
